@@ -1,0 +1,39 @@
+import useJwt from "utils/jwt/useJwt";
+
+// ** Get all Data
+export const getRoomList = () => {
+  
+  return async (dispatch) => {
+    useJwt
+      .getRoomList()
+      .then((res) => {
+        if (res.data.ResponseCode == 0) {
+          let data = res.data.ResponseResult
+          dispatch({
+            type: "GET_ROOM_LIST",
+            data,
+          });
+        } else {
+          console.log(res.data.ResponseCode);
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+};
+
+// ** create room
+export const createRoom = (user) => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: "CREATE_ROOM",
+      data: user,
+    });
+  };
+};
+
+// ** Select Chat
+export const selectRoom = (room) => {
+  return (dispatch) => {
+    dispatch({ type: "SELECT_ROOM", data: room });
+  };
+};
