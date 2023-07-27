@@ -16,7 +16,7 @@ const NavigationScroll = ({ children }) => {
     });
   }, [pathname]);
 
-  return children || null;
+  return children || 0;
 };
 
 NavigationScroll.propTypes = {
