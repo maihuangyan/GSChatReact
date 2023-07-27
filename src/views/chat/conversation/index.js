@@ -110,6 +110,7 @@ const Conversation = ({
     const socketSendTyping = useContext(SocketContext).socketSendTyping
     const socketSendMessage = useContext(SocketContext).socketSendMessage
     const socketOpenMessage = useContext(SocketContext).socketOpenMessage
+    const scrollToBottom = useContext(SocketContext).scrollToBottom
 
     // ** Refs & Dispatch
     const chatArea = useRef(null);
@@ -150,7 +151,9 @@ const Conversation = ({
         setMessages(message);
         setIsGroup(selectedRoom.group)
 
-    }, [message]);
+        actionScrollToBottom();
+
+    }, [message, scrollToBottom]);
 
 
     const formattedChatData = () => {
@@ -210,7 +213,7 @@ const Conversation = ({
             let senderUsername = selectedRoom.room_users.filter(user => user.id === item.senderId)[0]?.username
             return (
                 <Box key={index}
-                    sx={{ position: "relative", pl: 2, pr: 2 , mt:1}}>
+                    sx={{ position: "relative", pl: 2, pr: 2, mt: 1 }}>
                     {showDateDivider && <DateSeperator value={item.sentDate} />}
                     {item.messages.map((message, index) => (
                         <ChatTextLine
@@ -353,15 +356,15 @@ const Conversation = ({
     const [isPreviewFiles, setIsPreviewFiles] = useState(false);
 
 
-    const scrollToBottom = () => {
-        if (selectedRoom.id) {
+    // const scrollToBottom = () => {
+    //     if (selectedRoom.id) {
 
-            const conversationBox = document.querySelector(".css-7atonj-MuiPaper-root")
-            if (conversationBox.scrollHeight > conversationBox.clientHeight) {
-                conversationBox.scrollTop = conversationBox.scrollHeight
-            }
-        }
-    }
+    //         const conversationBox = document.querySelector(".css-7atonj-MuiPaper-root")
+    //         if (conversationBox.scrollHeight > conversationBox.clientHeight) {
+    //             conversationBox.scrollTop = conversationBox.scrollHeight
+    //         }
+    //     }
+    // }
 
     // const scrollToTop = () => {
     //     if (selectedRoom.id) {
@@ -377,7 +380,7 @@ const Conversation = ({
 
     useEffect(() => {
         // scrollToTop()
-        scrollToBottom()
+        // scrollToBottom()
     }, [message])
 
     useEffect(() => {
