@@ -363,20 +363,20 @@ const Conversation = ({
         }
     }
 
-    const scrollToTop = () => {
-        if (selectedRoom.id) {
-            const conversationBox = document.querySelector(".css-7atonj-MuiPaper-root")
-            conversationBox.onscroll = () => {
-                if (conversationBox.scrollTop == 0 && conversationBox.scrollHeight > conversationBox.clientHeight) {
-                    dispatch(getMessages({ id: selectedRoom.id, last_message_id: message[0]?.id }))
-                }
-            }
+    // const scrollToTop = () => {
+    //     if (selectedRoom.id) {
+    //         const conversationBox = document.querySelector(".css-7atonj-MuiPaper-root")
+    //         conversationBox.onscroll = () => {
+    //             if (conversationBox.scrollTop == 0 && conversationBox.scrollHeight > conversationBox.clientHeight) {
+    //                 dispatch(getMessages({ id: selectedRoom.id, last_message_id: message[0]?.id }))
+    //             }
+    //         }
 
-        }
-    }
+    //     }
+    // }
 
     useEffect(() => {
-        scrollToTop()
+        // scrollToTop()
         scrollToBottom()
     }, [message])
 
