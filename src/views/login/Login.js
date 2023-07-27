@@ -33,7 +33,7 @@ import {
 
 import useJwt from "utils/jwt/useJwt";
 import { useDispatch } from "react-redux";
-// import { SocketContext } from "utils/context/SocketContext";
+import { SocketContext } from "utils/context/SocketContext";
 import { handleLogin } from "store/actions";
 import { useForm, Controller } from "react-hook-form";
 import { LoaderContext } from "utils/context/ProgressLoader";
@@ -67,7 +67,7 @@ const loginHelper = {
 const Login = (props) => {
   const navigate = useNavigate()
   const dispatch = useDispatch();
-  // const socket = useContext(SocketContext).socket;
+  const socket = useContext(SocketContext).socket;
   const { control, handleSubmit } = useForm({
     reValidateMode: "onBlur",
   });
@@ -90,7 +90,7 @@ const Login = (props) => {
         if (res.data.ResponseCode === 0) {
           const data = res.data.ResponseResult;
           dispatch(handleLogin(data));
-          // socket.emit("login", { token: data.access_token });
+          socket.emit("login", { token: data.access_token });
         }
         else {
           showToast("error", res.data.ResponseMessage)

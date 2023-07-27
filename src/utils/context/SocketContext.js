@@ -210,7 +210,7 @@ const SocketProvider = ({ children }) => {
 
   const handleSocketNewMessage = useCallback(
     (message) => {
-      //console.log('new message', message);
+      // console.log('new message', message);
       addOrUpdateMessages([message]);
     },
     [store]

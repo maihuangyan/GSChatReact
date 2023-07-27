@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import {
     Box,
     Paper,
@@ -13,6 +13,9 @@ import { useSelector } from "react-redux"
 import { styled } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
 import { messageService } from "utils/jwt/messageService";
+import { SocketContext } from "utils/context/SocketContext";
+import useJwt from "utils/jwt/useJwt";
+
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50px",
@@ -28,6 +31,7 @@ const CircleButton = styled(Button)(({ theme }) => ({
 
 export default function Settings({ theme, CircleButton1, setIsSettingClick }) {
 
+    const socket = useContext(SocketContext).socket;
     const userData = useSelector((state) => state.auth.userData);
     const goBackButton = () => {
         setIsSettingClick(false);
@@ -100,7 +104,8 @@ export default function Settings({ theme, CircleButton1, setIsSettingClick }) {
                             </Grid>
                         </Box>
                         <Box>
-                            <CircleButton onClick={() => messageService.sendMessage("Logout")} >
+
+                            <CircleButton onClick={() => (messageService.sendMessage("Logout"), socket.emit("logout", useJwt.getToken()))} >
                                 Login Out
                             </CircleButton>
                         </Box>
