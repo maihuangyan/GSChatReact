@@ -4,10 +4,9 @@ import { messageService } from "./messageService";
 
 const headers = {
   headers: {
-    "x-api-key": "annonymous",
+    "x-api-key": "juhtqcd8rZTw7hmya7dhTDsWiyBWy96V7WjVX5QVrfncQ2XJM8LArnYcyW2z",
     "x-api-secret": "asdf",
     "device_id": "device_id",
-    "x-api-secret": "asdfasd",
   }
 }
 
