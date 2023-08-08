@@ -119,6 +119,8 @@ const Contacts = () => {
                             justifyContent: "space-between",
                             alignItems: "flex-start",
                             p: "10px",
+                            pt:2,
+                            pb:2,
                             borderRadius: "5px",
                             cursor: "pointer",
                             background:
@@ -221,7 +223,6 @@ const Contacts = () => {
                 >
                     <Box
                         sx={{
-                            borderBottom: "solid 1px #202020",
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
@@ -234,9 +235,9 @@ const Contacts = () => {
                     </Typography>
                     <Box sx={{ height: "100%" }}>
                         <Paper
-                            sx={{ height: "100%", overflowY: "auto", borderRadius: 0 }}
+                            sx={{ height: "100%", overflowY: "auto", borderRadius: 0 , p:"0 8px"}}
                         >
-                            <Stack direction="column" spacing={1} divider={<Divider />}>
+                            <Stack direction="column" spacing={1} >
                                 {renderChats()}
                             </Stack>
                         </Paper>

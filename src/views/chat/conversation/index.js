@@ -439,7 +439,11 @@ const Conversation = () => {
                                 <Typography variant="h4">
                                     {selectedRoom.name}
                                 </Typography>
-                                <Typography color={"#d5d5d5"}>Online</Typography>
+                                {
+                                    opponentTyping && opponentTyping.typing == 1 ? <Typography component="p">
+                                        <img className='chat-typing-anim' src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
+                                    </Typography> : <Typography color={"#d5d5d5"}>Online</Typography>
+                                }
                             </Box>
                         </Box>
                     </Grid>
@@ -449,7 +453,6 @@ const Conversation = () => {
                                 display: "flex",
                                 justifyContent: "end",
                                 mb: 2,
-                                backgroundColor: "#000",
                             }}
                         >
                             <CircleButton1 type="button" onClick={handleClick}>
@@ -489,25 +492,6 @@ const Conversation = () => {
                         ref={chatArea}
                     >
                         {renderChats()}
-
-                        {opponentTyping && opponentTyping.typing == 1 && (
-                            <div
-                                key={'typing'}
-                                className='d-flex'
-                            >
-                                <ClientAvatar
-                                    avatar={opponentTyping.user ? opponentTyping.user.photo : defaultAvatar}
-                                    size={30}
-                                />
-
-                                <div>
-                                    <p className='chat-time'>
-                                        {opponentTyping.user ? opponentTyping.user.username : ''}
-                                        <img className='chat-typing-anim' src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
-                                    </p>
-                                </div>
-                            </div>
-                        )}
                     </Paper>
                 </Box>
 
