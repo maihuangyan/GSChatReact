@@ -31,12 +31,13 @@ const Chat = (props) => {
     <>
       <Grid container
         sx={{
-          height: "calc( 100vh )", p: 3, pb:0,  overflowY: "hidden", margin: "0 auto", width: "auto", "@media (min-width: 1500px)": {
+          height: "calc( 100vh )", p: 2, overflowY: "hidden", margin: "0 auto", width: "auto", "@media (min-width: 1500px)": {
             width: "1500px",
           },
         }}>
         <Grid item xs={12} sm={12} md={3} sx={{
           backgroundColor: "#101010",
+          height: "100%",
           "@media (max-width: 900px)": {
             display: roomTab ? "none" : "block",
           },
@@ -55,6 +56,7 @@ const Chat = (props) => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            height: "100%",
             backgroundColor: "#101010",
             "@media (max-width: 900px)": {
               display: roomTab ? "flex" : "none",

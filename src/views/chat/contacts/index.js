@@ -233,7 +233,7 @@ const Contacts = () => {
                     <Typography sx={{ pl: 2, pb: 3  , pt: 1}} variant="h1">
                         {userData.username}
                     </Typography>
-                    <Box sx={{ height: "100%" }}>
+                    <Box sx={{ height: "90%" }}>
                         <Paper
                             sx={{ height: "100%", overflowY: "auto", borderRadius: 0 , p:"0 8px"}}
                         >

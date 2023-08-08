@@ -30,6 +30,7 @@ import { IconSend, IconDotsVertical, IconLink, IconPhoto, IconArrowLeft } from "
 import { SocketContext } from "utils/context/SocketContext";
 
 import ClientAvatar from "ui-component/ClientAvatar";
+import EnlargeImgBox from "ui-component/ImageBox";
 import ChatTextLine from "./ChatTextLine"
 import PreviewFiles from "./PreviewFiles";
 import DraggerBox from "./DraggerBox";
@@ -125,6 +126,9 @@ const Conversation = () => {
 
     const [msg, setMsg] = useState("");
     const [isGroup, setIsGroup] = useState(null);
+
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [enlargeImg, setEnlargeImg] = useState(null)
 
     // ** Scroll to chat bottom
     const actionScrollToBottom = () => {
@@ -236,6 +240,8 @@ const Conversation = () => {
                             formatChatTime={formatChatTime}
                             isGroup={isGroup}
                             TimeSeperator={TimeSeperator}
+                            setIsModalOpen={setIsModalOpen}
+                            setEnlargeImg={setEnlargeImg}
                         />
                     ))}
                 </Box>
@@ -394,6 +400,7 @@ const Conversation = () => {
                     width: "100%",
                     height: { xs: "auto", sm: "auto", md: "100%" },
                     position: "relative",
+                    overflow: "hidden",
                 }}
             >
                 <DraggerBox
@@ -413,9 +420,10 @@ const Conversation = () => {
                     setMsg={setMsg}
                     setIsTyping={setIsTyping}
                     isTyping={isTyping} />
-                <Grid container sx={{ borderBottom: "1px solid #997017" }}>
-                    <Grid item xs={6}>
-                        <Box sx={{ display: "flex", alignItems: "center", p: 1, pb: 0 }}>
+                <EnlargeImgBox open={isModalOpen} setIsModalOpen={setIsModalOpen} img={enlargeImg} />
+                <Grid container sx={{ borderBottom: "1px solid #997017", p: 1 }}>
+                    <Grid item xs={6} container>
+                        <Box sx={{ display: "flex", alignItems: "center", pb: 0 }}>
                             <Box sx={{
                                 mr: 1, display: "none",
                                 "@media (max-width: 900px)": {
@@ -447,12 +455,11 @@ const Conversation = () => {
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={6} >
                         <Paper
                             sx={{
                                 display: "flex",
                                 justifyContent: "end",
-                                mb: 2,
                             }}
                         >
                             <CircleButton1 type="button" onClick={handleClick}>
@@ -488,7 +495,7 @@ const Conversation = () => {
                 </Grid>
                 <Box>
                     <Paper
-                        sx={{ height: "calc( 100vh - 150px)", p: 2, pt: 3, pb: 9, overflowY: "auto", borderRadius: 0, }}
+                        sx={{ height: "calc( 100vh - 160px)", p: 2, pt: 3, pb: 9, overflowY: "auto", borderRadius: 0, }}
                         ref={chatArea}
                     >
                         {renderChats()}

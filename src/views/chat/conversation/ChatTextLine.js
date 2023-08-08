@@ -12,7 +12,9 @@ import { IconChevronDown } from "@tabler/icons";
 import ClientAvatar from "ui-component/ClientAvatar";
 import defaultAvatar from "../../../assets/images/users/default_avatar.png";
 
-export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, isGroup, TimeSeperator, formatChatTime, i }) {
+import { Image } from 'antd';
+
+export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, isGroup, TimeSeperator, formatChatTime, i , setIsModalOpen , setEnlargeImg}) {
     const theme = useTheme();
     const [isHover, setIsHover] = useState(false);
     const onMouseEnterHandler = () => {
@@ -38,22 +40,24 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                 component="div"
                 color={theme.palette.text.black}
                 sx={{
-                    background: theme.palette.primary.main, p: 1, borderRadius: item.messages.length == i + 1 ? "6px 6px 0 6px" : "6px", mt: 4, mr: isGroup ? 5 : 2, minWidth: "60px",
+                    background: theme.palette.primary.main, p: message.type == 1 ? "5px" : 1, borderRadius: item.messages.length == i + 1 ? "6px 6px 0 6px" : "6px", mt: 4, mr: isGroup ? 5 : 2, minWidth: "60px",
                     position: "relative",
                 }}>
                 {message.type == 0 ? (
                     <Typography variant="body1" sx={{ p: "0 8px" }}>{message.message}</Typography>
                 ) : ((message.files && message.files.length > 0) ? (
-                    (message.type == 1) ? 
-                    (<img
-                        src={message.files[0].thumbnail}
-                        srcSet={message.files[0].thumbnail}
-                        alt={message.files[0].origin_file_name}
-                        loading="lazy"
-                        style={{width: "500px", height: "350px"}}
-                    />) : (
-                        <Typography variant="body1" sx={{ p: "0 8px" }}>{message.files[0].origin_file_name}</Typography>
-                    )
+                    (message.type == 1) ?
+                        (<Box sx={{ width: "300px", height: "300px" , cursor:"pointer" }} >
+                            <Image
+                                src={message.files[0].thumbnail}
+                                srcSet={message.files[0].thumbnail}
+                                alt={message.files[0].origin_file_name}
+                                loading="lazy"
+                                width={300}
+                                height={300}
+                            /></Box>) : (
+                            <Typography variant="body1" sx={{ p: "0 8px" }}>{message.files[0].origin_file_name}</Typography>
+                        )
                 ) : ''
                 )}
                 <Typography component="div" sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer", display: isHover ? "block" : "none" }} onClick={handleClick}>
@@ -110,22 +114,24 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                 component="div"
                 color={theme.palette.text.black}
                 sx={{
-                    background: theme.palette.text.disabled, p: 1, borderRadius: item.messages.length == i + 1 ? "0 6px 6px 6px" : "6px", mt: 4, ml: isGroup ? 5 : 2, minWidth: "60px",
+                    background: theme.palette.text.disabled, p: message.type == 1 ? "5px" : 1, borderRadius: item.messages.length == i + 1 ? "0 6px 6px 6px" : "6px", mt: 4, ml: isGroup ? 5 : 2, minWidth: "60px",
                     position: "relative",
                 }}>
                 {message.type == 0 ? (
                     <Typography variant="body1" sx={{ p: "0 8px" }}>{message.message}</Typography>
                 ) : ((message.files && message.files.length > 0) ? (
-                    (message.type == 1) ? 
-                    (<img
-                        src={message.files[0].thumbnail}
-                        srcSet={message.files[0].thumbnail}
-                        alt={message.files[0].origin_file_name}
-                        loading="lazy"
-                        style={{width: "500px", height: "350px"}}
-                    />) : (
-                        <Typography variant="body1" sx={{ p: "0 8px" }}>{message.files[0].origin_file_name}</Typography>
-                    )
+                    (message.type == 1) ?
+                        (<Box sx={{ width: "300px", height: "300px" , cursor:"pointer"}}>
+                            <Image
+                                src={message.files[0].thumbnail}
+                                srcSet={message.files[0].thumbnail}
+                                alt={message.files[0].origin_file_name}
+                                loading="lazy"
+                                width={300}
+                                height={300}
+                            /></Box>) : (
+                            <Typography variant="body1" sx={{ p: "0 8px" }}>{message.files[0].origin_file_name}</Typography>
+                        )
                 ) : ''
                 )}
                 <Typography component="div" sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer", display: isHover ? "block" : "none" }} onClick={handleClick}>
