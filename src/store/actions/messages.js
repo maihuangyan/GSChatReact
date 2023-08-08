@@ -8,8 +8,9 @@ export const getMessages = (payload) => {
             .then((res) => {
                 if (res.data.ResponseCode == 0) {
                     let data = res.data.ResponseResult
+                    // console.log('data', data)
                     dispatch({
-                        type: "GET_MESSAGES",
+                        type: "UPDATE_MESSAGES",
                         data,
                     });
                 } else {
@@ -29,7 +30,7 @@ export const getLastMessages = (payload) => {
                 if (res.data.ResponseCode == 0) {
                     let data = res.data.ResponseResult
                     dispatch({
-                        type: "GET_LAST_MESSAGES",
+                        type: "UPDATE_MESSAGES",
                         data,
                     });
                 } else {
@@ -39,3 +40,21 @@ export const getLastMessages = (payload) => {
             .catch((err) => console.log(err));
     };
 };
+
+export const reduxInsertMessages = (messages) => {
+    return (dispatch) => {
+        dispatch({
+            type: "INSERT_MESSAGES",
+            data: messages,
+        });
+    }
+}
+
+export const reduxUpdateMessages = (messages) => {
+    return (dispatch) => {
+        dispatch({
+            type: "UPDATE_MESSAGES",
+            data: messages,
+        });
+    }
+}

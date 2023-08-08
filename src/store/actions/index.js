@@ -43,8 +43,7 @@ export const handleLogout = () => {
     localStorage.removeItem(config.storageRefreshTokenKeyName);
 
     dispatch({ type: "GET_MESSAGES", data: [] });
-    dispatch({ type: "GET_LAST_MESSAGES", data: {} });
-
+    dispatch({ type: "GET_LAST_MESSAGES", data: [] });
     dispatch({ type: "GET_ROOM_LIST", data: [] });
     dispatch({ type: "SELECT_ROOM", data: {} });
 

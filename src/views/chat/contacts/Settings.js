@@ -78,27 +78,27 @@ export default function Settings({ theme, CircleButton1, setIsSettingClick }) {
                             </Typography>
 
                             <Grid container>
-                                <Grid item xs={12} sm={7} md={6} elevation={6}>
+                                <Grid item xs={12} sm={6} md={6} elevation={6}>
                                     <Typography component="p" variant="settingsInfo">username</Typography>
                                 </Grid>
-                                <Grid item xs={12} sm={7} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
+                                <Grid item xs={12} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
                                     <Typography component="p" variant="settingsInfo1">{userData.username}</Typography>
                                 </Grid>
                             </Grid>
 
                             <Grid container>
-                                <Grid item xs={12} sm={7} md={6} elevation={6}>
+                                <Grid item xs={12} sm={6} md={6} elevation={6}>
                                     <Typography component="p" variant="settingsInfo">gender</Typography>
                                 </Grid>
-                                <Grid item xs={12} sm={7} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
+                                <Grid item xs={12} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
                                     <Typography component="p" variant="settingsInfo1">{userData.gender}</Typography>
                                 </Grid>
                             </Grid>
                             <Grid container>
-                                <Grid item xs={12} sm={7} md={6} elevation={6}>
+                                <Grid item xs={12} sm={6} md={6} elevation={6}>
                                     <Typography component="p" variant="settingsInfo">email</Typography>
                                 </Grid>
-                                <Grid item xs={12} sm={7} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
+                                <Grid item xs={12} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
                                     <Typography component="p" variant="settingsInfo1">{userData.email}</Typography>
                                 </Grid>
                             </Grid>

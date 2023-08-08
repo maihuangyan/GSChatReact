@@ -4,7 +4,7 @@ import { messageService } from "./messageService";
 
 const headers = {
   headers: {
-    "x-api-key": "juhtqcd8rZTw7hmya7dhTDsWiyBWy96V7WjVX5QVrfncQ2XJM8LArnYcyW2z",
+    "x-api-key": process.env.REACT_APP_X_API_KEY,
     "x-api-secret": "asdf",
     "device_id": "device_id",
   }
@@ -233,6 +233,10 @@ export default class JwtService {
 
   getLastMessages(...args) {
     return axios.get(`${this.jwtConfig.getLastMessagesEndpoint}/${args[0].id}?last_message_id=${args[0].last_message_id}`, headers);
+  }
+
+  uploadFiles(...args) {
+    return axios.post(this.jwtConfig.uploadFilesEndpoint, ...args, headers);
   }
 
 }

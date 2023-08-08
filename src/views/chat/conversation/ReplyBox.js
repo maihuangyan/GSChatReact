@@ -8,7 +8,7 @@ import { IconX } from "@tabler/icons";
 export default function ReplyBox({ isReply, isReplyClose, theme, replyUser, replyContent }) {
 
     return (
-        <Box sx={{ display: isReply ? "flex" : "none", justifyContent: "start", alignItems: "center", p: "5px 15px 0 5px", position: "absolute", top: "-60px", left: 0, background: "#000", width: "100%", }}>
+        <Box sx={{ display: isReply ? "flex" : "none", justifyContent: "start", alignItems: "center", p: "5px 0 0 5px", position: "absolute", top: "-55px", left: 0, background: "#000", width: "98%", }}>
             <Typography component="span" sx={{ cursor: "pointer", pt: "5px", mr: 1 }} onClick={() => isReplyClose()}>
                 <IconX size={20} stroke={2} /></Typography>
             <Typography component="div" sx={{

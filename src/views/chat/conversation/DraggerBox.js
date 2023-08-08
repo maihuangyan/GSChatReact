@@ -26,7 +26,7 @@ export default function DraggerBox({ draggerFile, setUploadFiles, setImg, setIsP
         },
         showUploadList: false,
         maxCount: 1,
-        style: { border: "none"},
+        style: { border: "none" },
         onChange(file) {
             const fileReader = new FileReader();
             fileReader.onload = () => {

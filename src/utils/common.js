@@ -1,4 +1,5 @@
 import moment from "moment";
+import useJwt from "utils/jwt/useJwt"
 var _ = require('lodash');
 
 
@@ -123,3 +124,51 @@ export const randomString = (len = 50, charSet = "") => {
 export const nowSecs = () => {
   return Math.floor(Date.now());
 };
+
+export const sortMessages = (messages) => {
+  return messages.sort((a, b) => {
+    return a.created_at > b.created_at
+  })
+}
+
+export const isMessageSeen = (message) => {
+  const mUserId = useJwt.getUserID()
+  if (message.user_id == mUserId) {
+    return true;
+  }
+
+  if (!message.seens || message.seens.length == 0) {
+    return false;
+  }
+
+  let seenStatus = false;
+  for (let seen of message.seens) {
+    if (seen.user_id == mUserId && seen.status == 1) {
+      seenStatus = true;
+      break;
+    }
+  }
+
+  return seenStatus;
+}
+
+export const isMessageSeenByOther = (message) => {
+  const mUserId = useJwt.getUserID()
+  if (message.user_id == mUserId) {
+    return false;
+  }
+
+  if (!message.seens || message.seens.length == 0) {
+    return false;
+  }
+
+  let seenStatus = false;
+  for (let seen of message.seens) {
+    if (seen.user_id != useJwt.getUserID() && seen.status == 1) {
+      seenStatus = true;
+      break;
+    }
+  }
+
+  return seenStatus;
+}

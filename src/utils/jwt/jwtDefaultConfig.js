@@ -19,20 +19,13 @@ export const jwtDefaultConfig = {
   clearRoomMessagesEndpoint: `${process.env.REACT_APP_BASE_API_URL}/message/clear_room_messages/`,
   getOnlineListEndpoint: `${process.env.REACT_APP_BASE_API_URL}/online/list`,
 
-
   getRoomListEndpoint: `${process.env.REACT_APP_BASE_API_URL}/room`,
-
   createRoomEndpoint: `${process.env.REACT_APP_BASE_API_URL}/room`,
-
   searchUsersEndpoint:`${process.env.REACT_APP_BASE_API_URL}/user/search`,
 
   getMessagesEndpoint:`${process.env.REACT_APP_BASE_API_URL}/message/room`,
-
   getLastMessagesEndpoint:`${process.env.REACT_APP_BASE_API_URL}/message/last`,
-
-
-  // loadConfigurationsInfoEndpoint: `${process.env.REACT_APP_BASE_API_URL}/configuration`,
-
+  uploadFilesEndpoint:`${process.env.REACT_APP_BASE_API_URL}/message-file/uploads`,
 
   // ** This will be prefixed in authorization header with token
   // ? e.g. Authorization: Bearer <token>

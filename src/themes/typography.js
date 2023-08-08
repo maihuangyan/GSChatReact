@@ -91,7 +91,7 @@ export default function themeTypography(theme) {
       width: "100%",
       minHeight: "calc(100vh - 67px)",
       flexGrow: 1,
-      marginTop: "67px",
+      // marginTop: "67px",
     },
     menuCaption: {
       fontSize: "0.875rem",
@@ -138,23 +138,23 @@ export default function themeTypography(theme) {
     },
     positionLeft: {
       position: "absolute",
-      left: "18px",
-      bottom: "-18px"
+      left: "0",
+      bottom: "-20px"
     },
     positionRight: {
       position: "absolute",
-      right: "18px",
-      bottom: "-18px"
+      right: "0",
+      bottom: "-20px"
     },
     positionLeft1: {
       position: "absolute",
-      left: "-20px",
-      bottom: "-5px"
+      left: "-36px",
+      bottom: "1px"
     },
     positionRight1: {
       position: "absolute",
-      right: "-18px",
-      bottom: "-5px"
+      right: "-36px",
+      bottom: "1px"
     },
   };
 }

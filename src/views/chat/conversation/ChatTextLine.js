@@ -9,8 +9,10 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { IconChevronDown } from "@tabler/icons";
+import ClientAvatar from "ui-component/ClientAvatar";
+import defaultAvatar from "../../../assets/images/users/default_avatar.png";
 
-export default function ChatTextLine({ item, right, content, ReplyClick, formatChatTime, TimeSeperator, EditClick }) {
+export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, isGroup, TimeSeperator, formatChatTime, i }) {
     const theme = useTheme();
     const [isHover, setIsHover] = useState(false);
     const onMouseEnterHandler = () => {
@@ -30,32 +32,31 @@ export default function ChatTextLine({ item, right, content, ReplyClick, formatC
         setIsHover(false);
     };
     return right ? (
-        <Box sx={{ display: "flex", justifyContent: "flex-end", pl: "20%" }} onMouseEnter={onMouseEnterHandler}
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }} onMouseEnter={onMouseEnterHandler}
             onMouseLeave={onMouseLeaveHandler}>
             <Typography
                 component="div"
                 color={theme.palette.text.black}
                 sx={{
-                    background: theme.palette.primary.main, p: 1, borderRadius: "8px 8px 0 8px", mt: "10px", minWidth: "150px",
+                    background: theme.palette.primary.main, p: 1, borderRadius: item.messages.length == i + 1 ? "6px 6px 0 6px" : "6px", mt: 4, mr: isGroup ? 5 : 2, minWidth: "60px",
                     position: "relative",
-                    "&:before": {
-                        backgroundColor: theme.palette.primary.main,
-                        bottom: 0,
-                        clipPath: "polygon(0 0,100% 110%,0 110%)",
-                        content: '""',
-                        height: "15px",
-                        left: "99.5%",
-                        position: "absolute",
-                        transition: "background-color .5s ease-out",
-                        transitionDelay: ".3s",
-                        width: "15px",
-                    }
                 }}>
-                <Typography variant="body1" sx={{ p: "0 10px" }}>{content}</Typography>
-                <TimeSeperator
-                    content={formatChatTime(+item.sentTime)}
-                />
-                <Typography component="div" sx={{ position: "absolute", top: 1, right: 4, cursor: "pointer", display: isHover ? "block" : "none" }} onClick={handleClick}>
+                {message.type == 0 ? (
+                    <Typography variant="body1" sx={{ p: "0 8px" }}>{message.message}</Typography>
+                ) : ((message.files && message.files.length > 0) ? (
+                    (message.type == 1) ? 
+                    (<img
+                        src={message.files[0].thumbnail}
+                        srcSet={message.files[0].thumbnail}
+                        alt={message.files[0].origin_file_name}
+                        loading="lazy"
+                        style={{width: "500px", height: "350px"}}
+                    />) : (
+                        <Typography variant="body1" sx={{ p: "0 8px" }}>{message.files[0].origin_file_name}</Typography>
+                    )
+                ) : ''
+                )}
+                <Typography component="div" sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer", display: isHover ? "block" : "none" }} onClick={handleClick}>
                     <IconChevronDown size={20} stroke={1} />
                 </Typography>
                 <Menu
@@ -67,12 +68,12 @@ export default function ChatTextLine({ item, right, content, ReplyClick, formatC
                         "aria-labelledby": "basic-button",
                     }}
                 >
-                    <MenuItem sx={{ minWidth: "150px" }} onClick={() => { ReplyClick({ content, right}); handleClose() }}>
+                    <MenuItem sx={{ minWidth: "150px" }} onClick={() => { ReplyClick({ message, right }); handleClose() }}>
                         <ListItemText>reply</ListItemText>
                     </MenuItem>
                     <Divider />
                     <MenuItem onClick={() => {
-                        EditClick({ content,right }); handleClose()
+                        EditClick({ message, right }); handleClose()
                     }}>
                         <ListItemText>edit</ListItemText>
                     </MenuItem>
@@ -86,6 +87,20 @@ export default function ChatTextLine({ item, right, content, ReplyClick, formatC
                     </MenuItem>
                     <Divider />
                 </Menu>
+                <Typography component="div" variant={right ? "positionRight" : "positionLeft"} sx={{ color: theme.palette.text.icon }}><TimeSeperator
+                    content={formatChatTime(+item.sentTime)}
+                /></Typography>
+
+                <Typography component="div" variant={right ? "positionRight1" : "positionLeft1"} sx={{ display: isGroup ? "block" : "none" }}>
+                    <ClientAvatar
+                        avatar={
+                            item.photo
+                                ? item.photo
+                                : defaultAvatar
+                        }
+                        size={30}
+                    />
+                </Typography>
             </Typography>
         </Box >
     ) : (
@@ -95,26 +110,25 @@ export default function ChatTextLine({ item, right, content, ReplyClick, formatC
                 component="div"
                 color={theme.palette.text.black}
                 sx={{
-                    background: theme.palette.primary.light, p: 1, borderRadius: "8px 8px 8px 0", mt: "10px", minWidth: "150px",
+                    background: theme.palette.text.disabled, p: 1, borderRadius: item.messages.length == i + 1 ? "0 6px 6px 6px" : "6px", mt: 4, ml: isGroup ? 5 : 2, minWidth: "60px",
                     position: "relative",
-                    "&:before": {
-                        backgroundColor: theme.palette.primary.light,
-                        bottom: 0,
-                        clipPath: "polygon(100% 0,0 110%,100% 110%)",
-                        content: '""',
-                        height: "15px",
-                        left: "-13px",
-                        position: "absolute",
-                        transition: "background-color .5s ease-out",
-                        transitionDelay: ".3s",
-                        width: "15px",
-                    }
                 }}>
-                <Typography variant="body1" sx={{ p: "0 10px" }}>{content}</Typography>
-                <TimeSeperator
-                    content={formatChatTime(+item.sentTime)}
-                />
-                <Typography component="div" sx={{ position: "absolute", top: 1, right: 4, cursor: "pointer", display: isHover ? "block" : "none" }} onClick={handleClick}>
+                {message.type == 0 ? (
+                    <Typography variant="body1" sx={{ p: "0 8px" }}>{message.message}</Typography>
+                ) : ((message.files && message.files.length > 0) ? (
+                    (message.type == 1) ? 
+                    (<img
+                        src={message.files[0].thumbnail}
+                        srcSet={message.files[0].thumbnail}
+                        alt={message.files[0].origin_file_name}
+                        loading="lazy"
+                        style={{width: "500px", height: "350px"}}
+                    />) : (
+                        <Typography variant="body1" sx={{ p: "0 8px" }}>{message.files[0].origin_file_name}</Typography>
+                    )
+                ) : ''
+                )}
+                <Typography component="div" sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer", display: isHover ? "block" : "none" }} onClick={handleClick}>
                     <IconChevronDown size={20} stroke={1} />
                 </Typography>
                 <Menu
@@ -127,7 +141,7 @@ export default function ChatTextLine({ item, right, content, ReplyClick, formatC
                     }}
 
                 >
-                    <MenuItem sx={{ minWidth: "150px" }} onClick={() => { ReplyClick({ content, right  , senderId:item.senderId }); handleClose() }}>
+                    <MenuItem sx={{ minWidth: "150px" }} onClick={() => { ReplyClick({ message, right, senderId: item.senderId }); handleClose() }}>
                         <ListItemText>reply</ListItemText>
                     </MenuItem>
                     <Divider />
@@ -140,6 +154,20 @@ export default function ChatTextLine({ item, right, content, ReplyClick, formatC
                     </MenuItem>
                     <Divider />
                 </Menu>
+                <Typography component="div" variant={right ? "positionRight" : "positionLeft"} sx={{ color: theme.palette.text.icon }}><TimeSeperator
+                    content={formatChatTime(+item.sentTime)}
+                /></Typography>
+
+                <Typography component="div" variant={right ? "positionRight1" : "positionLeft1"} sx={{ display: isGroup ? "block" : "none" }}>
+                    <ClientAvatar
+                        avatar={
+                            item.photo
+                                ? item.photo
+                                : defaultAvatar
+                        }
+                        size={30}
+                    />
+                </Typography>
             </Typography>
         </Box>
     );

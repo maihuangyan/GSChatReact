@@ -9,6 +9,18 @@ export const getRoomList = () => {
       .then((res) => {
         if (res.data.ResponseCode == 0) {
           let data = res.data.ResponseResult
+          let connected_users = []
+          for (let room of data) {
+            for (let user of room.room_users) {
+              connected_users.push(user)
+            }
+          }
+
+          dispatch({
+            type: "CONNECTED_USER_LIST",
+            data: connected_users,
+          });
+
           dispatch({
             type: "GET_ROOM_LIST",
             data,
@@ -37,3 +49,31 @@ export const selectRoom = (room) => {
     dispatch({ type: "SELECT_ROOM", data: room });
   };
 };
+
+export const resetUnreadCount = (room_id, unread_count) => {
+  return (dispatch) => {
+    dispatch({ 
+      type: "RESET_UNREAD_MESSAGE_COUNT", 
+      data: {
+        room_id,
+        unread_count,
+      }});
+  };
+}
+
+export const updateRoomLastMessage = (messages) => {
+  return (dispatch) => {
+    dispatch({ 
+      type: "UPDATE_LATEST_MESSAGE", 
+      data: messages,
+    });
+  };
+}
+
+export const selectRoomClear = () => {
+  return (dispatch) => {
+    dispatch({ 
+      type: "SELECT_ROOM_CLEAR", 
+    });
+  };
+}

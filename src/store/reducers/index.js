@@ -1,8 +1,6 @@
 // reducer import
 import customizationReducer from "./customizationReducer";
-import chatReducer from "./chat";
 import usersReducer from "./user";
-import navbarReducer from "./navbar";
 import messagesReducer from "./messages";
 import roomReducer from "./room";
 import useJwt from "utils/jwt/useJwt";
@@ -37,11 +35,9 @@ const authReducer = (state = initialState, action) => {
 const reducer = {
   customization: customizationReducer,
   auth: authReducer,
-  chat: chatReducer,
   users: usersReducer,
-  navbar: navbarReducer,
-  messages:messagesReducer,
-  room:roomReducer,
+  messages: messagesReducer,
+  room: roomReducer,
 };
 
 export default reducer;

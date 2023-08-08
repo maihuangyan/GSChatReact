@@ -2,10 +2,10 @@ import socket_io from "socket.io-client"
 import { createContext, useCallback, useEffect, useState } from "react"
 import useJwt from "utils/jwt/useJwt"
 import { useDispatch, useSelector } from "react-redux"
-import { getRoomList, selectRoom } from "store/actions/room"
-import { getMessages } from "store/actions/messages"
+import { getRoomList, selectRoom, updateRoomLastMessage } from "store/actions/room"
+import { getMessages, reduxInsertMessages, reduxUpdateMessages } from "store/actions/messages"
 
-import { nowSecs, randomString } from "utils/common"
+import { isMessageSeen, nowSecs, randomString, sortMessages } from "utils/common"
 
 import { useLocation } from "react-router"
 
@@ -31,237 +31,204 @@ const SocketContext = createContext()
 
 const SocketProvider = ({ children }) => {
   const dispatch = useDispatch();
-  const store = useSelector((state) => state.room);
-  const message = useSelector((state) => state.messages.messages);
+  const room = useSelector((state) => state.room);
+  const messages = useSelector((state) => state.messages.messages);
+  const users = useSelector((state) => state.users)?.connected_users;
   const auth = useSelector((state) => state.auth);
 
   const [opponentTyping, setOpponentTyping] = useState({});
   const [scrollToBottom, setScrollToBottom] = useState(false);
   const [updateOnlineStatus, setUpdateOnlineStatus] = useState(false);
-  const [onlineListData, setOnlineListData] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
     if (auth.userData) {
       loadRoomData()
+      loadOnlineList()
     }
   }, []);
 
   const loadRoomData = () => {
-    if (store.chats.length) {
-      // getOnlineList()
-    }
-    else {
-      // load chat messages
-      dispatch(getRoomList(), function (result) {
-        if (result) {
-          setTimeout(() => {
-            setUpdateOnlineStatus(!updateOnlineStatus);
-          }, 300);
-        }
-      })
-    }
+    // load chat messages
+    dispatch(getRoomList(), function (result) {
+      if (result) {
+        setTimeout(() => {
+          setUpdateOnlineStatus(!updateOnlineStatus);
+        }, 300);
+      }
+    })
   }
 
-  // const getOnlineList = () => {
-  //   useJwt
-  //     .getOnlineList()
-  //     .then((res) => {
-  //       if (res.data.ResponseCode == 0) {
-  //         setOnlineListData(res.data.ResponseResult)
-  //         let data = res.data.ResponseResult;
-  //         let chats = [];
-  //         for (let i = 0; i < store.chats.length; i++) {
-  //           let item = store.chats[i];
-  //           let chat = { ...item };
-  //           chat.room.status = data[chat.room.id];
-  //           chats.push(chat);
-  //         }
+  const loadOnlineList = () => {
+    useJwt
+      .getOnlineList()
+      .then((res) => {
+        if (res.data.ResponseCode == 0) {
+          setOnlineUsers(res.data.ResponseResult)
 
-  //         dispatch({
-  //           type: "GET_CHAT_CONTACTS",
-  //           data: chats,
-  //         });
-  //         setTimeout(() => {
-  //           setUpdateOnlineStatus(!updateOnlineStatus);
-  //         }, 3000);
-  //       }
-  //       else {
-  //         console.log(res.data.ResponseCode);
-  //       }
-  //     })
-  //     .catch((err) => console.log(err));
-  // }
+          setTimeout(() => {
+            setUpdateOnlineStatus(!updateOnlineStatus);
+          }, 3000);
+        }
+        else {
+          console.log(res.data.ResponseCode);
+        }
+      })
+      .catch((err) => console.log(err));
+  }
 
-  // socket listeners
-  // const handleSocketNewUser = useCallback(
-  //   (newUser) => {
-  //     // user joined
-  //     // console.log('newUser', newUser);
-  //     let onlineStatus = 0;
-  //     if (newUser.token === useJwt.getToken()) {
-  //       if (newUser.already_joined_user_ids) {
-  //         onlineStatus = 1;
-  //       }
-  //     }
-  //     else if (newUser.user_id !== useJwt.getUserID()) {
-  //       onlineStatus = 1;
-  //     }
+  const getRoomOnlineStatus = (room_id) => {
+    for (let roomUser of onlineUsers) {
+      if (roomUser.room_id == room_id && roomUser.user_id != useJwt.getUserID()) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-  //     if (onlineStatus === 1) {
-  //       let chats = [...store.chats];
-  //       let updateChatIndex = -1;
-  //       let chat = {};
-  //       for (let i = 0; i < chats.length; i++) {
-  //         let item = chats[i];
-  //         if (item.room.id == newUser.room_id) {
-  //           updateChatIndex = i;
-  //           chat = { ...item };
-  //           chat.room.status = 1;
-  //           item.room.status = 1;
-  //           break;
-  //         }
-  //       }
+  const handleSocketNewUser = useCallback(
+    (newUser) => {
+      // user joined
+      const online_users = [...onlineUsers];
+      let exist = false;
+      for (let i = 0; i < online_users.length; i++) {
+        const room_user = online_users[i];
+        if (room_user.room_id == newUser.room_id &&
+          room_user.token == newUser.token) {
+          exist = true;
+          break;
+        }
+      }
+      if (!exist) {
+        online_users.push(newUser);
+      }
+      setOnlineUsers(online_users);
 
-  //       //console.log("updateChatIndex on new user", updateChatIndex);
-  //       if (updateChatIndex > -1) {
-  //         chats[updateChatIndex] = chat;
-  //         dispatch({
-  //           type: "GET_CHAT_CONTACTS",
-  //           data: chats,
-  //         });
-  //       }
+      setTimeout(() => {
+        setUpdateOnlineStatus(!updateOnlineStatus);
+      }, 1000);
+    },
+    [onlineUsers, updateOnlineStatus]
+  );
 
-  //       const selectedChat = { ...store.selectedChat };
-  //       if (selectedChat && Object.keys(selectedChat).length > 0) {
-  //         if (selectedChat.room && selectedChat.room.id === newUser.room_id) {
-  //           let chat = { ...selectedChat };
-  //           chat.room.status = 1;
-  //           dispatch(selectChat(chat));
-  //         }
-  //       }
+  const handleSocketUserLeft = useCallback(
+    (userLeft) => {
+      // user left
+      const online_users = [...onlineUsers];
+      for (let i = 0; i < online_users.length; i++) {
+        const room_user = online_users[i];
+        if (room_user.room_id == userLeft.room_id &&
+          room_user.token == userLeft.token) {
+          online_users.splice(i, 1);
+          break;
+        }
+      }
+      setOnlineUsers(online_users)
 
-  //       setTimeout(() => {
-  //         console.log('updateOnlineStatus on new user', updateOnlineStatus)
-  //         setUpdateOnlineStatus(!updateOnlineStatus);
-  //       }, 1000);
-  //     }
-  //   },
-  //   [store, updateOnlineStatus]
-  // );
+      setTimeout(() => {
+        console.log('updateOnlineStatus on user left', userLeft)
+        setUpdateOnlineStatus(!updateOnlineStatus);
+      }, 1000);
+    },
+    [onlineUsers, updateOnlineStatus]
+  );
 
-  // const handleSocketUserLeft = useCallback(
-  //   (userLeft) => {
-  //     // user left
-  //     //console.log('userLeft', userLeft);
-
-  //     if (userLeft.user_id !== useJwt.getUserID()) {
-  //       updateTyping(userLeft.room_id, false);
-
-  //       let chats = [...store.chats];
-  //       let updateChatIndex = -1;
-  //       let chat = {};
-  //       for (let i = 0; i < chats.length; i++) {
-  //         let item = chats[i];
-  //         if (item.room.id == userLeft.room_id) {
-  //           updateChatIndex = i;
-  //           chat = { ...item };
-  //           chat.room.status = userLeft.same_accounts > 1 ? 1 : 0;
-  //           item.room.status = userLeft.same_accounts > 1 ? 1 : 0;
-  //           break;
-  //         }
-  //       }
-
-  //       //console.log("updateChatIndex on user left", updateChatIndex);
-  //       if (updateChatIndex > -1) {
-  //         chats[updateChatIndex] = chat;
-  //         dispatch({
-  //           type: "GET_CHAT_CONTACTS",
-  //           data: chats,
-  //         });
-  //       }
-
-  //       const selectedChat = { ...store.selectedChat };
-  //       if (selectedChat && Object.keys(selectedChat).length > 0) {
-  //         if (selectedChat.room && selectedChat.room.id === userLeft.room_id) {
-  //           let chat = { ...selectedChat };
-  //           chat.room.status = userLeft.same_accounts > 1 ? 1 : 0;
-  //           dispatch(selectChat(chat));
-  //         }
-  //       }
-
-  //       setTimeout(() => {
-  //         console.log('updateOnlineStatus on user left', updateOnlineStatus)
-  //         setUpdateOnlineStatus(!updateOnlineStatus);
-  //       }, 1000);
-  //     }
-  //   },
-  //   [store, updateOnlineStatus]
-  // );
-
-  // const handleSocketTyping = useCallback(
-  //   (typing) => {
-  //     // received typing
-  //     if (typing.user_id !== useJwt.getUserID()) {
-  //       updateTyping(typing.room_id, typing.type === 1);
-  //     }
-  //   },
-  //   [scrollToBottom]
-  // );
+  const handleSocketTyping = useCallback(
+    (typing) => {
+      // received typing
+      console.log('typing', typing)
+      if (typing.user_id != useJwt.getUserID()) {
+        updateTyping(typing.room_id, typing.user_id, typing.type == 1);
+      }
+    },
+    [scrollToBottom]
+  );
 
   const handleSocketNewMessage = useCallback(
     (message) => {
       // console.log('new message', message);
-      addOrUpdateMessages([message]);
+      console.log('new messages', [message])
+      if (message.user_id == useJwt.getUserID()) {
+        updateMessages([message])
+      }
+      else {
+        addMessages([message]);
+      }
     },
-    [store]
+    []
   );
 
   const handleSocketUpdateMessage = useCallback(
     (messages) => {
       // updated message
-      addOrUpdateMessages(messages);
+      console.log('updated messages', messages)
+      updateMessages(messages);
     },
-    [store]
+    []
   );
 
-  const handleSocketDeleteMessage = useCallback(() => {
-    // deleted message
-  }, [store]);
+  const handleSocketDeleteMessage = useCallback(
+    (messages) => {
+      // deleted message
+      console.log('deleted messages', messages)
+      deleteMessages(messages)
+    }, 
+    []
+  );
 
   useEffect(() => {
     if (socket) {
       // subscribe to socket events
-      // socket.on("newUser", handleSocketNewUser);
-      // socket.on("typing", handleSocketTyping);
+      socket.on("newUser", handleSocketNewUser);
+      socket.on("userLeft", handleSocketUserLeft);
+      socket.on("typing", handleSocketTyping);
       socket.on("newMessage", handleSocketNewMessage);
       socket.on("updateMessage", handleSocketUpdateMessage);
       socket.on("deleteMessage", handleSocketDeleteMessage);
-      // socket.on("userLeft", handleSocketUserLeft);
     }
 
     return () => {
       // unsubscribe socket events
-      // socket.off("newUser", handleSocketNewUser);
-      // socket.off("typing", handleSocketTyping);
+      socket.off("newUser", handleSocketNewUser);
+      socket.off("userLeft", handleSocketUserLeft);
+      socket.off("typing", handleSocketTyping);
       socket.off("newMessage", handleSocketNewMessage);
       socket.off("updateMessage", handleSocketUpdateMessage);
       socket.off("deleteMessage", handleSocketDeleteMessage);
-      // socket.off("userLeft", handleSocketUserLeft);
     };
   }, [
-    // handleSocketNewUser,
-    // handleSocketTyping,
+    handleSocketNewUser,
+    handleSocketUserLeft,
+    handleSocketTyping,
     handleSocketNewMessage,
     handleSocketUpdateMessage,
     handleSocketDeleteMessage,
-    // handleSocketUserLeft
   ]);
 
-  const updateTyping = (room_id, typing) => {
-    let ot = { ...opponentTyping };
-    ot[room_id] = typing;
-    setOpponentTyping(ot);
-    setScrollToBottom(!scrollToBottom);
+  const getUser = (user_id) => {
+    console.log('users', users);
+    if (!users) return null;
+
+    for (let user of users) {
+      if (user.id == user_id) {
+        return user;
+      }
+    }
+
+    return null;
+  }
+
+  const updateTyping = (room_id, user_id, typing) => {
+    const user = getUser(user_id)
+    console.log(user_id, user)
+    if (user) {
+      let ot = { ...opponentTyping };
+      ot[room_id] = {
+        user,
+        typing
+      };
+      setOpponentTyping(ot);
+    }
   };
 
   const socketSendTyping = (room_id, typing) => {
@@ -273,7 +240,7 @@ const SocketProvider = ({ children }) => {
   };
 
   const socketSendMessage = (room_id, type, message) => {
-    const selectedChat = store;
+    const selectedChat = room;
     if (!selectedChat) return;
 
     let local_id = randomString();
@@ -285,12 +252,12 @@ const SocketProvider = ({ children }) => {
       token: useJwt.getToken(),
       room_id: room_id,
       local_id: local_id,
-      type: type, // 1: text, 2: image, 3: file
+      type: type, // 0: text, 1: image, 2: file
       message: message,
       created_at: nowSecs(),
       updated_at: nowSecs(),
     };
-    addOrUpdateMessages([newMessage]);
+    addMessages([newMessage]);
     socket.emit("sendMessage", newMessage);
   };
 
@@ -300,6 +267,60 @@ const SocketProvider = ({ children }) => {
       message_ids: message_ids,
     });
   };
+
+  const addMessages = (messages) => {
+    if (messages.length == 0) return;
+    console.log('messages', messages)
+
+    dispatch(updateRoomLastMessage(messages))
+    dispatch(reduxInsertMessages(messages))
+
+    setScrollToBottom(!scrollToBottom);
+  }
+
+  const updateMessages = (messages) => {
+    if (messages.length == 0) return;
+
+    dispatch(updateRoomLastMessage(messages))
+    dispatch(reduxUpdateMessages(messages))
+
+    const selectedChat = { ...room.selectedRoom };
+    if (selectedChat && Object.keys(selectedChat).length > 0) {
+      if (selectedChat.id == messages[0].room_id) {
+        const unreadMessageIds = [];
+        for (const message of messages) {
+          if (!isMessageSeen(message)) {
+            unreadMessageIds.push(message.id);
+          }
+        }
+
+        socketOpenMessage(unreadMessageIds);
+        setScrollToBottom(!scrollToBottom);
+      }
+    }
+  };
+
+  const deleteMessages = (messages) => {
+    if (messages.length == 0) return;
+
+    // dispatch(updateRoomLastMessage(messages))
+    // dispatch(reduxUpdateMessages(messages))
+
+    // const selectedChat = { ...room.selectedRoom };
+    // if (selectedChat && Object.keys(selectedChat).length > 0) {
+    //   if (selectedChat.id == messages[0].room_id) {
+    //     const unreadMessageIds = [];
+    //     for (const message of messages) {
+    //       if (!isMessageSeen(message)) {
+    //         unreadMessageIds.push(message.id);
+    //       }
+    //     }
+
+    //     socketOpenMessage(unreadMessageIds);
+    //     setScrollToBottom(!scrollToBottom);
+    //   }
+    // }
+  }
 
   const getLatestMessage = (messages) => {
     if (messages.length === 0) return null;
@@ -315,88 +336,13 @@ const SocketProvider = ({ children }) => {
     return result;
   };
 
-  const calculateUnSeenMessagesCount = (messages) => {
-    if (messages.length === 0) return 0;
-
-    let result = 0;
-    for (let i = 0; i < messages.length; i++) {
-      const item = messages[i];
-      if (item.seen_status !== 1) {
-        result++;
-      }
-    }
-    return result;
+  const socketDeleteMessage = (room_id, message_id) => {
+    socket.emit("deleteMessage", {
+      token: useJwt.getToken(),
+      room_id: room_id,
+      message_id: message_id
+    });
   };
-
-  const addOrUpdateMessages = (messages) => {
-    if (messages.length == 0) return;
-
-    let chats = [...store.chats];
-    let updatedChatIndex = -1;
-    let chat = {};
-    for (let i = 0; i < chats.length; i++) {
-      let item = chats[i];
-      if (item.id == messages[0].room_id) {
-        // messages are coming from same room
-        updatedChatIndex = i;
-        chat = {
-          room: { ...item },
-          messages: [...message],
-        };
-
-        for (let k = 0; k < messages.length; k++) {
-          let km = messages[k];
-          let isNew = true;
-
-          for (let j = 0; j < chat.messages.length; j++) {
-            let im = chat.messages[j];
-            if (im.local_id == km.local_id) {
-              isNew = false;
-              chat.messages[j] = km;
-              break;
-            }
-          }
-          if (isNew) {
-            chat.messages.push(km);
-          }
-        }
-
-        chat.room.unread_count = calculateUnSeenMessagesCount(chat.messages);
-        break;
-      }
-    }
-
-    if (messages[0].token) {
-      dispatch(getMessages({ id: messages[0].room_id }))
-      dispatch(getRoomList(chats));
-    }
-
-    const selectedChat = { ...store.selectedRoom };
-    if (selectedChat && Object.keys(selectedChat).length > 0) {
-      if (selectedChat.id == messages[0].room_id) {
-        if (chat.room) {
-          chat.room.unread_count = 0;
-          dispatch(selectRoom(chat.room));
-        }
-        if (
-          messages.length == 1 &&
-          messages[0].user_id != useJwt.getUserID() &&
-          messages[0].seen_status != 1
-        ) {
-          // currently coming only one message on this event as the opponent's new message
-          socketOpenMessage([messages[0].id]);
-        }
-      }
-    }
-  };
-
-  // const socketDeleteMessage = (room_id, message_id) => {
-  //   socket.emit("deleteMessage", {
-  //     token: useJwt.getToken(),
-  //     room_id: room_id,
-  //     message_id: message_id
-  //   });
-  // };
 
   return (
     <SocketContext.Provider value={{
@@ -404,12 +350,14 @@ const SocketProvider = ({ children }) => {
       socket,
       opponentTyping,
       scrollToBottom,
-      // updateOnlineStatus,
-      addOrUpdateMessages,
+      updateOnlineStatus,
+      getRoomOnlineStatus,
+      addMessages,
+      updateMessages,
       socketOpenMessage,
       socketSendTyping,
       socketSendMessage,
-      // socketDeleteMessage,
+      socketDeleteMessage,
       loadRoomData
     }}>{children}
     </SocketContext.Provider>

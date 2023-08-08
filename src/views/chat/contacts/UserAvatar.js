@@ -2,10 +2,9 @@ import React, { useState } from 'react'
 import { Typography, Avatar, } from "@mui/material";
 import { useSelector } from "react-redux"
 
-import { IconMessage, IconSettings } from "@tabler/icons";
+import {  IconEdit, IconDotsVertical, IconLayoutSidebar } from "@tabler/icons";
 
-
-export default function UserAvatar({ CircleButton1, theme ,setIsChatClick ,setIsSettingClick }) {
+export default function UserAvatar({ CircleButton1, theme, setIsChatClick, setIsSettingClick }) {
 
     const userData = useSelector((state) => state.auth.userData);
 
@@ -22,8 +21,10 @@ export default function UserAvatar({ CircleButton1, theme ,setIsChatClick ,setIs
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                pl: 2,
             }}>
-                <Avatar
+                <IconLayoutSidebar size={25} stroke={2} color='#d5d5d5' />
+                {/* <Avatar
                     src={userData.avatar_url}
                     sx={{
                         ...theme.typography.mediumAvatar,
@@ -33,8 +34,7 @@ export default function UserAvatar({ CircleButton1, theme ,setIsChatClick ,setIs
                     }}
                     alt={userData.fullName}
                     color="inherit"
-                />
-                <Typography component="p" variant="h3">{userData.username}</Typography>
+                /> */}
             </Typography>
             <Typography component="div" sx={{
                 display: "flex",
@@ -42,10 +42,10 @@ export default function UserAvatar({ CircleButton1, theme ,setIsChatClick ,setIs
                 alignItems: "center",
             }}>
                 <CircleButton1 onClick={() => chatClick()}>
-                    <IconMessage size={20} stroke={2} />
+                    <IconEdit size={25} stroke={2} color='#d5d5d5' />
                 </CircleButton1>
                 <CircleButton1 onClick={() => settingsClick()} sx={{ ml: 1 }}>
-                    <IconSettings size={20} stroke={2} />
+                    <IconDotsVertical size={25} stroke={2} color='#d5d5d5' />
                 </CircleButton1>
             </Typography>
         </>

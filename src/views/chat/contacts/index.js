@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 
 import {
     Box,
@@ -12,24 +12,25 @@ import {
 } from "@mui/material";
 
 // ** Store & Actions
-import { useDispatch } from "react-redux";
-import { getRoomList, selectRoom } from "store/actions/room";
+import { useDispatch, useSelector } from "react-redux";
+import { getRoomList, resetUnreadCount, selectRoom } from "store/actions/room";
 import { getMessages } from "store/actions/messages";
 import Block from "ui-component/Block";
 import defaultAvatar from "../../../assets/images/users/default_avatar.png";
 import { styled, useTheme } from "@mui/material/styles";
 
-import { formatDateToMonthShort } from "utils/common";
+import { formatDateToMonthShort, formatChatTime } from "utils/common";
 import ClientAvatar from "ui-component/ClientAvatar";
 
 import UserAvatar from "./UserAvatar";
 import SearchUser from "./SearchUser";
 import Settings from "./Settings";
+import { SocketContext } from "utils/context/SocketContext";
 
 const CircleButton1 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
-    minWidth: "35px",
-    height: "35px",
+    minWidth: "40px",
+    height: "40px",
     color: theme.palette.primary.light,
     backgroundColor: theme.palette.dark[900],
     "&:hover": {
@@ -38,24 +39,40 @@ const CircleButton1 = styled(Button)(({ theme }) => ({
     },
 }));
 
-const Contacts = ({ store }) => {
+const Contacts = () => {
     const theme = useTheme();
-    const [active, setActive] = useState({});
-
-    const { chats, selectedRoom } = store;
+    const store = useSelector((state) => state.room);
+    const selectedRoom = store.selectedRoom;
     const dispatch = useDispatch();
+    const userData = useSelector((state) => state.auth.userData);
+    const [active, setActive] = useState({});
+    const [chats, setChats] = useState([]);
+
+    const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
+    const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
+
+    useEffect(() => {
+        setChats([...store.chats])
+    }, [store]);
 
     useEffect(() => {
         if (selectedRoom && selectedRoom.id) {
             setActive({ type: "chat", id: selectedRoom.id });
+        } else {
+            setActive({});
         }
     }, [selectedRoom]);
+
+    useEffect(() => {
+        console.log(updateOnlineStatus)
+    }, [updateOnlineStatus])
 
     // ** Handles User Chat Click
     const handleUserClick = (type, room) => {
         dispatch(selectRoom(room));
         setActive({ type, id: room.id });
         dispatch(getMessages({ id: room.id }))
+        dispatch(resetUnreadCount(room.id, 0))
     };
 
     // const getUnreadMsgsCount = (room_id) => {
@@ -70,14 +87,9 @@ const Contacts = ({ store }) => {
     // ** Renders Chat
     const renderChats = () => {
         if (chats && chats.length) {
-            const arrToMap = chats;
-
-            const lastMessage = arrToMap.filter((item) => item.last_message !== undefined)
-            const lastMessageNull = arrToMap.filter((item) => item.last_message === undefined)
-
-            lastMessage.sort(function (a, b) {
+            chats.sort(function (b, a) {
                 if (a.last_message && b.last_message) {
-                    return b.last_message.created_at < a.last_message.created_at ? -1 : 1
+                    return a.last_message.created_at > b.last_message.created_at ? 1 : -1
                 }
                 else if (a.last_message) {
                     return 1
@@ -89,19 +101,16 @@ const Contacts = ({ store }) => {
                     return -1
                 }
             })
-            const arrToMapSort = lastMessage.concat(lastMessageNull)
-
-            return arrToMapSort.map((item) => {
+            return chats.map((item) => {
                 //if (!item.chat.lastMessage) return null;
                 let time = "";
                 if (item.last_message) {
-                    time = formatDateToMonthShort(
+                    time = formatChatTime(
                         item.last_message
                             ? +item.last_message.created_at * 1000
-                            : new Date().getTime()
+                            : new Date().getTime() 
                     );
                 }
-
                 return (
                     <Box
                         key={item.id}
@@ -109,7 +118,7 @@ const Contacts = ({ store }) => {
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "flex-start",
-                            p: 1,
+                            p: "10px",
                             borderRadius: "5px",
                             cursor: "pointer",
                             background:
@@ -132,12 +141,12 @@ const Contacts = ({ store }) => {
                                     item.photo_url
                                         ? item.photo
                                         : defaultAvatar
-                                }   
-                                status={item.status}
+                                }
+                                status={getRoomOnlineStatus(item.id)}
                                 name={item.name}
                                 group={item.photo ? "0" : item.group}
                             />
-                            <Box sx={{ ml: 2 , width:"100%"}}>
+                            <Box sx={{ ml: 2, width: "100%" }}>
                                 <Typography variant="h4" color={
                                     active.type === "chat" && active.id === item.id
                                         ? theme.palette.text.black
@@ -150,9 +159,9 @@ const Contacts = ({ store }) => {
                                     color={
                                         active.type === "chat" && active.id === item.id
                                             ? theme.palette.text.black
-                                            : theme.palette.text.dark
+                                            : theme.palette.text.disabled
                                     }
-                                    sx={{textOverflow:"ellipsis",whiteSpace:"nowrap",overflow:"hidden"}}
+                                    sx={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}
                                 >
                                     {item.last_message?.message}
                                 </Typography>
@@ -167,9 +176,11 @@ const Contacts = ({ store }) => {
                                 {time !== "" && (
                                     <Box>
                                         <Typography
-                                            variant="h4"
+                                            variant="h5"
                                             color={
-                                                theme.palette.text.dark}
+                                                active.type === "chat" && active.id === item.id
+                                                    ? theme.palette.text.black
+                                                    : theme.palette.text.disabled}
                                             sx={{ verticalAlign: "text-bottom" }}
                                         >
                                             {time}
@@ -202,9 +213,9 @@ const Contacts = ({ store }) => {
     return (
         <>
             {
-                !isChatClick && !isSettingClick && <Block
+                !isChatClick && !isSettingClick && <Box
                     sx={{
-                        p: 2,
+                        pt: 0,
                         height: { xs: "auto", sm: "auto", md: "calc(100vh - 67px)" },
                     }}
                 >
@@ -218,16 +229,19 @@ const Contacts = ({ store }) => {
                     >
                         <UserAvatar CircleButton1={CircleButton1} theme={theme} setIsChatClick={setIsChatClick} setIsSettingClick={setIsSettingClick} />
                     </Box>
-                    <Box>
+                    <Typography sx={{ pl: 2, pb: 3  , pt: 1}} variant="h1">
+                        {userData.username}
+                    </Typography>
+                    <Box sx={{ height: "100%" }}>
                         <Paper
-                            sx={{ height: "calc( 100vh - 235px)", p: 2, overflowY: "auto" }}
+                            sx={{ height: "100%", overflowY: "auto", borderRadius: 0 }}
                         >
                             <Stack direction="column" spacing={1} divider={<Divider />}>
                                 {renderChats()}
                             </Stack>
                         </Paper>
                     </Box>
-                </Block>}
+                </Box>}
             {
                 isChatClick && <SearchUser CircleButton1={CircleButton1} setIsChatClick={setIsChatClick} isChatClick={isChatClick} />
             }

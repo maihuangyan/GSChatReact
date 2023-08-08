@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-// import { getChatContacts } from "store/actions/chat";
 import { Grid } from "@mui/material";
 import useJwt from "utils/jwt/useJwt";
 
@@ -10,9 +9,15 @@ import Conversation from "./conversation";
 
 //Main Component
 const Chat = (props) => {
-  const dispatch = useDispatch();
-  const store = useSelector((state) => state.room);
-  const message = useSelector((state) => state.messages.messages);
+  const selectedRoom = useSelector((state) => state.room.selectedRoom);
+  const [roomTab, setRoomTab] = useState(false)
+  useEffect(() => {
+    if (selectedRoom.id) {
+      setRoomTab(true)
+    } else {
+      setRoomTab(false)
+    }
+  }, [roomTab, selectedRoom])
 
   // useEffect(() => {
   //   // getLocalStorageUsage();
@@ -25,26 +30,33 @@ const Chat = (props) => {
   return (
     <>
       <Grid container
-        sx={{ height: "calc( 100vh )", p: 3, overflowY: "hidden" }}>
-        <Grid item xs={12} sm={12} md={4}>
-          <Contacts store={store} />
+        sx={{
+          height: "calc( 100vh )", p: 3, overflowY: "hidden", margin: "0 auto", width: "auto", "@media (min-width: 1500px)": {
+            width: "1500px",
+          },
+        }}>
+        <Grid item xs={12} sm={12} md={3} sx={{
+          "@media (max-width: 900px)": {
+            display: roomTab ? "none" : "block",
+          }
+        }}>
+          <Contacts />
         </Grid>
         <Grid
           item
           xs={12}
           sm={12}
-          md={8}
+          md={9}
           sx={{
-            pb: 3,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            "@media (max-width: 900px)": {
+              display: roomTab ? "flex" : "none",
+            }
           }}
         >
-          <Conversation
-            store={store}
-            message={message}
-          />
+          <Conversation />
         </Grid>
       </Grid>
     </>

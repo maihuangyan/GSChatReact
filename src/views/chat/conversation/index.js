@@ -3,7 +3,8 @@ import ReactDOM from "react-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import useJwt from "utils/jwt/useJwt";
-import { formatChatDate, formatChatTime } from "utils/common";
+import { formatChatDate, formatChatTime, isMessageSeen } from "utils/common";
+import typingAnim from 'assets/images/anim/typing.gif'
 
 import {
     Box,
@@ -14,23 +15,18 @@ import {
     Typography,
     Menu,
     MenuItem,
-    InputLabel,
     OutlinedInput,
     Dialog,
     DialogActions,
     DialogTitle,
     ListItemText,
     Divider,
-    Avatar,
 } from "@mui/material";
 
 import defaultAvatar from "../../../assets/images/users/default_avatar.png";
 import { styled, useTheme } from "@mui/material/styles";
-import { IconSend, IconDotsVertical, IconLink, IconPhoto } from "@tabler/icons";
+import { IconSend, IconDotsVertical, IconLink, IconPhoto, IconArrowLeft } from "@tabler/icons";
 
-import { getMessages } from "store/actions/messages"
-
-import { clearChat } from "store/actions/chat";
 import { SocketContext } from "utils/context/SocketContext";
 
 import ClientAvatar from "ui-component/ClientAvatar";
@@ -40,11 +36,24 @@ import DraggerBox from "./DraggerBox";
 import ReplyBox from "./ReplyBox";
 
 import { Upload } from 'antd';
+import { selectRoomClear } from "store/actions/room";
 
 const CircleButton1 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
     minWidth: "45px",
     height: "45px",
+    color: theme.palette.primary.light,
+    backgroundColor: theme.palette.dark[900],
+    "&:hover": {
+        backgroundColor: "#FBC34A",
+        color: theme.palette.common.black,
+    },
+}));
+
+const CircleButton2 = styled(Button)(({ theme }) => ({
+    borderRadius: "50%",
+    minWidth: "35px",
+    height: "35px",
     color: theme.palette.primary.light,
     backgroundColor: theme.palette.dark[900],
     "&:hover": {
@@ -59,20 +68,20 @@ const DateSeperator = ({ value }) => {
     return (
         <Box sx={{ display: "flex", alignItems: "center", py: 2 }}>
             <Box
-                sx={{ background: theme.palette.dark.main, flexGrow: 1, height: "1px" }}
+                sx={{ background: theme.palette.common.silverBar, flexGrow: 1, height: "1px" }}
             />
             <Box
                 variant="span"
                 sx={{
-                    background: theme.palette.dark.main,
                     borderRadius: "15px",
-                    padding: "3px 8px",
+                    padding: "3px 16px",
+                    color: theme.palette.text.icon
                 }}
             >
                 {value}
             </Box>
             <Box
-                sx={{ background: theme.palette.dark.main, flexGrow: 1, height: "1px" }}
+                sx={{ background: theme.palette.common.silverBar, flexGrow: 1, height: "1px" }}
             />
         </Box>
     );
@@ -86,8 +95,8 @@ const TimeSeperator = ({ content }) => {
             {/* <IconClock size={14} stroke={1} color={theme.palette.text.dark} />{" "} */}
             <Typography
                 variant="span"
-                color={theme.palette.text.dark}
-                sx={{ verticalAlign: "text-bottom" }}
+                color={theme.palette.text.icon}
+                sx={{ verticalAlign: "text-bottom", fontSize: "12px" }}
             >
                 {content}
             </Typography>
@@ -95,18 +104,16 @@ const TimeSeperator = ({ content }) => {
     );
 };
 
-const Conversation = ({
-    store, message
-}) => {
-    // const { selectedRoom } = store;
+const Conversation = () => {
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
+    const store = useSelector((state) => state.messages);
 
-    const navigate = useNavigate();
-    const [messages, setMessages] = useState([]);
     const [isTyping, setIsTyping] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [roomMessages, setRoomMessages] = useState([]);
 
-    //const opponentTyping = useContext(SocketContext).opponentTyping?useContext(SocketContext).opponentTyping[store.selectedChat.room.id]:false
+    const opponentsTyping = useContext(SocketContext).opponentTyping
+    const opponentTyping = opponentsTyping ? opponentsTyping[selectedRoom.id] : false
     const socketSendTyping = useContext(SocketContext).socketSendTyping
     const socketSendMessage = useContext(SocketContext).socketSendMessage
     const socketOpenMessage = useContext(SocketContext).socketOpenMessage
@@ -128,38 +135,35 @@ const Conversation = ({
     };
 
     // ** If user chat is not empty scrollToBottom
+
     useEffect(() => {
-        setMessages(message);
-        if (message && message.length) {
+        if (selectedRoom) {
+            const roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
+            setRoomMessages(roomMessages)
             let messageIDs = [];
-            message.forEach((messages) => {
-                messages.seens && messages.seens.forEach((seens) => {
-                    if (seens.user_id != useJwt.getUserID() && seens.status != 1) {
-                        messageIDs.push(messages.id);
-                    }
-                })
+            roomMessages.forEach((message) => {
+                if (!isMessageSeen(message)) {
+                    messageIDs.push(message.id)
+                }
             });
             if (messageIDs.length > 0) socketOpenMessage(messageIDs);
         }
 
-        if (selectedRoom && selectedRoom.id)
-            dispatch({
-                type: "NOTICE_SELECTED_CHAT_ROOM_ID",
-                data: selectedRoom.id,
-            });
-
-        setMessages(message);
         setIsGroup(selectedRoom.group)
 
+    }, [selectedRoom, store]);
+
+    useEffect(() => {
         actionScrollToBottom();
-
-    }, [message, scrollToBottom]);
-
+        setIsReply(false);
+        setImg(null)
+        setIsPreviewFiles(false)
+    }, [store])
 
     const formattedChatData = () => {
         var formattedChatLog = [];
-        if (!message || message.length == 0) return [];
-        var chatLog = [...message];
+        if (!selectedRoom || roomMessages.length == 0) return [];
+        var chatLog = [...roomMessages];
         chatLog = chatLog.sort((a, b) => (a.id > b.id ? 1 : a.id < b.id ? -1 : 0));
         var msgGroup = {
             sentDate: formatChatDate(+chatLog[0].created_at * 1000), // for date divide,
@@ -211,35 +215,29 @@ const Conversation = ({
             const showDateDivider = firstDate != item.sentDate;
             firstDate = item.sentDate;
             let senderUsername = selectedRoom.room_users.filter(user => user.id === item.senderId)[0]?.username
+            const right = item.senderId == useJwt.getUserID()
             return (
                 <Box key={index}
-                    sx={{ position: "relative", pl: 2, pr: 2, mt: 1 }}>
+                    sx={{
+                        position: "relative", mt: 1,
+
+                    }}>
                     {showDateDivider && <DateSeperator value={item.sentDate} />}
-                    {item.messages.map((message, index) => (
+                    {item.messages.map((message, i) => (
                         <ChatTextLine
                             item={item}
-                            key={message.local_id}
-                            content={message.message}
-                            right={item.senderId == useJwt.getUserID()}
+                            i={i}
+                            key={i}
+                            message={message}
+                            right={right}
                             ReplyClick={ReplyClick}
                             EditClick={EditClick}
                             isReplyNews={isReplyNews}
-                            TimeSeperator={TimeSeperator}
                             formatChatTime={formatChatTime}
+                            isGroup={isGroup}
+                            TimeSeperator={TimeSeperator}
                         />
                     ))}
-                    <Typography component="div" variant={item.senderId == useJwt.getUserID() ? "positionRight" : "positionLeft"} sx={{ display: isGroup ? "block" : "none" }}>{item.senderId == useJwt.getUserID() ? userData.username : (isGroup ? senderUsername : selectedRoom.room_users[0].username)}</Typography>
-
-                    <Typography component="div" variant={item.senderId == useJwt.getUserID() ? "positionRight1" : "positionLeft1"} sx={{ display: isGroup ? "block" : "none" }}>
-                        <ClientAvatar
-                            avatar={
-                                item.photo
-                                    ? item.photo
-                                    : defaultAvatar
-                            }
-                            size={20}
-                        />
-                    </Typography>
                 </Box>
             );
         });
@@ -249,7 +247,7 @@ const Conversation = ({
     const handleSendMsg = (e) => {
         e.preventDefault();
         if (msg.length) {
-            socketSendMessage(selectedRoom.id, 1, msg);
+            socketSendMessage(selectedRoom.id, '0', msg);
             if (isReply) {
                 setIsReplyNews(true)
             } else {
@@ -278,7 +276,7 @@ const Conversation = ({
             .clearRoomMessages(selectedRoom.room_users[0].id)
             .then((res) => {
                 if (res.data.ResponseCode == 0) {
-                    dispatch(clearChat(selectedRoom));
+                    //dispatch(clearChat(selectedRoom));
                 }
                 else {
                     console.log(res.data)
@@ -304,7 +302,7 @@ const Conversation = ({
 
     const ReplyClick = (content) => {
         setIsReply(true)
-        setReplyContent(content.content)
+        setReplyContent(content.message.message)
         if (content.right) {
             setReplyUser({ username: userData.username, right: content.right })
         } else {
@@ -314,7 +312,7 @@ const Conversation = ({
     }
     const EditClick = (content) => {
         setIsReply(true)
-        setReplyContent(content.content)
+        setReplyContent(content.message.message)
         setReplyUser({ username: "Edit", right: content.right })
     }
     const isReplyClose = () => {
@@ -323,65 +321,19 @@ const Conversation = ({
 
     const userData = useSelector((state) => state.auth.userData);
 
-    const [isChangeClient, setIsChangeClient] = useState(null);
-
-    useEffect(() => {
-        if (selectedRoom && isChangeClient !== selectedRoom.id) {
-            setIsReply(false);
-            setImg(null)
-            setIsPreviewFiles(false)
-        }
-        setIsChangeClient(selectedRoom && selectedRoom.id)
-    }, [message])
+    // useEffect(() => {
+    //     if (selectedRoom && isChangeClient !== selectedRoom.id) {
+    //         setIsReply(false);
+    //         setImg(null)
+    //         setIsPreviewFiles(false)
+    //     }
+    //     setIsChangeClient(selectedRoom && selectedRoom.id)
+    // }, [store])
 
     const [uploadFiles, setUploadFiles] = useState(null);
     const [img, setImg] = useState(null);
 
-    const onChangeFiles = (e) => {
-        // useJwt
-        //   .uploadFile(idata)
-        //   .then((res) => {
-        //     if (res.data.ResponseCode == 0) {
-        //       console.log(res.data.ResponseResult.file_url)
-        //       setUploadPhoto(res.data.ResponseResult.file_url)
-        //     }
-        //     else {
-        //     }
-        //   })
-        //   .catch((err) => {
-        //     console.log(err);
-        //   });
-    };
-
     const [isPreviewFiles, setIsPreviewFiles] = useState(false);
-
-
-    // const scrollToBottom = () => {
-    //     if (selectedRoom.id) {
-
-    //         const conversationBox = document.querySelector(".css-7atonj-MuiPaper-root")
-    //         if (conversationBox.scrollHeight > conversationBox.clientHeight) {
-    //             conversationBox.scrollTop = conversationBox.scrollHeight
-    //         }
-    //     }
-    // }
-
-    // const scrollToTop = () => {
-    //     if (selectedRoom.id) {
-    //         const conversationBox = document.querySelector(".css-7atonj-MuiPaper-root")
-    //         conversationBox.onscroll = () => {
-    //             if (conversationBox.scrollTop == 0 && conversationBox.scrollHeight > conversationBox.clientHeight) {
-    //                 dispatch(getMessages({ id: selectedRoom.id, last_message_id: message[0]?.id }))
-    //             }
-    //         }
-
-    //     }
-    // }
-
-    useEffect(() => {
-        // scrollToTop()
-        // scrollToBottom()
-    }, [message])
 
     useEffect(() => {
 
@@ -437,12 +389,11 @@ const Conversation = ({
             <Box
                 sx={{
                     display: "flex",
-                    paddingBottom: "20px",
                     flexDirection: "column",
                     justifyContent: "space-between",
                     width: "100%",
                     height: { xs: "auto", sm: "auto", md: "100%" },
-                    position: "relative"
+                    position: "relative",
                 }}
             >
                 <DraggerBox
@@ -453,6 +404,7 @@ const Conversation = ({
                     setUploadFiles={setUploadFiles}
                 />
                 <PreviewFiles
+                    roomId={selectedRoom.id}
                     isPreviewFiles={isPreviewFiles} setIsPreviewFiles={setIsPreviewFiles}
                     img={img}
                     uploadFiles={uploadFiles}
@@ -461,9 +413,21 @@ const Conversation = ({
                     setMsg={setMsg}
                     setIsTyping={setIsTyping}
                     isTyping={isTyping} />
-                <Grid container>
-                    <Grid item xs={12} sm={12} md={6}>
-                        <Box sx={{ display: "flex", alignItems: "center", p: 2, pb: 0 }}>
+                <Grid container sx={{ borderBottom: "1px solid #997017" }}>
+                    <Grid item xs={6}>
+                        <Box sx={{ display: "flex", alignItems: "center", p: 1, pb: 0 }}>
+                            <Box sx={{
+                                mr: 1, display: "none",
+                                "@media (max-width: 900px)": {
+                                    display: "block",
+                                },
+                            }}
+                                onClick={() => dispatch(selectRoomClear())}
+                            >
+                                <CircleButton2>
+                                    <IconArrowLeft size={20} stroke={3} />
+                                </CircleButton2>
+                            </Box>
                             <ClientAvatar
                                 avatar={selectedRoom.room_users[0].client_photo || defaultAvatar}
                                 status={selectedRoom.room_users[0].status === 1}
@@ -472,20 +436,16 @@ const Conversation = ({
                                 name={selectedRoom.name}
                             />
                             <Box sx={{ ml: 3 }}>
-                                <Typography variant="h3">
+                                <Typography variant="h4">
                                     {selectedRoom.name}
                                 </Typography>
-                                <Typography>
-                                    {message?.length}
-                                    &nbsp;
-                                    messages</Typography>
+                                <Typography color={"#d5d5d5"}>Online</Typography>
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={6}>
+                    <Grid item xs={6}>
                         <Paper
                             sx={{
-                                p: 2,
                                 display: "flex",
                                 justifyContent: "end",
                                 mb: 2,
@@ -525,15 +485,34 @@ const Conversation = ({
                 </Grid>
                 <Box>
                     <Paper
-                        sx={{ height: "calc( 100vh - 281px)", p: 3, pb: 8, overflowY: "auto" }}
+                        sx={{ height: "calc( 100vh - 150px)", p: 2, pt: 3, pb: 9, overflowY: "auto", borderRadius: 0, }}
                         ref={chatArea}
                     >
                         {renderChats()}
+
+                        {opponentTyping && opponentTyping.typing == 1 && (
+                            <div
+                                key={'typing'}
+                                className='d-flex'
+                            >
+                                <ClientAvatar
+                                    avatar={opponentTyping.user ? opponentTyping.user.photo : defaultAvatar}
+                                    size={30}
+                                />
+
+                                <div>
+                                    <p className='chat-time'>
+                                        {opponentTyping.user ? opponentTyping.user.username : ''}
+                                        <img className='chat-typing-anim' src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </Paper>
                 </Box>
 
                 <form onSubmit={(e) => handleSendMsg(e)}>
-                    <Box sx={{ pt: 2, position: "relative" }}>
+                    <Box sx={{ pt: 1, mb: 1, position: "relative", borderTop: "1px solid #997017" }}>
                         <ReplyBox
                             isReply={isReply}
                             isReplyClose={isReplyClose}
@@ -543,29 +522,31 @@ const Conversation = ({
                         />
                         <Box sx={{ display: "flex", justifyContent: "space-between", position: "relative" }}>
                             <Upload {...props}>
-                                <CircleButton1 type="button" sx={{ mt: "5px" }}>
-                                    <IconPhoto size={25} stroke={1} />
+                                <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>
+                                    <IconPhoto size={25} stroke={2} />
                                 </CircleButton1>
                             </Upload>
-                            <CircleButton1 type="button" component="label" sx={{ mt: "5px", mr: 2 }}>
-                                <IconLink size={25} stroke={1} />
-                                <input
-                                    type="file"
-                                    name="imgCollection"
-                                    onChange={(e) => {
-                                        onChangeFiles(e);
-                                    }}
-                                    multiple
-                                    hidden
-                                />
-                            </CircleButton1>
+                            <Upload {...props}>
+                                <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>
+                                    <IconLink size={25} stroke={2} />
+                                </CircleButton1>
+                            </Upload>
                             <FormControl fullWidth variant="outlined" sx={{ mr: 1 }}>
-                                <InputLabel sx={{ color: "white" }} htmlFor="message-box">
-                                    Type your message
-                                </InputLabel>
                                 <OutlinedInput
+                                    placeholder="New message"
                                     id="message-box"
                                     value={msg}
+                                    onPaste={async (e) => {
+                                        e.preventDefault();
+
+                                        for (const clipboardItem of e.clipboardData.files) {
+                                            if (clipboardItem.type.startsWith('image/')) {
+                                                setUploadFiles(clipboardItem)
+                                                setImg(URL.createObjectURL(clipboardItem))
+                                                setIsPreviewFiles(true)
+                                            }
+                                        }
+                                    }}
                                     onChange={(e) => {
                                         setMsg(e.target.value);
                                         if (e.target.value.length > 0 && !isTyping) {
@@ -577,11 +558,11 @@ const Conversation = ({
                                         }
                                     }}
                                     sx={{ color: "white" }}
-                                    label="Type your message"
+
                                 />
                             </FormControl>
-                            <CircleButton1 type="submit" sx={{ mt: "5px" }}>
-                                <IconSend size={25} stroke={1} />
+                            <CircleButton1 type="submit" sx={{ mt: "5px", color: "#FBC34A" }}>
+                                <IconSend size={25} stroke={2} />
                             </CircleButton1>
                         </Box>
                     </Box>

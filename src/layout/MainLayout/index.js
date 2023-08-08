@@ -28,7 +28,8 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
     }),
     ...(open && {
       marginLeft: 0,
-      margin: "0 8%",
+      marginTop: 0,
+      // margin: "0 8%",
       minHeight:"100vh",
       borderBottomLeftRadius: 0,
       borderBottomRightRadius: 0,
