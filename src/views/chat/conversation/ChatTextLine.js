@@ -47,7 +47,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                     <Typography variant="body1" sx={{ p: "0 8px" }}>{message.message}</Typography>
                 ) : ((message.files && message.files.length > 0) ? (
                     (message.type == 1) ?
-                        (<Box sx={{ width: "300px", height: "300px" , cursor:"pointer" }} >
+                        (<Box sx={{ width: "300px", minHeight: "300px" , cursor:"pointer" }} >
                             <Image
                                 src={message.files[0].thumbnail}
                                 srcSet={message.files[0].thumbnail}
@@ -121,14 +121,13 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                     <Typography variant="body1" sx={{ p: "0 8px" }}>{message.message}</Typography>
                 ) : ((message.files && message.files.length > 0) ? (
                     (message.type == 1) ?
-                        (<Box sx={{ width: "300px", height: "300px" , cursor:"pointer"}}>
+                        (<Box sx={{ minWidth: "300px", minHeight: "300px" , cursor:"pointer"}}>
                             <Image
                                 src={message.files[0].thumbnail}
                                 srcSet={message.files[0].thumbnail}
                                 alt={message.files[0].origin_file_name}
                                 loading="lazy"
                                 width={300}
-                                height={300}
                             /></Box>) : (
                             <Typography variant="body1" sx={{ p: "0 8px" }}>{message.files[0].origin_file_name}</Typography>
                         )
