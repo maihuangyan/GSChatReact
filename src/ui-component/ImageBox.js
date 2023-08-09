@@ -12,7 +12,6 @@ export default function EnlargeImgBox({ img, open, setIsModalOpen }) {
 
     const [isImage, setIsImage] = useState(false);
     const downloadImg = useRef()
-    console.log(downloadImg.current)
     const isPreviewFilesClose = () => {
         setIsModalOpen(false)
     }

@@ -119,6 +119,12 @@ const Conversation = () => {
     const socketSendMessage = useContext(SocketContext).socketSendMessage
     const socketOpenMessage = useContext(SocketContext).socketOpenMessage
     const scrollToBottom = useContext(SocketContext).scrollToBottom
+    const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
+    const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
+
+    useEffect(() => {
+        // console.log(updateOnlineStatus)
+    }, [updateOnlineStatus])
 
     // ** Refs & Dispatch
     const chatArea = useRef(null);
@@ -437,21 +443,25 @@ const Conversation = () => {
                                 </CircleButton2>
                             </Box>
                             <ClientAvatar
-                                avatar={selectedRoom.room_users[0].client_photo || defaultAvatar}
-                                status={selectedRoom.room_users[0].status === 1}
+                                avatar={selectedRoom.photo_url ? selectedRoom.photo_url : ""}
+                                status={getRoomOnlineStatus(selectedRoom.id)}
                                 size={40}
-                                group={selectedRoom.group}
                                 name={selectedRoom.name}
                             />
-                            <Box sx={{ ml: 3 }}>
-                                <Typography variant="h4">
+                            <Box sx={{ ml: 2 }}>
+                                <Typography variant={selectedRoom.group ? "h2" : "h4"}>
                                     {selectedRoom.name}
                                 </Typography>
                                 {
-                                    opponentTyping && opponentTyping.typing == 1 ? <Typography component="p">
-                                        <img className='chat-typing-anim' src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
-                                    </Typography> : <Typography color={"#d5d5d5"}>Online</Typography>
+                                    selectedRoom.group ? "" : <Box>
+                                        {
+                                            opponentTyping && opponentTyping.typing == 1 ? <Typography component="p">
+                                                <img className='chat-typing-anim' src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
+                                            </Typography> : <Typography color={"#d5d5d5"}>Online</Typography>
+                                        }
+                                    </Box>
                                 }
+
                             </Box>
                         </Box>
                     </Grid>

@@ -371,14 +371,8 @@ const Login = (props) => {
                   </Link>
                 </Grid>
               </Grid>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <CircleButton type="button" onClick={()=>navigate("/register")}>SIGN UP</CircleButton>
-                </Grid>
-
-                <Grid item xs={12} sm={6} sx={{display:"flex",justifyContent:"end"}}>
-                  <CircleButton type="submit">SIGN IN</CircleButton>
-                </Grid>
+              <Grid item xs={12} sm={6} sx={{ display: "flex", justifyContent: "end" }}>
+                <CircleButton type="submit">SIGN IN</CircleButton>
               </Grid>
             </Box>
           </Box>

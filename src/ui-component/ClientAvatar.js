@@ -7,7 +7,7 @@ import { useTheme } from "@mui/material/styles";
 
 const { Badge, Avatar } = require("@mui/material");
 
-const  ClientAvatar = ({ name, avatar, number, status, size, sx, group }) => {
+const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
 
   let msx = {}
   if (sx) {
@@ -19,7 +19,7 @@ const  ClientAvatar = ({ name, avatar, number, status, size, sx, group }) => {
   }
 
   const names = name && name.split("")[0]
-  
+
   const [avatarData, setAvatarData] = useState("");
   const getImage = useContext(LoaderContext).getImage;
   const addImage = useContext(LoaderContext).addImage;
@@ -54,10 +54,10 @@ const  ClientAvatar = ({ name, avatar, number, status, size, sx, group }) => {
   return (
     status === undefined ? (
       number === undefined ? (
-        group ? <Avatar sx={{ bgcolor: themes.palette.text.hint,color:"#000" }}>{names}</Avatar> : <Avatar alt={name} src={avatarData} sx={msx} />
+        <Avatar sx={{ bgcolor: themes.palette.text.hint, color: "#000", ...msx  }} >{names}</Avatar>
       ) : (
         <Badge color="primary" badgeContent={number} overlap="circular">
-          {group ? <Avatar sx={{ bgcolor: themes.palette.text.hint,color:"#000" }}>{names}</Avatar> : <Avatar alt={name} src={avatarData} sx={msx} />}
+          <Avatar sx={{ bgcolor: themes.palette.text.hint, color: "#000", ...msx }}>{names}</Avatar>
         </Badge>
       )
     ) : (
@@ -75,7 +75,7 @@ const  ClientAvatar = ({ name, avatar, number, status, size, sx, group }) => {
             },
           }}
         >
-          {group ? <Avatar sx={{ bgcolor: themes.palette.text.hint,color:"#000" }}>{names}</Avatar> : <Avatar alt={name} src={avatarData} sx={msx} />}
+          <Avatar sx={{ bgcolor: themes.palette.text.hint, color: "#000", ...msx }} alt={name} src={avatar}>{names}</Avatar>
         </Badge>
       ) : (
         <Badge color="primary" badgeContent={number} overlap="circular">
@@ -92,7 +92,7 @@ const  ClientAvatar = ({ name, avatar, number, status, size, sx, group }) => {
               },
             }}
           >
-            {group ? <Avatar sx={{ bgcolor: themes.palette.text.hint,color:"#000" }}>{names}</Avatar> : <Avatar alt={name} src={avatarData} sx={msx} />}
+            <Avatar sx={{ bgcolor: themes.palette.text.hint, color: "#000", ...msx  }} alt={name} src={avatar}>{names}</Avatar>
           </Badge>
         </Badge>
       )

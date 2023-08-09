@@ -118,9 +118,7 @@ const Contacts = () => {
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "flex-start",
-                            p: "10px",
-                            pt:2,
-                            pb:2,
+                            p: "12px",
                             borderRadius: "5px",
                             cursor: "pointer",
                             background:
@@ -141,12 +139,11 @@ const Contacts = () => {
                             <ClientAvatar
                                 avatar={
                                     item.photo_url
-                                        ? item.photo
-                                        : defaultAvatar
+                                        ? item.photo_url
+                                        : ""
                                 }
                                 status={getRoomOnlineStatus(item.id)}
                                 name={item.name}
-                                group={item.photo ? "0" : item.group}
                             />
                             <Box sx={{ ml: 2, width: "100%" }}>
                                 <Typography variant="h4" color={
@@ -226,6 +223,7 @@ const Contacts = () => {
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
+                            pt:1
                         }}
                     >
                         <UserAvatar CircleButton1={CircleButton1} theme={theme} setIsChatClick={setIsChatClick} setIsSettingClick={setIsSettingClick} />

@@ -10,11 +10,10 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { IconChevronDown } from "@tabler/icons";
 import ClientAvatar from "ui-component/ClientAvatar";
-import defaultAvatar from "../../../assets/images/users/default_avatar.png";
 
 import { Image } from 'antd';
 
-export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, isGroup, TimeSeperator, formatChatTime, i , setIsModalOpen , setEnlargeImg}) {
+export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, isGroup, TimeSeperator, formatChatTime, i }) {
     const theme = useTheme();
     const [isHover, setIsHover] = useState(false);
     const onMouseEnterHandler = () => {
@@ -40,14 +39,14 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                 component="div"
                 color={theme.palette.text.black}
                 sx={{
-                    background: theme.palette.primary.main, p: message.type == 1 ? "5px" : 1, borderRadius: item.messages.length == i + 1 ? "6px 6px 0 6px" : "6px", mt: 4, mr: isGroup ? 5 : 2, minWidth: "60px",
+                    background: theme.palette.primary.main, p: message.type == 1 ? "5px" : 1, borderRadius: item.messages.length == i + 1 ? "6px 6px 0 6px" : "6px", mt: 4, mr: 2, minWidth: "60px",
                     position: "relative",
                 }}>
                 {message.type == 0 ? (
                     <Typography variant="body1" sx={{ p: "0 8px" }}>{message.message}</Typography>
                 ) : ((message.files && message.files.length > 0) ? (
                     (message.type == 1) ?
-                        (<Box sx={{ width: "300px", minHeight: "300px" , cursor:"pointer" }} >
+                        (<Box sx={{ width: "300px", minHeight: "200px", cursor: "pointer" }} >
                             <Image
                                 src={message.files[0].thumbnail}
                                 srcSet={message.files[0].thumbnail}
@@ -95,16 +94,6 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                     content={formatChatTime(+item.sentTime)}
                 /></Typography>
 
-                <Typography component="div" variant={right ? "positionRight1" : "positionLeft1"} sx={{ display: isGroup ? "block" : "none" }}>
-                    <ClientAvatar
-                        avatar={
-                            item.photo
-                                ? item.photo
-                                : defaultAvatar
-                        }
-                        size={30}
-                    />
-                </Typography>
             </Typography>
         </Box >
     ) : (
@@ -121,7 +110,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                     <Typography variant="body1" sx={{ p: "0 8px" }}>{message.message}</Typography>
                 ) : ((message.files && message.files.length > 0) ? (
                     (message.type == 1) ?
-                        (<Box sx={{ minWidth: "300px", minHeight: "300px" , cursor:"pointer"}}>
+                        (<Box sx={{ minWidth: "300px", minHeight: "200px", cursor: "pointer" }}>
                             <Image
                                 src={message.files[0].thumbnail}
                                 srcSet={message.files[0].thumbnail}
@@ -166,11 +155,12 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                 <Typography component="div" variant={right ? "positionRight1" : "positionLeft1"} sx={{ display: isGroup ? "block" : "none" }}>
                     <ClientAvatar
                         avatar={
-                            item.photo
-                                ? item.photo
-                                : defaultAvatar
+                            message.user.photo_url
+                                ? message.user.photo_url
+                                : ""
                         }
                         size={30}
+                        name={message.user.username}
                     />
                 </Typography>
             </Typography>

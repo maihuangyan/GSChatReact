@@ -172,7 +172,7 @@ export default class JwtService {
   }
 
   getOnlineList() {
-    return axios.get(this.jwtConfig.getOnlineListEndpoint);
+    return axios.get(this.jwtConfig.getOnlineListEndpoint,headers);
   }
 
   updateAdvisorInfo(...args) {
