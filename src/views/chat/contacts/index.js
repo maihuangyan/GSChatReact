@@ -69,7 +69,7 @@ const Contacts = () => {
         dispatch(selectRoom(room));
         setActive({ type, id: room.id });
         dispatch(getMessages({ id: room.id }))
-        dispatch(resetUnreadCount(room.id, 0))
+        dispatch(resetUnreadCount({room_id:room.id, unread_count:room.unread_count,unreadCount:0}))
     };
 
     // ** Renders Chat

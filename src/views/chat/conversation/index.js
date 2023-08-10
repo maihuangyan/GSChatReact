@@ -394,7 +394,7 @@ const Conversation = () => {
 
     const [draggerFile, setDraggerFile] = useState(false)
 
-    // console.log(selectedRoom, "6666 ")
+    console.log(selectedRoom, "6666 ")
 
     return Object.keys(selectedRoom).length ? (
         <>
@@ -452,15 +452,7 @@ const Conversation = () => {
                                 <Typography variant={selectedRoom.group ? "h2" : "h4"}>
                                     {selectedRoom.name}
                                 </Typography>
-                                {
-                                    selectedRoom.group ? "" : <Box>
-                                        {
-                                            opponentTyping && opponentTyping.typing == 1 ? <Typography component="p">
-                                                <img  src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
-                                            </Typography> : <Typography color={"#d5d5d5"}>Online</Typography>
-                                        }
-                                    </Box>
-                                }
+                                <Typography color={"#d5d5d5"}>{selectedRoom.group ? "" : (getRoomOnlineStatus(selectedRoom.id) ? "Online" : "Leave")}</Typography>
 
                             </Box>
                         </Box>
@@ -521,6 +513,11 @@ const Conversation = () => {
                             replyUser={replyUser}
                             replyContent={replyContent}
                         />
+                        {
+                            !selectedRoom.group && opponentTyping && !opponentTyping.typing == 1 && <Box sx={{ position: "absolute", left: "10px", top: "-30px", color: theme.palette.text.disabled, fontWeight: "600" }}>
+                                {selectedRoom.name} is typing <img src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
+                            </Box>
+                        }
                         <Box sx={{ display: "flex", justifyContent: "space-between", position: "relative" }}>
                             <Upload {...props}>
                                 <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>

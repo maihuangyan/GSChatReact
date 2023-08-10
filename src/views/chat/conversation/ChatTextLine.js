@@ -48,7 +48,6 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                 ) : ((message.files && message.files.length > 0) ? (
                     (message.type == 1) ?
                         (<Box sx={{ cursor: "pointer" }} >
-
                             <Image
                                 src={message.files[0].thumbnail}
                                 srcSet={message.files[0].thumbnail}

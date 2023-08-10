@@ -51,16 +51,16 @@ const roomReducer = (state = initialState, action) => {
 };
 
 const resetUnreadMessageCount = (state, data) => {
-    if (!data.room_id || !data.unread_count) {
+
+    if (!data.unread_count) {
         return state;
     }
-    console.log( data,"666")
 
     const chats = [...state.chats];
     for (let i = 0; i < state.chats.length; i++) {
         const room = { ...chats[i] };
         if (room.id == data.room_id) {
-            room.unread_count = data.unread_count;
+            room.unread_count = data.unreadCount;
             chats[i] = room;
             return { ...state, chats: chats }
         }

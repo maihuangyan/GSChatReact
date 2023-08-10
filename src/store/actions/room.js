@@ -59,14 +59,11 @@ export const selectRoom = (room) => {
   };
 };
 
-export const resetUnreadCount = (room_id, unread_count) => {
+export const resetUnreadCount = (payload) => {
   return (dispatch) => {
     dispatch({
       type: "RESET_UNREAD_MESSAGE_COUNT",
-      data: {
-        room_id,
-        unread_count,
-      }
+      data: payload
     });
   };
 }
