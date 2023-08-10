@@ -40,8 +40,12 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                 component="div"
                 color={theme.palette.text.black}
                 sx={{
-                    background: theme.palette.primary.main, p: message.type == 1 ? "5px" : 1, borderRadius: item.messages.length == i + 1 ? "6px 6px 0 6px" : "6px", mt: 4, mr: 2, ml: 20, minWidth: "60px",
+                    background: theme.palette.primary.main, p: message.type == 1 ? "5px" : 1, borderRadius: item.messages.length == i + 1 ? "6px 6px 0 6px" : "6px", mt: 4, mr: 2, ml: 3, minWidth: "60px",
                     position: "relative",
+                    wordBreak:"break-all",
+                    "@media (min-width: 720px)": {
+                        ml: 20,
+                    },
                 }}>
                 {message.type == 0 ? (
                     <Typography variant="body1" sx={{ p: "0 8px" }}>{message.message}</Typography>
@@ -53,7 +57,6 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                 srcSet={message.files[0].thumbnail}
                                 alt={message.files[0].origin_file_name}
                                 loading="lazy"
-                                width={450}
                             /></Box>) : (
                             <Typography variant="body1" sx={{ p: "0 8px" }}>{message.files[0].origin_file_name}</Typography>
                         )
@@ -103,8 +106,12 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                 component="div"
                 color={theme.palette.text.black}
                 sx={{
-                    background: theme.palette.text.disabled, p: message.type == 1 ? "5px" : 1, borderRadius: item.messages.length == i + 1 ? "0 6px 6px 6px" : "6px", mt: 4, ml: isGroup ? 5 : 2, mr: 20, minWidth: "60px",
+                    background: theme.palette.text.disabled, p: message.type == 1 ? "5px" : 1, borderRadius: item.messages.length == i + 1 ? "0 6px 6px 6px" : "6px", mt: 4, mr: 3, ml: isGroup ? 5 : 2, minWidth: "60px",
                     position: "relative",
+                    wordBreak:"break-all",
+                    "@media (min-width: 720px)": {
+                        mr: 20,
+                    },
                 }}>
                 {message.type == 0 ? (
                     <Typography variant="body1" sx={{ p: "0 8px" }}>{message.message}</Typography>
@@ -116,7 +123,6 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                 srcSet={message.files[0].thumbnail}
                                 alt={message.files[0].origin_file_name}
                                 loading="lazy"
-                                width={450}
                             /></Box>) : (
                             <Typography variant="body1" sx={{ p: "0 8px" }}>{message.files[0].origin_file_name}</Typography>
                         )

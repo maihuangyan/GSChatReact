@@ -19,13 +19,15 @@
 
 .scrollbar-container {
     .ps__rail-y {
-        &:hover > .ps__thumb-y,
-        &:focus > .ps__thumb-y,
+
+        &:hover>.ps__thumb-y,
+        &:focus>.ps__thumb-y,
         &.ps--clicking .ps__thumb-y {
             background-color: $grey500;
             width: 5px;
         }
     }
+
     .ps__thumb-y {
         background-color: $grey500;
         border-radius: 6px;
@@ -35,19 +37,21 @@
 }
 
 .scrollbar-container.ps,
-.scrollbar-container > .ps {
-    &.ps--active-y > .ps__rail-y {
+.scrollbar-container>.ps {
+    &.ps--active-y>.ps__rail-y {
         width: 5px;
         background-color: transparent !important;
         z-index: 999;
+
         &:hover,
         &.ps--clicking {
             width: 5px;
             background-color: transparent;
         }
     }
-    &.ps--scrolling-y > .ps__rail-y,
-    &.ps--scrolling-x > .ps__rail-x {
+
+    &.ps--scrolling-y>.ps__rail-y,
+    &.ps--scrolling-x>.ps__rail-x {
         opacity: 0.4;
         background-color: transparent;
     }
@@ -59,6 +63,7 @@
     50% {
         transform: translateY(-40px);
     }
+
     100% {
         transform: translateY(0px);
     }
@@ -68,12 +73,14 @@
     50% {
         opacity: 0;
     }
+
     100% {
         opacity: 1;
     }
 }
 
 @keyframes bounce {
+
     0%,
     20%,
     53%,
@@ -81,47 +88,57 @@
         animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
         transform: translateZ(0);
     }
+
     40%,
     43% {
         animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
         transform: translate3d(0, -5px, 0);
     }
+
     70% {
         animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
         transform: translate3d(0, -7px, 0);
     }
+
     80% {
         transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
         transform: translateZ(0);
     }
+
     90% {
         transform: translate3d(0, -2px, 0);
     }
 }
 
 @keyframes slideY {
+
     0%,
     50%,
     100% {
         transform: translateY(0px);
     }
+
     25% {
         transform: translateY(-10px);
     }
+
     75% {
         transform: translateY(10px);
     }
 }
 
 @keyframes slideX {
+
     0%,
     50%,
     100% {
         transform: translateX(0px);
     }
+
     25% {
         transform: translateX(-10px);
     }
+
     75% {
         transform: translateX(10px);
     }
@@ -151,21 +168,27 @@
 #react-doc-viewer {
     background-color: #000;
     padding: 0;
+
     #header-bar {
         background-color: #000;
         padding: 0;
+
         #file-name {
             color: #fff;
             margin: 0;
         }
+
         #doc-nav-info {
             color: #fff;
         }
     }
+
     #proxy-renderer {
         background-color: #000;
+
         #image-renderer {
             background-color: #000;
+
             img {
                 max-width: 100%;
             }
@@ -174,46 +197,61 @@
 }
 
 .ck-editor__editable_inline {
-  min-height: 200px;
+    min-height: 200px;
 }
 
 .ck-rounded-corners .ck.ck-editor__top .ck-sticky-panel .ck-toolbar {
-  background-color: #4a494b;
-  border: 1px solid #4a4a4a;
-  .ck-button{
-    color: #fff;
     background-color: #4a494b;
-    cursor: pointer;
-  }
-  .ck-button:hover{
-    background-color: #FBC34A;
-  }
+    border: 1px solid #4a4a4a;
+
+    .ck-button {
+        color: #fff;
+        background-color: #4a494b;
+        cursor: pointer;
+    }
+
+    .ck-button:hover {
+        background-color: #FBC34A;
+    }
 }
 
 .ck-editor__main {
-  background-color: #000;
-  .ck-editor__editable_inline {
-    background-color: #000 !important;
-  }
-  .ck-focused{
-    border: 1px solid #FBC34A;
-  }
-}
+    background-color: #000;
 
-.table{
-  table {
-    border: 1px double #b3b3b3;
-    border-collapse: collapse;
-    border-spacing: 0;
-
-    td {
-      border: 1px solid #bfbfbf;
-      min-width: 2em;
-      padding: 0.4em;
+    .ck-editor__editable_inline {
+        background-color: #000 !important;
     }
-  }
+
+    .ck-focused {
+        border: 1px solid #FBC34A;
+    }
 }
 
-.ant-image-preview-root .ant-image-preview-mask{
+.table {
+    table {
+        border: 1px double #b3b3b3;
+        border-collapse: collapse;
+        border-spacing: 0;
+
+        td {
+            border: 1px solid #bfbfbf;
+            min-width: 2em;
+            padding: 0.4em;
+        }
+    }
+}
+
+.ant-image-preview-root .ant-image-preview-mask {
     background-color: rgba(0, 0, 0, 1)
+}
+
+.ant-image {
+    width: 450px;
+}
+
+@media (max-width: 720px) {
+    .ant-image {
+        width: 200px;
+
+    }
 }
