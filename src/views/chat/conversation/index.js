@@ -394,7 +394,7 @@ const Conversation = () => {
 
     const [draggerFile, setDraggerFile] = useState(false)
 
-    console.log(selectedRoom, "6666 ")
+    // console.log(selectedRoom, "6666 ")
 
     return Object.keys(selectedRoom).length ? (
         <>

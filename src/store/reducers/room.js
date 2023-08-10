@@ -30,14 +30,7 @@ const roomReducer = (state = initialState, action) => {
             return { ...state, selectedRoom: action.data };
 
         case "SELECT_ROOM_CLEAR":
-            return { ...state, unreadCount: {} };
-
-        case "GET_UNREAD_COUNT":
-            return { ...state, selectedRoom: action.data };
-
-        case "CLEAR_UNREAD_COUNT":
-            return { ...state, selectedRoom: action.data };
-
+            return { ...state, selectedRoom: {} };
 
         case "UPDATE_LATEST_MESSAGE":
             return updateLatestMessage(state, action.data);

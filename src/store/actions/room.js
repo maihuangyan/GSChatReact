@@ -21,15 +21,6 @@ export const getRoomList = () => {
             data: connected_users,
           });
 
-          // let unreadCount = data.map(item => {
-          //   return { room_id: item.id, unread_count: item.unread_count }
-          // })
-
-          // dispatch({
-          //   type: "GET_UNREAD_COUNT",
-          //   data: unreadCount,
-          // });
-
           dispatch({
             type: "GET_ROOM_LIST",
             data,
