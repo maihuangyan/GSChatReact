@@ -514,7 +514,7 @@ const Conversation = () => {
                             replyContent={replyContent}
                         />
                         {
-                            !selectedRoom.group && opponentTyping && opponentTyping.typing  && <Box sx={{ position: "absolute", left: "10px", top: "-30px", color: theme.palette.text.disabled, fontWeight: "600" }}>
+                            !selectedRoom.group && opponentTyping && opponentTyping.typing  && <Box sx={{ position: "absolute", left: "30px", top: "-30px", color: theme.palette.text.disabled, fontWeight: "600" }}>
                                 {opponentTyping.user.username} is typing <img src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
                             </Box>
                         }
