@@ -64,12 +64,18 @@ const Contacts = () => {
         console.log(updateOnlineStatus)
     }, [updateOnlineStatus])
 
+    useEffect(() => {
+        if (active) {
+            dispatch(resetUnreadCount({ room_id: active.id, unread_count: active.room?.unread_count, unreadCount: 0 }))
+        }
+    }, [active, dispatch])
+
     // ** Handles User Chat Click
     const handleUserClick = (type, room) => {
         dispatch(selectRoom(room));
-        setActive({ type, id: room.id });
+        setActive({ type, id: room.id , room});
         dispatch(getMessages({ id: room.id }))
-        dispatch(resetUnreadCount({room_id:room.id, unread_count:room.unread_count,unreadCount:0}))
+        dispatch(resetUnreadCount({ room_id: room.id, unread_count: room.unread_count, unreadCount: 0 }))
     };
 
     // ** Renders Chat

@@ -123,7 +123,7 @@ const Conversation = () => {
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
 
     useEffect(() => {
-        // console.log(updateOnlineStatus)
+        console.log(updateOnlineStatus)
     }, [updateOnlineStatus])
 
     // ** Refs & Dispatch
@@ -514,8 +514,8 @@ const Conversation = () => {
                             replyContent={replyContent}
                         />
                         {
-                            !selectedRoom.group && opponentTyping && !opponentTyping.typing == 1 && <Box sx={{ position: "absolute", left: "10px", top: "-30px", color: theme.palette.text.disabled, fontWeight: "600" }}>
-                                {selectedRoom.name} is typing <img src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
+                            !selectedRoom.group && opponentTyping && opponentTyping.typing  && <Box sx={{ position: "absolute", left: "10px", top: "-30px", color: theme.palette.text.disabled, fontWeight: "600" }}>
+                                {opponentTyping.user.username} is typing <img src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
                             </Box>
                         }
                         <Box sx={{ display: "flex", justifyContent: "space-between", position: "relative" }}>
