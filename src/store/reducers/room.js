@@ -6,12 +6,13 @@ import { isMessageSeen, sortMessages } from "utils/common";
 const initialState = {
     chats: [],
     selectedRoom: {},
+    unreadCount: [],
 };
 
 const persistConfig = {
     key: "rooms",
     storage,
-    whitelist: ["chats", "selectedRoom"], // place to select which state you want to persist
+    whitelist: ["chats", "selectedRoom", "unreadCount"], // place to select which state you want to persist
 };
 
 const roomReducer = (state = initialState, action) => {
@@ -29,7 +30,14 @@ const roomReducer = (state = initialState, action) => {
             return { ...state, selectedRoom: action.data };
 
         case "SELECT_ROOM_CLEAR":
-            return { ...state, selectedRoom: {} };
+            return { ...state, unreadCount: {} };
+
+        case "GET_UNREAD_COUNT":
+            return { ...state, selectedRoom: action.data };
+
+        case "CLEAR_UNREAD_COUNT":
+            return { ...state, selectedRoom: action.data };
+
 
         case "UPDATE_LATEST_MESSAGE":
             return updateLatestMessage(state, action.data);
@@ -46,6 +54,7 @@ const resetUnreadMessageCount = (state, data) => {
     if (!data.room_id || !data.unread_count) {
         return state;
     }
+    console.log( data,"666")
 
     const chats = [...state.chats];
     for (let i = 0; i < state.chats.length; i++) {

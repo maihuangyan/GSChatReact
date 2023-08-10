@@ -5,6 +5,7 @@ import useJwt from "utils/jwt/useJwt";
 
 import Contacts from "./contacts";
 import Conversation from "./conversation";
+
 // import { getLocalStorageUsage } from "utils/common";
 
 //Main Component
@@ -65,7 +66,7 @@ const Chat = (props) => {
         >
           <Conversation />
         </Grid>
-      </Grid>
+      </Grid >
     </>
   );
 };

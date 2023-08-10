@@ -456,7 +456,7 @@ const Conversation = () => {
                                     selectedRoom.group ? "" : <Box>
                                         {
                                             opponentTyping && opponentTyping.typing == 1 ? <Typography component="p">
-                                                <img className='chat-typing-anim' src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
+                                                <img  src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
                                             </Typography> : <Typography color={"#d5d5d5"}>Online</Typography>
                                         }
                                     </Box>
@@ -538,8 +538,7 @@ const Conversation = () => {
                                     id="message-box"
                                     value={msg}
                                     onPaste={async (e) => {
-                                        e.preventDefault();
-
+                                        // e.preventDefault();
                                         for (const clipboardItem of e.clipboardData.files) {
                                             if (clipboardItem.type.startsWith('image/')) {
                                                 setUploadFiles(clipboardItem)

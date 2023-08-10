@@ -6,8 +6,6 @@ import {
     Paper,
     Button,
     Typography,
-    Divider,
-    Link,
     Badge,
 } from "@mui/material";
 
@@ -15,8 +13,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { getRoomList, resetUnreadCount, selectRoom } from "store/actions/room";
 import { getMessages } from "store/actions/messages";
-import Block from "ui-component/Block";
-import defaultAvatar from "../../../assets/images/users/default_avatar.png";
+
 import { styled, useTheme } from "@mui/material/styles";
 
 import { formatDateToMonthShort, formatChatTime } from "utils/common";
@@ -75,15 +72,6 @@ const Contacts = () => {
         dispatch(resetUnreadCount(room.id, 0))
     };
 
-    // const getUnreadMsgsCount = (room_id) => {
-    //     for (let item o ) {
-    //         if (item.messages.length > 0 && item.messages[0].room_id == room_id) {
-    //             return item.messages.length
-    //         }
-    //     }
-    //     return 0
-    // }
-
     // ** Renders Chat
     const renderChats = () => {
         if (chats && chats.length) {
@@ -108,7 +96,7 @@ const Contacts = () => {
                     time = formatChatTime(
                         item.last_message
                             ? +item.last_message.created_at * 1000
-                            : new Date().getTime() 
+                            : new Date().getTime()
                     );
                 }
                 return (
@@ -223,17 +211,17 @@ const Contacts = () => {
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            pt:1
+                            pt: 1
                         }}
                     >
                         <UserAvatar CircleButton1={CircleButton1} theme={theme} setIsChatClick={setIsChatClick} setIsSettingClick={setIsSettingClick} />
                     </Box>
-                    <Typography sx={{ pl: 2, pb: 3  , pt: 1}} variant="h1">
+                    <Typography sx={{ pl: 2, pb: 3, pt: 1 }} variant="h1">
                         {userData.username}
                     </Typography>
                     <Box sx={{ height: "90%" }}>
                         <Paper
-                            sx={{ height: "100%", overflowY: "auto", borderRadius: 0 , p:"0 8px"}}
+                            sx={{ height: "100%", overflowY: "auto", borderRadius: 0, p: "0 8px" }}
                         >
                             <Stack direction="column" spacing={1} >
                                 {renderChats()}

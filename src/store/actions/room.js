@@ -2,7 +2,7 @@ import useJwt from "utils/jwt/useJwt";
 
 // ** Get all Data
 export const getRoomList = () => {
-  
+
   return async (dispatch) => {
     useJwt
       .getRoomList()
@@ -20,6 +20,15 @@ export const getRoomList = () => {
             type: "CONNECTED_USER_LIST",
             data: connected_users,
           });
+
+          // let unreadCount = data.map(item => {
+          //   return { room_id: item.id, unread_count: item.unread_count }
+          // })
+
+          // dispatch({
+          //   type: "GET_UNREAD_COUNT",
+          //   data: unreadCount,
+          // });
 
           dispatch({
             type: "GET_ROOM_LIST",
@@ -52,19 +61,20 @@ export const selectRoom = (room) => {
 
 export const resetUnreadCount = (room_id, unread_count) => {
   return (dispatch) => {
-    dispatch({ 
-      type: "RESET_UNREAD_MESSAGE_COUNT", 
+    dispatch({
+      type: "RESET_UNREAD_MESSAGE_COUNT",
       data: {
         room_id,
         unread_count,
-      }});
+      }
+    });
   };
 }
 
 export const updateRoomLastMessage = (messages) => {
   return (dispatch) => {
-    dispatch({ 
-      type: "UPDATE_LATEST_MESSAGE", 
+    dispatch({
+      type: "UPDATE_LATEST_MESSAGE",
       data: messages,
     });
   };
@@ -72,8 +82,8 @@ export const updateRoomLastMessage = (messages) => {
 
 export const selectRoomClear = () => {
   return (dispatch) => {
-    dispatch({ 
-      type: "SELECT_ROOM_CLEAR", 
+    dispatch({
+      type: "SELECT_ROOM_CLEAR",
     });
   };
 }

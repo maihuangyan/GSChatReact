@@ -103,7 +103,6 @@ const SocketProvider = ({ children }) => {
         online_users.push(newUser);
       }
       setOnlineUsers(online_users);
-
       setTimeout(() => {
         setUpdateOnlineStatus(!updateOnlineStatus);
       }, 1000);
