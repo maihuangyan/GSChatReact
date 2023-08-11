@@ -403,7 +403,7 @@ const Conversation = () => {
     // console.log(selectedRoom, "6666 ")
 
     return Object.keys(selectedRoom).length ? (
-        showInformation ? <Information CircleButton1={CircleButton1} setShowInformation={setShowInformation} selectedRoom={selectedRoom}  /> :
+        showInformation ? <Information CircleButton1={CircleButton1} setShowInformation={setShowInformation}  /> :
             <>
                 <Box
                     sx={{

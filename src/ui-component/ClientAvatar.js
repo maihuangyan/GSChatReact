@@ -74,10 +74,10 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
   return (
     status === undefined ? (
       number === undefined ? (
-        <Avatar {...stringAvatar(name)} />
+        <Avatar {...stringAvatar(name)} alt={name} src={avatar} />
       ) : (
         <Badge color="primary" badgeContent={number} overlap="circular">
-          <Avatar {...stringAvatar(name)} />
+          <Avatar {...stringAvatar(name)} alt={name} src={avatar} />
         </Badge>
       )
     ) : (

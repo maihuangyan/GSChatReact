@@ -3,12 +3,11 @@ import {
     Box,
     Grid,
     Button,
-    Avatar,
     Typography,
     TextField,
 } from "@mui/material";
 import { useForm, Controller } from "react-hook-form";
-import { IconArrowLeft } from "@tabler/icons";
+import { IconArrowLeft, IconEdit } from "@tabler/icons";
 import { styled, useTheme } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
 import useJwt from "utils/jwt/useJwt";
@@ -28,10 +27,23 @@ const CircleButton = styled(Button)(({ theme }) => ({
     },
 }));
 
-export default function Information({ CircleButton1, setShowInformation, selectedRoom }) {
+const CircleButton2 = styled(Button)(({ theme }) => ({
+    borderRadius: "50%",
+    minWidth: "30px",
+    height: "35px",
+    color: theme.palette.primary.light,
+    backgroundColor: theme.palette.dark[900],
+    "&:hover": {
+        backgroundColor: "#FBC34A",
+        color: theme.palette.common.black,
+    },
+}));
+
+export default function Information({ CircleButton1, setShowInformation }) {
 
     const theme = useTheme();
     const userData = useSelector((state) => state.auth.userData);
+    const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const onSubmit = (data) => {
         useJwt
             .createRoom({ name: data.name, opponent_ids: data.opponentIds, group: 1 })
@@ -59,7 +71,7 @@ export default function Information({ CircleButton1, setShowInformation, selecte
         }
     }, [selectedRoom, userData])
 
-    // console.log(selectedRoom)
+    // console.log(selectedRoom.photo_url)
     return (
         <>
             <Box
@@ -90,7 +102,7 @@ export default function Information({ CircleButton1, setShowInformation, selecte
                                     sx={{
                                         display: "flex",
                                         justifyContent: "space-between",
-                                        alignItems: "flex-start",
+                                        alignItems: "center",
                                         p: "12px",
                                         borderRadius: "5px",
                                     }}
@@ -116,6 +128,18 @@ export default function Information({ CircleButton1, setShowInformation, selecte
                                             </Typography>
                                         </Box>
                                     </Box>
+                                    {isCreator && <Box sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        background: theme.palette.primary.main,
+                                        p: 1,
+                                        mr: 2,
+                                        cursor: "pointer",
+                                        borderRadius: "16px",
+                                        color: "#000"
+                                    }}>
+                                        delete
+                                    </Box>}
                                 </Box>
                             })
                         }
@@ -127,11 +151,19 @@ export default function Information({ CircleButton1, setShowInformation, selecte
                             <Typography component="div"
                                 sx={{ display: "flex", justifyContent: "center" }}
                             >
-                                <ClientAvatar
-                                    avatar={selectedRoom.photo_url ? selectedRoom.photo_url : ""}
-                                    size={120}
-                                    name={selectedRoom.name}
-                                />
+                                <Box sx={{ position: "relative" }}>
+                                    <ClientAvatar
+                                        avatar={selectedRoom.photo_url ? selectedRoom.photo_url : ""}
+                                        size={120}
+                                        name={selectedRoom.name}
+                                    />
+                                    {isCreator && <Box sx={{ position: "absolute", right: "-30px", bottom: "0" }}>
+                                        <CircleButton2>
+                                            <IconEdit size={20} stroke={2} color='#d5d5d5' />
+                                        </CircleButton2>
+                                    </Box>}
+                                </Box>
+
                             </Typography>
                             <form
                                 onSubmit={handleSubmit(onSubmit)}
