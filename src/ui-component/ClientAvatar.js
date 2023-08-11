@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
-import theme from "themes";
 import { LoaderContext } from "utils/context/ProgressLoader";
 import { useTheme } from "@mui/material/styles";
 
@@ -18,12 +17,9 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
     msx.height = size
   }
 
-  const names = name && name.split("")[0]
-
   const [avatarData, setAvatarData] = useState("");
   const getImage = useContext(LoaderContext).getImage;
   const addImage = useContext(LoaderContext).addImage;
-  const themes = useTheme();
   useEffect(() => {
     if (avatar) {
       if (avatar.includes('chat.swissnonbank')) {
@@ -51,13 +47,37 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
     }
   }, [avatar]);
 
+  function stringToColor(string) {
+    let hash = 0;
+    let i;
+    for (i = 0; i < string.length; i += 1) {
+      hash = string.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let color = '#';
+    for (i = 0; i < 3; i += 1) {
+      const value = (hash >> (i * 8)) & 0xff;
+      color += `00${value.toString(16)}`.slice(-2);
+    }
+    return color;
+  }
+
+  function stringAvatar(name) {
+    return {
+      sx: {
+        ...msx,
+        bgcolor: stringToColor(name),
+      },
+      children: name.split(' ').length == 1 ? `${name.split(' ')[0][0].toUpperCase()}` : `${name.split(' ')[0][0].toUpperCase()}${name.split(' ')[1][0].toUpperCase()}`,
+    };
+  }
+
   return (
     status === undefined ? (
       number === undefined ? (
-        <Avatar sx={{ bgcolor: themes.palette.text.hint, color: "#000", ...msx  }} >{names}</Avatar>
+        <Avatar {...stringAvatar(name)} />
       ) : (
         <Badge color="primary" badgeContent={number} overlap="circular">
-          <Avatar sx={{ bgcolor: themes.palette.text.hint, color: "#000", ...msx }}>{names}</Avatar>
+          <Avatar {...stringAvatar(name)} />
         </Badge>
       )
     ) : (
@@ -75,7 +95,7 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
             },
           }}
         >
-          <Avatar sx={{ bgcolor: themes.palette.text.hint, color: "#000", ...msx }} alt={name} src={avatar}>{names}</Avatar>
+          <Avatar {...stringAvatar(name)} alt={name} src={avatar} />
         </Badge>
       ) : (
         <Badge color="primary" badgeContent={number} overlap="circular">
@@ -92,7 +112,7 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
               },
             }}
           >
-            <Avatar sx={{ bgcolor: themes.palette.text.hint, color: "#000", ...msx  }} alt={name} src={avatar}>{names}</Avatar>
+            <Avatar {...stringAvatar(name)} alt={name} src={avatar} />
           </Badge>
         </Badge>
       )

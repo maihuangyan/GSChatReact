@@ -292,7 +292,6 @@ const SocketProvider = ({ children }) => {
             unreadMessageIds.push(message.id);
           }
         }
-
         socketOpenMessage(unreadMessageIds);
         setScrollToBottom(!scrollToBottom);
       }

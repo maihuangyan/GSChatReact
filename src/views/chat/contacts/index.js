@@ -61,14 +61,11 @@ const Contacts = () => {
     }, [selectedRoom]);
 
     useEffect(() => {
-        console.log(updateOnlineStatus)
-    }, [updateOnlineStatus])
-
-    useEffect(() => {
+        // console.log(updateOnlineStatus)
         if (active) {
             dispatch(resetUnreadCount({ room_id: active.id, unread_count: active.room?.unread_count, unreadCount: 0 }))
         }
-    }, [active, dispatch])
+    }, [updateOnlineStatus])
 
     // ** Handles User Chat Click
     const handleUserClick = (type, room) => {
@@ -105,6 +102,7 @@ const Contacts = () => {
                             : new Date().getTime()
                     );
                 }
+                let fullName = item.group ? item.name : (item.room_users[0].first_name.length ? `${item.room_users[0].first_name} ${item.room_users[0].last_name}` : item.room_users[0].username) 
                 return (
                     <Box
                         key={item.id}
@@ -137,7 +135,7 @@ const Contacts = () => {
                                         : ""
                                 }
                                 status={getRoomOnlineStatus(item.id)}
-                                name={item.name}
+                                name={fullName}
                             />
                             <Box sx={{ ml: 2, width: "100%" }}>
                                 <Typography variant="h4" color={
@@ -145,7 +143,7 @@ const Contacts = () => {
                                         ? theme.palette.text.black
                                         : theme.palette.text.light
                                 }>
-                                    {item.name}
+                                    {fullName}
                                 </Typography>
                                 <Typography
                                     variant="body1"

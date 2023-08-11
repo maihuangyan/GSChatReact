@@ -148,8 +148,8 @@ export default function themeTypography(theme) {
     },
     positionLeft1: {
       position: "absolute",
-      left: "-36px",
-      bottom: "1px"
+      left: "-42px",
+      bottom: "-1px"
     },
     positionRight1: {
       position: "absolute",

@@ -158,14 +158,14 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                     content={formatChatTime(+item.sentTime)}
                 /></Typography>
 
-                <Typography component="div" variant={right ? "positionRight1" : "positionLeft1"} sx={{ display: isGroup ? "block" : "none" }}>
+                <Typography component="div" variant={"positionLeft1"} sx={{ display: isGroup ? "block" : "none" }}>
                     <ClientAvatar
                         avatar={
                             message.user?.photo_url
                                 ? message.user?.photo_url
                                 : ""
                         }
-                        size={30}
+                        size={35}
                         name={message.user?.username}
                     />
                 </Typography>

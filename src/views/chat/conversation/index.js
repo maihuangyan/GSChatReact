@@ -35,6 +35,7 @@ import ChatTextLine from "./ChatTextLine"
 import PreviewFiles from "./PreviewFiles";
 import DraggerBox from "./DraggerBox";
 import ReplyBox from "./ReplyBox";
+import Information from "./Information";
 
 import { Upload } from 'antd';
 import { selectRoomClear } from "store/actions/room";
@@ -123,7 +124,7 @@ const Conversation = () => {
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
 
     useEffect(() => {
-        console.log(updateOnlineStatus)
+        // console.log(updateOnlineStatus)
     }, [updateOnlineStatus])
 
     // ** Refs & Dispatch
@@ -136,16 +137,18 @@ const Conversation = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [enlargeImg, setEnlargeImg] = useState(null)
 
+    const [scroll_height, setScroll_height] = useState(null)
+
     // ** Scroll to chat bottom
     const actionScrollToBottom = () => {
-        const chatContainer = ReactDOM.findDOMNode(chatArea.current);
-        if (chatContainer)
-            //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
+        const chatContainer = chatArea.current;
+        if (chatContainer) {
+            //     //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
             chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
     };
 
     // ** If user chat is not empty scrollToBottom
-
     useEffect(() => {
         if (selectedRoom) {
             const roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
@@ -164,7 +167,6 @@ const Conversation = () => {
     }, [selectedRoom, store]);
 
     useEffect(() => {
-        actionScrollToBottom();
         setIsReply(false);
         setImg(null)
         setIsPreviewFiles(false)
@@ -393,200 +395,197 @@ const Conversation = () => {
     };
 
     const [draggerFile, setDraggerFile] = useState(false)
+    const [showInformation, setShowInformation] = useState(false)
 
+    useEffect(() => {
+        actionScrollToBottom();
+    }, [store, showInformation])
     // console.log(selectedRoom, "6666 ")
 
     return Object.keys(selectedRoom).length ? (
-        <>
-            <Box
-                sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    width: "100%",
-                    height: { xs: "auto", sm: "auto", md: "100%" },
-                    position: "relative",
-                    overflow: "hidden",
-                }}
-            >
-                <DraggerBox
-                    draggerFile={draggerFile}
-                    setDraggerFile={setDraggerFile}
-                    setIsPreviewFiles={setIsPreviewFiles}
-                    setImg={setImg}
-                    setUploadFiles={setUploadFiles}
-                />
-                <PreviewFiles
-                    roomId={selectedRoom.id}
-                    isPreviewFiles={isPreviewFiles} setIsPreviewFiles={setIsPreviewFiles}
-                    img={img}
-                    uploadFiles={uploadFiles}
-                    CircleButton1={CircleButton1}
-                    msg={msg}
-                    setMsg={setMsg}
-                    setIsTyping={setIsTyping}
-                    isTyping={isTyping} />
-                <EnlargeImgBox open={isModalOpen} setIsModalOpen={setIsModalOpen} img={enlargeImg} />
-                <Grid container sx={{ borderBottom: "1px solid #997017", p: 1 }}>
-                    <Grid item xs={6} container>
-                        <Box sx={{ display: "flex", alignItems: "center", pb: 0 }}>
-                            <Box sx={{
-                                mr: 1, display: "none",
-                                "@media (max-width: 900px)": {
-                                    display: "block",
-                                },
-                            }}
-                                onClick={() => dispatch(selectRoomClear())}
-                            >
-                                <CircleButton2>
-                                    <IconArrowLeft size={20} stroke={3} />
-                                </CircleButton2>
-                            </Box>
-                            <ClientAvatar
-                                avatar={selectedRoom.photo_url ? selectedRoom.photo_url : ""}
-                                status={getRoomOnlineStatus(selectedRoom.id)}
-                                size={40}
-                                name={selectedRoom.name}
-                            />
-                            <Box sx={{ ml: 2 }}>
-                                <Typography variant={selectedRoom.group ? "h2" : "h4"}>
-                                    {selectedRoom.name}
-                                </Typography>
-                                <Typography color={"#d5d5d5"}>{selectedRoom.group ? "" : (getRoomOnlineStatus(selectedRoom.id) ? "Online" : "Leave")}</Typography>
-
-                            </Box>
-                        </Box>
-                    </Grid>
-                    <Grid item xs={6} >
-                        <Paper
-                            sx={{
-                                display: "flex",
-                                justifyContent: "end",
-                            }}
-                        >
-                            <CircleButton1 type="button" onClick={handleClick}>
-                                <IconDotsVertical size={25} stroke={1} />
-                            </CircleButton1>
-                        </Paper>
-                        <Menu
-                            id="basic-menu"
-                            anchorEl={anchorEl}
-                            open={open}
-                            onClose={handleClose}
-                            MenuListProps={{
-                                "aria-labelledby": "basic-button",
-                            }}
-                        >
-                            <MenuItem sx={{ minWidth: "150px" }}>
-                                <ListItemText>mute</ListItemText>
-                            </MenuItem>
-                            <Divider />
-                            <MenuItem>
-                                <ListItemText>shield</ListItemText>
-                            </MenuItem>
-                            <Divider />
-                            <MenuItem>
-                                <ListItemText>file</ListItemText>
-                            </MenuItem>
-                            <Divider />
-                            <MenuItem>
-                                <ListItemText>delete</ListItemText>
-                            </MenuItem>
-                        </Menu>
-                    </Grid>
-                </Grid>
-                <Box>
-                    <Paper
-                        sx={{ height: "calc( 100vh - 160px)", p: 2, pt: 3, pb: 9, overflowY: "auto", borderRadius: 0, }}
-                        ref={chatArea}
-                    >
-                        {renderChats()}
-                    </Paper>
-                </Box>
-
-                <form onSubmit={(e) => handleSendMsg(e)}>
-                    <Box sx={{ pt: 1, mb: 1, position: "relative", borderTop: "1px solid #997017" }}>
-                        <ReplyBox
-                            isReply={isReply}
-                            isReplyClose={isReplyClose}
-                            theme={theme}
-                            replyUser={replyUser}
-                            replyContent={replyContent}
-                        />
-                        {
-                            !selectedRoom.group && opponentTyping && opponentTyping.typing  && <Box sx={{ position: "absolute", left: "30px", top: "-30px", color: theme.palette.text.disabled, fontWeight: "600" }}>
-                                {opponentTyping.user.username} is typing <img src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
-                            </Box>
-                        }
-                        <Box sx={{ display: "flex", justifyContent: "space-between", position: "relative" }}>
-                            <Upload {...props}>
-                                <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>
-                                    <IconPhoto size={25} stroke={2} />
-                                </CircleButton1>
-                            </Upload>
-                            <Upload {...props}>
-                                <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>
-                                    <IconLink size={25} stroke={2} />
-                                </CircleButton1>
-                            </Upload>
-                            <FormControl fullWidth variant="outlined" sx={{ mr: 1 }}>
-                                <OutlinedInput
-                                    placeholder="New message"
-                                    id="message-box"
-                                    value={msg}
-                                    onPaste={async (e) => {
-                                        // e.preventDefault();
-                                        for (const clipboardItem of e.clipboardData.files) {
-                                            if (clipboardItem.type.startsWith('image/')) {
-                                                setUploadFiles(clipboardItem)
-                                                setImg(URL.createObjectURL(clipboardItem))
-                                                setIsPreviewFiles(true)
-                                            }
-                                        }
-                                    }}
-                                    onChange={(e) => {
-                                        setMsg(e.target.value);
-                                        if (e.target.value.length > 0 && !isTyping) {
-                                            setIsTyping(true);
-                                            socketSendTyping(selectedRoom.id, 1);
-                                        } else if (e.target.value.length == 0 && isTyping) {
-                                            setIsTyping(false);
-                                            socketSendTyping(selectedRoom.id, 0);
-                                        }
-                                    }}
-                                    sx={{ color: "white" }}
-
+        showInformation ? <Information CircleButton1={CircleButton1} setShowInformation={setShowInformation} selectedRoom={selectedRoom}  /> :
+            <>
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        width: "100%",
+                        height: { xs: "auto", sm: "auto", md: "100%" },
+                        position: "relative",
+                        overflow: "hidden",
+                    }}
+                >
+                    <DraggerBox
+                        draggerFile={draggerFile}
+                        setDraggerFile={setDraggerFile}
+                        setIsPreviewFiles={setIsPreviewFiles}
+                        setImg={setImg}
+                        setUploadFiles={setUploadFiles}
+                    />
+                    <PreviewFiles
+                        roomId={selectedRoom.id}
+                        isPreviewFiles={isPreviewFiles} setIsPreviewFiles={setIsPreviewFiles}
+                        img={img}
+                        uploadFiles={uploadFiles}
+                        CircleButton1={CircleButton1}
+                        msg={msg}
+                        setMsg={setMsg}
+                        setIsTyping={setIsTyping}
+                        isTyping={isTyping} />
+                    <EnlargeImgBox open={isModalOpen} setIsModalOpen={setIsModalOpen} img={enlargeImg} />
+                    <Grid container sx={{ borderBottom: "1px solid #997017", p: 1 }}>
+                        <Grid item xs={6} container>
+                            <Box sx={{ display: "flex", alignItems: "center", pb: 0 }}>
+                                <Box sx={{
+                                    mr: 1, display: "none",
+                                    "@media (max-width: 900px)": {
+                                        display: "block",
+                                    },
+                                }}
+                                    onClick={() => dispatch(selectRoomClear())}
+                                >
+                                    <CircleButton2>
+                                        <IconArrowLeft size={20} stroke={3} />
+                                    </CircleButton2>
+                                </Box>
+                                <ClientAvatar
+                                    avatar={selectedRoom.photo_url ? selectedRoom.photo_url : ""}
+                                    status={getRoomOnlineStatus(selectedRoom.id)}
+                                    size={40}
+                                    name={selectedRoom.name}
                                 />
-                            </FormControl>
-                            <CircleButton1 type="submit" sx={{ mt: "5px", color: "#FBC34A" }}>
-                                <IconSend size={25} stroke={2} />
-                            </CircleButton1>
-                        </Box>
+                                <Box sx={{ ml: 2 }}>
+                                    <Typography variant={selectedRoom.group ? "h2" : "h4"}>
+                                        {selectedRoom.name}
+                                    </Typography>
+                                    <Typography color={"#d5d5d5"}>{selectedRoom.group ? "" : (getRoomOnlineStatus(selectedRoom.id) ? "Online" : "Leave")}</Typography>
+
+                                </Box>
+                            </Box>
+                        </Grid>
+                        <Grid item xs={6} >
+                            <Paper
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "end",
+                                }}
+                            >
+                                <CircleButton1 type="button" onClick={handleClick}>
+                                    <IconDotsVertical size={25} stroke={1} />
+                                </CircleButton1>
+                            </Paper>
+                            <Menu
+                                id="basic-menu"
+                                anchorEl={anchorEl}
+                                open={open}
+                                onClose={handleClose}
+                                MenuListProps={{
+                                    "aria-labelledby": "basic-button",
+                                }}
+                            >
+                                <MenuItem sx={{ minWidth: "150px" }} onClick={() => (setShowInformation(true), setAnchorEl(null))}>
+                                    <ListItemText>Information</ListItemText>
+                                </MenuItem>
+                                <Divider />
+                                <MenuItem>
+                                    <ListItemText>Clear</ListItemText>
+                                </MenuItem>
+                            </Menu>
+                        </Grid>
+                    </Grid>
+                    <Box>
+                        <Paper
+                            sx={{ height: "calc( 100vh - 160px)", p: 2, pt: 3, pb: 9, overflowY: "auto", borderRadius: 0, }}
+                            ref={chatArea}
+                        >
+                            {renderChats()}
+                        </Paper>
                     </Box>
-                </form >
-            </Box >
-            <Dialog
-                open={dialogOpen}
-                onClose={handleDialogClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">
-                    {"Are you sure want to clear all the chat history?"}
-                </DialogTitle>
-                <DialogActions>
-                    <Button onClick={handleDialogClose}>Cancel</Button>
-                    <Button
-                        onClick={() => {
-                            handleConfirmClear();
-                        }}
-                        autoFocus
-                    >
-                        OK
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </>
+
+                    <form onSubmit={(e) => handleSendMsg(e)}>
+                        <Box sx={{ pt: 1, mb: 1, position: "relative", borderTop: "1px solid #997017" }}>
+                            <ReplyBox
+                                isReply={isReply}
+                                isReplyClose={isReplyClose}
+                                theme={theme}
+                                replyUser={replyUser}
+                                replyContent={replyContent}
+                            />
+                            {
+                                !selectedRoom.group && opponentTyping && opponentTyping.typing && <Box sx={{ position: "absolute", left: "30px", top: "-30px", color: theme.palette.text.disabled, fontWeight: "600" }}>
+                                    {opponentTyping.user.username} is typing <img src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
+                                </Box>
+                            }
+                            <Box sx={{ display: "flex", justifyContent: "space-between", position: "relative" }}>
+                                <Upload {...props}>
+                                    <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>
+                                        <IconPhoto size={25} stroke={2} />
+                                    </CircleButton1>
+                                </Upload>
+                                <Upload {...props}>
+                                    <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>
+                                        <IconLink size={25} stroke={2} />
+                                    </CircleButton1>
+                                </Upload>
+                                <FormControl fullWidth variant="outlined" sx={{ mr: 1 }}>
+                                    <OutlinedInput
+                                        placeholder="New message"
+                                        id="message-box"
+                                        value={msg}
+                                        onPaste={async (e) => {
+                                            // e.preventDefault();
+                                            for (const clipboardItem of e.clipboardData.files) {
+                                                if (clipboardItem.type.startsWith('image/')) {
+                                                    setUploadFiles(clipboardItem)
+                                                    setImg(URL.createObjectURL(clipboardItem))
+                                                    setIsPreviewFiles(true)
+                                                }
+                                            }
+                                        }}
+                                        onChange={(e) => {
+                                            setMsg(e.target.value);
+                                            if (e.target.value.length > 0 && !isTyping) {
+                                                setIsTyping(true);
+                                                socketSendTyping(selectedRoom.id, 1);
+                                            } else if (e.target.value.length == 0 && isTyping) {
+                                                setIsTyping(false);
+                                                socketSendTyping(selectedRoom.id, 0);
+                                            }
+                                        }}
+                                        sx={{ color: "white" }}
+
+                                    />
+                                </FormControl>
+                                <CircleButton1 type="submit" sx={{ mt: "5px", color: "#FBC34A" }}>
+                                    <IconSend size={25} stroke={2} />
+                                </CircleButton1>
+                            </Box>
+                        </Box>
+                    </form >
+                </Box >
+                <Dialog
+                    open={dialogOpen}
+                    onClose={handleDialogClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {"Are you sure want to clear all the chat history?"}
+                    </DialogTitle>
+                    <DialogActions>
+                        <Button onClick={handleDialogClose}>Cancel</Button>
+                        <Button
+                            onClick={() => {
+                                handleConfirmClear();
+                            }}
+                            autoFocus
+                        >
+                            OK
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </>
     ) : (
         <Typography variant="body2">
             Select a conversation or Create a New one
