@@ -238,7 +238,7 @@ const SocketProvider = ({ children }) => {
     });
   };
 
-  const socketSendMessage = (room_id, type, message) => {
+  const socketSendMessage = (room_id, type, message , reply_on) => {
     const selectedChat = room;
     if (!selectedChat) return;
 
@@ -255,6 +255,7 @@ const SocketProvider = ({ children }) => {
       message: message,
       created_at: nowSecs(),
       updated_at: nowSecs(),
+      reply_on,
     };
     addMessages([newMessage]);
     socket.emit("sendMessage", newMessage);

@@ -69,6 +69,7 @@ const Contacts = () => {
 
     // ** Handles User Chat Click
     const handleUserClick = (type, room) => {
+        console.log(room)
         dispatch(selectRoom(room));
         setActive({ type, id: room.id , room});
         dispatch(getMessages({ id: room.id }))
@@ -154,7 +155,7 @@ const Contacts = () => {
                                     }
                                     sx={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}
                                 >
-                                    {item.last_message?.message}
+                                    {item.last_message?.type== 0 ? item.last_message?.message : (item.last_message?.type== 1 ? "image" : (item.last_message?.type== 3 ? item.last_message?.forward_message.message : "") )}
                                 </Typography>
                             </Box>
                         </Box>

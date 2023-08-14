@@ -23,7 +23,6 @@ import {
     Divider,
 } from "@mui/material";
 
-import defaultAvatar from "../../../assets/images/users/default_avatar.png";
 import { styled, useTheme } from "@mui/material/styles";
 import { IconSend, IconDotsVertical, IconLink, IconPhoto, IconArrowLeft } from "@tabler/icons";
 
@@ -150,6 +149,7 @@ const Conversation = () => {
 
     // ** If user chat is not empty scrollToBottom
     useEffect(() => {
+
         if (selectedRoom) {
             const roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
             setRoomMessages(roomMessages)
@@ -244,7 +244,6 @@ const Conversation = () => {
                             right={right}
                             ReplyClick={ReplyClick}
                             EditClick={EditClick}
-                            isReplyNews={isReplyNews}
                             formatChatTime={formatChatTime}
                             isGroup={isGroup}
                             TimeSeperator={TimeSeperator}
@@ -260,13 +259,9 @@ const Conversation = () => {
     // ** Sends New Msg
     const handleSendMsg = (e) => {
         e.preventDefault();
+        console.log(replyDate)
         if (msg.length) {
-            socketSendMessage(selectedRoom.id, '0', msg);
-            if (isReply) {
-                setIsReplyNews(true)
-            } else {
-                setIsReplyNews(false)
-            }
+            socketSendMessage(selectedRoom.id, '0', msg, replyDate.id ? replyDate.id : 0);
             setMsg("");
             socketSendTyping(selectedRoom.id, 0);
             setIsTyping(false);
@@ -310,19 +305,16 @@ const Conversation = () => {
     };
 
     const [isReply, setIsReply] = useState(false);
-    const [isReplyNews, setIsReplyNews] = useState(false);
     const [replyContent, setReplyContent] = useState(null);
     const [replyUser, setReplyUser] = useState(null);
+    const [replyDate, setReplyDate] = useState(null);
 
     const ReplyClick = (content) => {
+        console.log(content)
+        setReplyDate(content.message)
         setIsReply(true)
         setReplyContent(content.message.message)
-        if (content.right) {
-            setReplyUser({ username: userData.username, right: content.right })
-        } else {
-            let senderUsername = selectedRoom.room_users.filter(user => user.id === content.senderId)[0]?.username
-            setReplyUser({ username: selectedRoom.group ? senderUsername : selectedRoom.room_users[0].username, right: content.right })
-        }
+        setReplyUser({ username: content.message.username, right: content.right })
     }
     const EditClick = (content) => {
         setIsReply(true)
@@ -333,7 +325,11 @@ const Conversation = () => {
         setIsReply(false)
     }
 
-    const userData = useSelector((state) => state.auth.userData);
+    useEffect(() => {
+        if (!isReply) {
+            setReplyDate({})
+        }
+    }, [isReply])
 
     // useEffect(() => {
     //     if (selectedRoom && isChangeClient !== selectedRoom.id) {
@@ -403,7 +399,7 @@ const Conversation = () => {
     // console.log(selectedRoom, "6666 ")
 
     return Object.keys(selectedRoom).length ? (
-        showInformation ? <Information CircleButton1={CircleButton1} setShowInformation={setShowInformation}  /> :
+        showInformation ? <Information CircleButton1={CircleButton1} setShowInformation={setShowInformation} /> :
             <>
                 <Box
                     sx={{
