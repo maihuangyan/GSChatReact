@@ -24,6 +24,7 @@ import SearchUser from "./SearchUser";
 import Settings from "./Settings";
 import { SocketContext } from "utils/context/SocketContext";
 
+
 const CircleButton1 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
     minWidth: "40px",
@@ -69,9 +70,8 @@ const Contacts = () => {
 
     // ** Handles User Chat Click
     const handleUserClick = (type, room) => {
-        console.log(room)
         dispatch(selectRoom(room));
-        setActive({ type, id: room.id , room});
+        setActive({ type, id: room.id, room });
         dispatch(getMessages({ id: room.id }))
         dispatch(resetUnreadCount({ room_id: room.id, unread_count: room.unread_count, unreadCount: 0 }))
     };
@@ -103,7 +103,7 @@ const Contacts = () => {
                             : new Date().getTime()
                     );
                 }
-                let fullName = item.group ? item.name : (item.room_users[0].first_name.length ? `${item.room_users[0].first_name} ${item.room_users[0].last_name}` : item.room_users[0].username) 
+                let fullName = item.group ? item.name : (item.room_users[0].first_name.length ? `${item.room_users[0].first_name} ${item.room_users[0].last_name}` : item.room_users[0].username)
                 return (
                     <Box
                         key={item.id}
@@ -155,7 +155,7 @@ const Contacts = () => {
                                     }
                                     sx={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}
                                 >
-                                    {item.last_message?.type== 0 ? item.last_message?.message : (item.last_message?.type== 1 ? "image" : (item.last_message?.type== 3 ? item.last_message?.forward_message.message : "") )}
+                                    {item.last_message?.type == 0 ? item.last_message?.message : (item.last_message?.type == 1 ? "image" : (item.last_message?.type == 3 ? item.last_message?.forward_message.message : ""))}
                                 </Typography>
                             </Box>
                         </Box>

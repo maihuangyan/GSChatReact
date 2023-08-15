@@ -24,6 +24,7 @@ const AppRoutes = () => {
   const role = auth.userData?.role;
   const dispatch = useDispatch();
   const hideProgress = useContext(LoaderContext).hideProgress;
+
   const loadRoomData = useContext(SocketContext).loadRoomData
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import socket_io from "socket.io-client"
-import { createContext, useCallback, useEffect, useState } from "react"
+import { createContext, useCallback, useEffect, useState, useContext } from "react"
 import useJwt from "utils/jwt/useJwt"
 import { useDispatch, useSelector } from "react-redux"
 import { getRoomList, selectRoom, updateRoomLastMessage } from "store/actions/room"
@@ -8,6 +8,7 @@ import { getMessages, reduxInsertMessages, reduxUpdateMessages } from "store/act
 import { isMessageSeen, nowSecs, randomString, sortMessages } from "utils/common"
 
 import { useLocation } from "react-router"
+import { LoaderContext } from "utils/context/ProgressLoader";
 
 const handleConnect = (socket) => {
   if (useJwt.getToken()) {
@@ -41,6 +42,9 @@ const SocketProvider = ({ children }) => {
   const [updateOnlineStatus, setUpdateOnlineStatus] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([]);
 
+  const hideProgress = useContext(LoaderContext).hideProgress;
+  const showProgress = useContext(LoaderContext).showProgress;
+
   useEffect(() => {
     if (auth.userData) {
       loadRoomData()
@@ -63,6 +67,7 @@ const SocketProvider = ({ children }) => {
     useJwt
       .getOnlineList()
       .then((res) => {
+        showProgress()
         if (res.data.ResponseCode == 0) {
           setOnlineUsers(res.data.ResponseResult)
 
@@ -74,7 +79,7 @@ const SocketProvider = ({ children }) => {
           console.log(res.data.ResponseCode);
         }
       })
-      .catch((err) => console.log(err));
+      .catch((err) => (console.log(err),hideProgress()));
   }
 
   const getRoomOnlineStatus = (room_id) => {
@@ -171,7 +176,7 @@ const SocketProvider = ({ children }) => {
       // deleted message
       console.log('deleted messages', messages)
       deleteMessages(messages)
-    }, 
+    },
     []
   );
 
@@ -238,7 +243,7 @@ const SocketProvider = ({ children }) => {
     });
   };
 
-  const socketSendMessage = (room_id, type, message , reply_on) => {
+  const socketSendMessage = (room_id, type, message, reply_on) => {
     const selectedChat = room;
     if (!selectedChat) return;
 

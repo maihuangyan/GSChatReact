@@ -51,17 +51,17 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                 {message.type == 0 ? (
                     <Grid>
                         <Grid item>
-                            {message.reply_on ? <Box sx={{ p: "4px 4px", background: "#b5b5b5", borderRadius: "3px", mb: 1 }}>
+                            {message.reply_on ? <Box sx={{ p: "4px 4px", background: "#b5b5b5", borderRadius: "3px", mb: 1 , cursor:"pointer"}}>
                                 <Typography component="div" sx={{ borderLeft: "2px solid #FBC34A", p: "2px 4px" }}>
                                     <Grid>
-                                        <Grid item>{message.reply_on_message.username}</Grid>
-                                        <Grid item><Typography variant='body2'>{message.reply_on_message.type == 0 ? message.reply_on_message.message : (message.reply_on_message.type == 1 ? "image" : (message.reply_on_message.type == 3 ? message.reply_on_message.forward_message.message : ""))}</Typography></Grid>
+                                        <Grid item>{message.reply_on_message?.username}</Grid>
+                                        <Grid item><Typography variant='body2'>{message.reply_on_message?.type == 0 ? message.reply_on_message?.message : (message.reply_on_message?.type == 1 ? "image" : (message.reply_on_message?.type == 3 ? message.reply_on_message?.forward_message.message : ""))}</Typography></Grid>
                                     </Grid>
                                 </Typography>
                             </Box> : ""}
                         </Grid>
                         <Grid item>
-                            <Typography variant="body1" sx={{ p: "0 8px" }}>{message.message}</Typography>
+                            <Typography variant="body1" sx={{ p: "2px 8px" }}>{message.message}</Typography>
                         </Grid>
                     </Grid>
                 ) : ((message.files && message.files.length > 0) ? (
@@ -81,7 +81,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                             {message.forward_message ? <Box sx={{ p: "4px 2px", borderRadius: "3px", mb: 1, display: "flex" }}>
                                 <IconArrowForwardUp size={20} stroke={2} color='#fff' />
                                 <Typography component='div' color='#fff' sx={{ ml: "3px" }}>
-                                    {message.forward_message.username}
+                                    {message.forward_message?.username}
                                 </Typography>
                             </Box> : ""}
                         </Grid>
@@ -145,17 +145,17 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                 {message.type == 0 ? (
                     <Grid>
                         <Grid item>
-                            {message.reply_on ? <Box sx={{ p: "4px 4px", background: theme.palette.primary.main, borderRadius: "3px", mb: 1 }}>
+                            {message.reply_on ? <Box sx={{ p: "4px 4px", background: theme.palette.primary.main, borderRadius: "3px", mb: 1 , cursor:"pointer" }}>
                                 <Typography component="div" sx={{ borderLeft: "2px solid #000", p: "2px 4px" }}>
                                     <Grid>
-                                        <Grid item>{message.reply_on_message.username}</Grid>
-                                        <Grid item><Typography variant='body2'>{message.reply_on_message.type == 0 ? message.reply_on_message.message : (message.reply_on_message.type == 1 ? "image" : (message.reply_on_message.type == 3 ? message.reply_on_message.forward_message.message : ""))}</Typography></Grid>
+                                        <Grid item>{message.reply_on_message?.username}</Grid>
+                                        <Grid item><Typography variant='body2'>{message.reply_on_message?.type == 0 ? message.reply_on_message.message : (message.reply_on_message?.type == 1 ? "image" : (message.reply_on_message?.type == 3 ? message.reply_on_message?.forward_message.message : ""))}</Typography></Grid>
                                     </Grid>
                                 </Typography>
                             </Box> : ""}
                         </Grid>
                         <Grid item>
-                            <Typography variant="body1" sx={{ p: "0 8px" }}>{message.message}</Typography>
+                            <Typography variant="body1" sx={{ p: "2px 8px" }}>{message.message}</Typography>
                         </Grid>
                     </Grid>
                 ) : ((message.files && message.files.length > 0) ? (
@@ -175,7 +175,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                             {message.forward_message ? <Box sx={{ p: "4px 2px", borderRadius: "3px", mb: 1, display: "flex" }}>
                                 <IconArrowForwardUp size={20} stroke={2} color='#fff' />
                                 <Typography component='div' color='#fff' sx={{ ml: "3px" }}>
-                                    {message.forward_message.username}
+                                    {message.forward_message?.username}
                                 </Typography>
                             </Box> : ""}
                         </Grid>

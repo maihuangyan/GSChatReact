@@ -38,6 +38,7 @@ import Information from "./Information";
 
 import { Upload } from 'antd';
 import { selectRoomClear } from "store/actions/room";
+import { LoaderContext } from "utils/context/ProgressLoader";
 
 const CircleButton1 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -122,6 +123,9 @@ const Conversation = () => {
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
 
+    const hideProgress = useContext(LoaderContext).hideProgress;
+    const showProgress = useContext(LoaderContext).showProgress;
+
     useEffect(() => {
         // console.log(updateOnlineStatus)
     }, [updateOnlineStatus])
@@ -163,6 +167,7 @@ const Conversation = () => {
         }
 
         setIsGroup(selectedRoom.group)
+        showProgress()
 
     }, [selectedRoom, store]);
 
@@ -259,7 +264,6 @@ const Conversation = () => {
     // ** Sends New Msg
     const handleSendMsg = (e) => {
         e.preventDefault();
-        console.log(replyDate)
         if (msg.length) {
             socketSendMessage(selectedRoom.id, '0', msg, replyDate.id ? replyDate.id : 0);
             setMsg("");
@@ -305,7 +309,6 @@ const Conversation = () => {
     };
 
     const [isReply, setIsReply] = useState(false);
-    const [replyContent, setReplyContent] = useState(null);
     const [replyUser, setReplyUser] = useState(null);
     const [replyDate, setReplyDate] = useState(null);
 
@@ -313,12 +316,10 @@ const Conversation = () => {
         console.log(content)
         setReplyDate(content.message)
         setIsReply(true)
-        setReplyContent(content.message.message)
         setReplyUser({ username: content.message.username, right: content.right })
     }
     const EditClick = (content) => {
         setIsReply(true)
-        setReplyContent(content.message.message)
         setReplyUser({ username: "Edit", right: content.right })
     }
     const isReplyClose = () => {
@@ -330,6 +331,22 @@ const Conversation = () => {
             setReplyDate({})
         }
     }, [isReply])
+
+    // const aaa = () => {
+    //     if (selectedRoom.id) {
+
+    //         const conversationBox = document.querySelector(".css-0 .MuiPaper-elevation0")
+    //         if (conversationBox.scrollHeight > conversationBox.clientHeight) {
+    //             conversationBox.scrollTop = conversationBox.scrollHeight
+    //         }
+    //     }
+    // }
+
+    // useEffect(() => {
+    //     aaa()
+    //     console.log(store)
+    //     console.log(scrollToBottom)
+    // }, [store])
 
     // useEffect(() => {
     //     if (selectedRoom && isChangeClient !== selectedRoom.id) {
@@ -395,6 +412,7 @@ const Conversation = () => {
 
     useEffect(() => {
         actionScrollToBottom();
+        hideProgress()
     }, [store, showInformation])
     // console.log(selectedRoom, "6666 ")
 
@@ -492,7 +510,7 @@ const Conversation = () => {
                     </Grid>
                     <Box>
                         <Paper
-                            sx={{ height: "calc( 100vh - 160px)", p: 2, pt: 3, pb: 9, overflowY: "auto", borderRadius: 0, }}
+                            sx={{ height: `calc( 100vh - ${isReply ? "209px" : "163px"})`, p: 2, pt: 3, pb: 9, overflowY: "auto", borderRadius: 0, }}
                             ref={chatArea}
                         >
                             {renderChats()}
@@ -501,62 +519,68 @@ const Conversation = () => {
 
                     <form onSubmit={(e) => handleSendMsg(e)}>
                         <Box sx={{ pt: 1, mb: 1, position: "relative", borderTop: "1px solid #997017" }}>
-                            <ReplyBox
-                                isReply={isReply}
-                                isReplyClose={isReplyClose}
-                                theme={theme}
-                                replyUser={replyUser}
-                                replyContent={replyContent}
-                            />
                             {
                                 !selectedRoom.group && opponentTyping && opponentTyping.typing && <Box sx={{ position: "absolute", left: "30px", top: "-30px", color: theme.palette.text.disabled, fontWeight: "600" }}>
                                     {opponentTyping.user.username} is typing <img src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
                                 </Box>
                             }
-                            <Box sx={{ display: "flex", justifyContent: "space-between", position: "relative" }}>
-                                <Upload {...props}>
-                                    <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>
-                                        <IconPhoto size={25} stroke={2} />
-                                    </CircleButton1>
-                                </Upload>
-                                <Upload {...props}>
-                                    <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>
-                                        <IconLink size={25} stroke={2} />
-                                    </CircleButton1>
-                                </Upload>
-                                <FormControl fullWidth variant="outlined" sx={{ mr: 1 }}>
-                                    <OutlinedInput
-                                        placeholder="New message"
-                                        id="message-box"
-                                        value={msg}
-                                        onPaste={async (e) => {
-                                            // e.preventDefault();
-                                            for (const clipboardItem of e.clipboardData.files) {
-                                                if (clipboardItem.type.startsWith('image/')) {
-                                                    setUploadFiles(clipboardItem)
-                                                    setImg(URL.createObjectURL(clipboardItem))
-                                                    setIsPreviewFiles(true)
-                                                }
-                                            }
-                                        }}
-                                        onChange={(e) => {
-                                            setMsg(e.target.value);
-                                            if (e.target.value.length > 0 && !isTyping) {
-                                                setIsTyping(true);
-                                                socketSendTyping(selectedRoom.id, 1);
-                                            } else if (e.target.value.length == 0 && isTyping) {
-                                                setIsTyping(false);
-                                                socketSendTyping(selectedRoom.id, 0);
-                                            }
-                                        }}
-                                        sx={{ color: "white" }}
-
+                            <Grid>
+                                <Grid item>
+                                    <ReplyBox
+                                        isReply={isReply}
+                                        isReplyClose={isReplyClose}
+                                        theme={theme}
+                                        replyUser={replyUser}
+                                        replyDate={replyDate}
                                     />
-                                </FormControl>
-                                <CircleButton1 type="submit" sx={{ mt: "5px", color: "#FBC34A" }}>
-                                    <IconSend size={25} stroke={2} />
-                                </CircleButton1>
-                            </Box>
+                                </Grid>
+                                <Grid item>
+                                    <Box sx={{ display: "flex", justifyContent: "space-between", position: "relative" }}>
+                                        <Upload {...props}>
+                                            <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>
+                                                <IconPhoto size={25} stroke={2} />
+                                            </CircleButton1>
+                                        </Upload>
+                                        <Upload {...props}>
+                                            <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>
+                                                <IconLink size={25} stroke={2} />
+                                            </CircleButton1>
+                                        </Upload>
+                                        <FormControl fullWidth variant="outlined" sx={{ mr: 1 }}>
+                                            <OutlinedInput
+                                                placeholder="New message"
+                                                id="message-box"
+                                                value={msg}
+                                                onPaste={async (e) => {
+                                                    // e.preventDefault();
+                                                    for (const clipboardItem of e.clipboardData.files) {
+                                                        if (clipboardItem.type.startsWith('image/')) {
+                                                            setUploadFiles(clipboardItem)
+                                                            setImg(URL.createObjectURL(clipboardItem))
+                                                            setIsPreviewFiles(true)
+                                                        }
+                                                    }
+                                                }}
+                                                onChange={(e) => {
+                                                    setMsg(e.target.value);
+                                                    if (e.target.value.length > 0 && !isTyping) {
+                                                        setIsTyping(true);
+                                                        socketSendTyping(selectedRoom.id, 1);
+                                                    } else if (e.target.value.length == 0 && isTyping) {
+                                                        setIsTyping(false);
+                                                        socketSendTyping(selectedRoom.id, 0);
+                                                    }
+                                                }}
+                                                sx={{ color: "white" }}
+
+                                            />
+                                        </FormControl>
+                                        <CircleButton1 type="submit" sx={{ mt: "5px", color: "#FBC34A" }}>
+                                            <IconSend size={25} stroke={2} />
+                                        </CircleButton1>
+                                    </Box>
+                                </Grid>
+                            </Grid>
                         </Box>
                     </form >
                 </Box >
