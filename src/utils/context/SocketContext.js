@@ -79,7 +79,7 @@ const SocketProvider = ({ children }) => {
           console.log(res.data.ResponseCode);
         }
       })
-      .catch((err) => (console.log(err),hideProgress()));
+      .catch((err) => (console.log(err), hideProgress()));
   }
 
   const getRoomOnlineStatus = (room_id) => {
@@ -243,7 +243,7 @@ const SocketProvider = ({ children }) => {
     });
   };
 
-  const socketSendMessage = (room_id, type, message, reply_on) => {
+  const socketSendMessage = (room_id, type, message, reply_on, forward_message) => {
     const selectedChat = room;
     if (!selectedChat) return;
 
@@ -261,6 +261,7 @@ const SocketProvider = ({ children }) => {
       created_at: nowSecs(),
       updated_at: nowSecs(),
       reply_on,
+      forward_message,
     };
     addMessages([newMessage]);
     socket.emit("sendMessage", newMessage);

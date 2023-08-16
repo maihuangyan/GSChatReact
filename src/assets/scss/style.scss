@@ -255,3 +255,22 @@
 
     }
 }
+
+.ant-modal {
+    .ant-modal-content {
+        background: #101010;
+
+        .ant-modal-header {
+            background: #101010;
+
+            .ant-modal-title {
+                color: #FBC34A;
+            }
+        }
+    }
+
+}
+
+.ant-modal-mask {
+    background-color: rgba(0, 0, 0, 0.85) !important;
+}

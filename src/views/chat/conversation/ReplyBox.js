@@ -9,7 +9,7 @@ export default function ReplyBox({ isReply, isReplyClose, theme, replyUser , rep
     return (
         <Box sx={{ display: isReply ? "flex" : "none", justifyContent: "start", alignItems: "center", p: "0 0 0 5px",background: "#000", mb:"5px"}}>
             <Typography component="span" sx={{ cursor: "pointer", mr: 1 ,}} onClick={() => isReplyClose()}>
-                <IconX size={20} stroke={2} /></Typography>
+                <IconX size={20} stroke={2} color='#b5b5b5' /></Typography>
             <Typography component="div" sx={{
                 width: "100%", background: "#101010", color: theme.palette.text.black, p: "0 12px", position: "relative", borderLeft:"2px solid #FBC34A"
             }}>

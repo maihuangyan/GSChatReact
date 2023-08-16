@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import ReactDOM from "react-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router";
 import useJwt from "utils/jwt/useJwt";
 import { formatChatDate, formatChatTime, isMessageSeen } from "utils/common";
 import typingAnim from 'assets/images/anim/typing.gif'
@@ -35,6 +33,7 @@ import PreviewFiles from "./PreviewFiles";
 import DraggerBox from "./DraggerBox";
 import ReplyBox from "./ReplyBox";
 import Information from "./Information";
+import ForwardBox from "./ForwardBox";
 
 import { Upload } from 'antd';
 import { selectRoomClear } from "store/actions/room";
@@ -140,8 +139,6 @@ const Conversation = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [enlargeImg, setEnlargeImg] = useState(null)
 
-    const [scroll_height, setScroll_height] = useState(null)
-
     // ** Scroll to chat bottom
     const actionScrollToBottom = () => {
         const chatContainer = chatArea.current;
@@ -234,7 +231,7 @@ const Conversation = () => {
             let senderUsername = selectedRoom.room_users.filter(user => user.id === item.senderId)[0]?.username
             const right = item.senderId == useJwt.getUserID()
             return (
-                <Box key={index}
+                <Box key={item.sentTime}
                     sx={{
                         position: "relative", mt: 1,
 
@@ -244,7 +241,7 @@ const Conversation = () => {
                         <ChatTextLine
                             item={item}
                             i={i}
-                            key={i}
+                            key={message.id}
                             message={message}
                             right={right}
                             ReplyClick={ReplyClick}
@@ -254,6 +251,9 @@ const Conversation = () => {
                             TimeSeperator={TimeSeperator}
                             setIsModalOpen={setIsModalOpen}
                             setEnlargeImg={setEnlargeImg}
+                            replyScroll={replyScroll}
+                            setIsForward={setIsForward}
+                            setForwardDate={setForwardDate}
                         />
                     ))}
                 </Box>
@@ -312,6 +312,9 @@ const Conversation = () => {
     const [replyUser, setReplyUser] = useState(null);
     const [replyDate, setReplyDate] = useState(null);
 
+    const [isForward, setIsForward] = useState(false);
+    const [ForwardDate, setForwardDate] = useState(null);
+
     const ReplyClick = (content) => {
         console.log(content)
         setReplyDate(content.message)
@@ -326,27 +329,26 @@ const Conversation = () => {
         setIsReply(false)
     }
 
+    const isForwardClose = () => {
+        setIsForward(false)
+    }
+
     useEffect(() => {
         if (!isReply) {
             setReplyDate({})
         }
-    }, [isReply])
+    }, [isReply,selectedRoom])
 
-    // const aaa = () => {
-    //     if (selectedRoom.id) {
-
-    //         const conversationBox = document.querySelector(".css-0 .MuiPaper-elevation0")
-    //         if (conversationBox.scrollHeight > conversationBox.clientHeight) {
-    //             conversationBox.scrollTop = conversationBox.scrollHeight
-    //         }
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     aaa()
-    //     console.log(store)
-    //     console.log(scrollToBottom)
-    // }, [store])
+    const replyScroll = (message) => {
+        const chatContainer = chatArea.current;
+        let btn = document.getElementById(message.reply_on_message ? message.reply_on_message.id : message.id)
+        let options = {
+            top: 0,
+            behavior: 'smooth'
+        }
+        options.top = btn.parentNode.parentNode.parentNode.offsetTop + btn.offsetTop - 70
+        chatContainer.scrollTo(options)
+    }
 
     // useEffect(() => {
     //     if (selectedRoom && isChangeClient !== selectedRoom.id) {
@@ -474,7 +476,6 @@ const Conversation = () => {
                                         {selectedRoom.name}
                                     </Typography>
                                     <Typography color={"#d5d5d5"}>{selectedRoom.group ? "" : (getRoomOnlineStatus(selectedRoom.id) ? "Online" : "Leave")}</Typography>
-
                                 </Box>
                             </Box>
                         </Grid>
@@ -519,6 +520,13 @@ const Conversation = () => {
 
                     <form onSubmit={(e) => handleSendMsg(e)}>
                         <Box sx={{ pt: 1, mb: 1, position: "relative", borderTop: "1px solid #997017" }}>
+                            <ForwardBox
+                                isForward={isForward}
+                                theme={theme}
+                                setIsForward={setIsForward}
+                                isForwardClose={isForwardClose}
+                                ForwardDate={ForwardDate}
+                            />
                             {
                                 !selectedRoom.group && opponentTyping && opponentTyping.typing && <Box sx={{ position: "absolute", left: "30px", top: "-30px", color: theme.palette.text.disabled, fontWeight: "600" }}>
                                     {opponentTyping.user.username} is typing <img src={typingAnim} alt="typing..." style={{ width: "30px", height: "10px" }} />
