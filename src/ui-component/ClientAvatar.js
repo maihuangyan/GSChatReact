@@ -3,6 +3,7 @@ import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { LoaderContext } from "utils/context/ProgressLoader";
 import { useTheme } from "@mui/material/styles";
+import { isEmpty } from "utils/common";
 
 const { Badge, Avatar } = require("@mui/material");
 
@@ -62,12 +63,30 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
   }
 
   function stringAvatar(name) {
+    if (isEmpty(name)) {
+      name = "Unknown"
+    }
+
+    const nameArray = name.split(' ')
+    let displayName = `${name[0].toUpperCase()}`
+    if (nameArray.length > 1) {
+      if (!isEmpty(nameArray[0][0]) && !isEmpty(nameArray[1][0])) {
+        displayName = `${nameArray[0][0].toUpperCase()}${nameArray[1][0].toUpperCase()}`
+      }
+      else if (!isEmpty(nameArray[0][0])) {
+        displayName = `${nameArray[0][0].toUpperCase()}`
+      }
+      else if (!isEmpty(nameArray[1][0])) {
+        displayName = `${nameArray[1][0].toUpperCase()}`
+      }
+    }
+    
     return {
       sx: {
         ...msx,
         bgcolor: stringToColor(name),
       },
-      children: name.split(' ').length == 1 ? `${name.split(' ')[0][0].toUpperCase()}` : `${name.split(' ')[0][0].toUpperCase()}${name.split(' ')[1][0].toUpperCase()}`,
+      children: displayName,
     };
   }
 

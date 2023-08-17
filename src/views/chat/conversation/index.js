@@ -118,6 +118,8 @@ const Conversation = () => {
     const socketSendTyping = useContext(SocketContext).socketSendTyping
     const socketSendMessage = useContext(SocketContext).socketSendMessage
     const socketOpenMessage = useContext(SocketContext).socketOpenMessage
+    const socketUpdateMessage = useContext(SocketContext).socketUpdateMessage
+    const socketDeleteMessage = useContext(SocketContext).socketDeleteMessage
     const scrollToBottom = useContext(SocketContext).scrollToBottom
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
@@ -150,7 +152,6 @@ const Conversation = () => {
 
     // ** If user chat is not empty scrollToBottom
     useEffect(() => {
-
         if (selectedRoom) {
             const roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
             setRoomMessages(roomMessages)
@@ -164,7 +165,7 @@ const Conversation = () => {
         }
 
         setIsGroup(selectedRoom.group)
-        showProgress()
+        //showProgress()
 
     }, [selectedRoom, store]);
 
@@ -231,7 +232,7 @@ const Conversation = () => {
             let senderUsername = selectedRoom.room_users.filter(user => user.id === item.senderId)[0]?.username
             const right = item.senderId == useJwt.getUserID()
             return (
-                <Box key={item.sentTime}
+                <Box key={index}
                     sx={{
                         position: "relative", mt: 1,
 
@@ -241,11 +242,13 @@ const Conversation = () => {
                         <ChatTextLine
                             item={item}
                             i={i}
-                            key={message.id}
+                            key={i}
                             message={message}
                             right={right}
                             ReplyClick={ReplyClick}
                             EditClick={EditClick}
+                            CopyClick={CopyClick}
+                            DeleteClick={DeleteClick}
                             formatChatTime={formatChatTime}
                             isGroup={isGroup}
                             TimeSeperator={TimeSeperator}
@@ -253,7 +256,7 @@ const Conversation = () => {
                             setEnlargeImg={setEnlargeImg}
                             replyScroll={replyScroll}
                             setIsForward={setIsForward}
-                            setForwardDate={setForwardDate}
+                            setForwardMessage={setForwardMessage}
                         />
                     ))}
                 </Box>
@@ -264,12 +267,23 @@ const Conversation = () => {
     // ** Sends New Msg
     const handleSendMsg = (e) => {
         e.preventDefault();
-        if (msg.length) {
-            socketSendMessage(selectedRoom.id, '0', msg, replyDate.id ? replyDate.id : 0);
+        if (editingMessage) {
+            socketUpdateMessage(editingMessage, msg)
+            setEditingMessage(null);
+
             setMsg("");
             socketSendTyping(selectedRoom.id, 0);
             setIsTyping(false);
             setIsReply(false)
+        }
+        else {
+            if (msg.length) {
+                socketSendMessage(selectedRoom.id, '0', msg, replyMessage.id ? replyMessage.id : 0);
+                setMsg("");
+                socketSendTyping(selectedRoom.id, 0);
+                setIsTyping(false);
+                setIsReply(false)
+            }
         }
     };
 
@@ -309,22 +323,47 @@ const Conversation = () => {
     };
 
     const [isReply, setIsReply] = useState(false);
-    const [replyUser, setReplyUser] = useState(null);
-    const [replyDate, setReplyDate] = useState(null);
+    const [replyMessage, setReplyMessage] = useState(null);
 
     const [isForward, setIsForward] = useState(false);
-    const [ForwardDate, setForwardDate] = useState(null);
+    const [ForwardMessage, setForwardMessage] = useState(null);
+    const [editingMessage, setEditingMessage] = useState(null);
 
     const ReplyClick = (content) => {
         console.log(content)
-        setReplyDate(content.message)
+        setEditingMessage(null)
+        setMsg('')
+        setIsForward(false)
+        setForwardMessage(null)
+
+        setReplyMessage(content.message)
         setIsReply(true)
-        setReplyUser({ username: content.message.username, right: content.right })
     }
+
     const EditClick = (content) => {
-        setIsReply(true)
-        setReplyUser({ username: "Edit", right: content.right })
+        setIsReply(false)
+        setReplyMessage(null)
+        setIsForward(false)
+        setForwardMessage(null)
+        
+        setEditingMessage(content.message)
+        setMsg(content.message.message);
+        socketSendTyping(selectedRoom.id, 1);
+        setIsTyping(true);
     }
+
+    const CopyClick = async (content) => {
+        try {
+            await navigator.clipboard.writeText(content.message);
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+        }
+    }
+
+    const DeleteClick = (content) => {
+        socketDeleteMessage(content)
+    }
+
     const isReplyClose = () => {
         setIsReply(false)
     }
@@ -335,9 +374,9 @@ const Conversation = () => {
 
     useEffect(() => {
         if (!isReply) {
-            setReplyDate({})
+            setReplyMessage({})
         }
-    }, [isReply,selectedRoom])
+    }, [isReply, selectedRoom])
 
     const replyScroll = (message) => {
         const chatContainer = chatArea.current;
@@ -525,7 +564,7 @@ const Conversation = () => {
                                 theme={theme}
                                 setIsForward={setIsForward}
                                 isForwardClose={isForwardClose}
-                                ForwardDate={ForwardDate}
+                                ForwardMessage={ForwardMessage}
                             />
                             {
                                 !selectedRoom.group && opponentTyping && opponentTyping.typing && <Box sx={{ position: "absolute", left: "30px", top: "-30px", color: theme.palette.text.disabled, fontWeight: "600" }}>
@@ -538,8 +577,7 @@ const Conversation = () => {
                                         isReply={isReply}
                                         isReplyClose={isReplyClose}
                                         theme={theme}
-                                        replyUser={replyUser}
-                                        replyDate={replyDate}
+                                        replyMessage={replyMessage}
                                     />
                                 </Grid>
                                 <Grid item>
@@ -575,6 +613,7 @@ const Conversation = () => {
                                                         setIsTyping(true);
                                                         socketSendTyping(selectedRoom.id, 1);
                                                     } else if (e.target.value.length == 0 && isTyping) {
+                                                        setEditingMessage(null)
                                                         setIsTyping(false);
                                                         socketSendTyping(selectedRoom.id, 0);
                                                     }

@@ -26,6 +26,7 @@ import { styled, useTheme } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
 
 import { useForm, Controller } from "react-hook-form";
+import { getUserDisplayName } from 'utils/common';
 
 const Item = styled("div")(({ theme }) => ({
     borderRadius: "24px",
@@ -132,14 +133,14 @@ export default function SearchUser({ CircleButton1, setIsChatClick }) {
                                         ? item.photo
                                         : defaultAvatar
                                 }
-                                number={item.unread_count}
+                                number={0}
                                 status={item.status}
-                                name={item.name}
+                                name={getUserDisplayName(item)}
                                 group={item.photo ? "0" : item.group}
                             />
                             <Box sx={{ ml: 2 }}>
                                 <Typography variant="h4" color={theme.palette.text.primary}>
-                                    {item.username}
+                                    {getUserDisplayName(item)}
                                 </Typography>
                             </Box>
                         </Box>

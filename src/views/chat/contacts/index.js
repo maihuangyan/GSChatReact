@@ -16,7 +16,7 @@ import { getMessages } from "store/actions/messages";
 
 import { styled, useTheme } from "@mui/material/styles";
 
-import { formatDateToMonthShort, formatChatTime } from "utils/common";
+import { formatDateToMonthShort, formatChatTime, getRoomDisplayName } from "utils/common";
 import ClientAvatar from "ui-component/ClientAvatar";
 
 import UserAvatar from "./UserAvatar";
@@ -103,7 +103,7 @@ const Contacts = () => {
                             : new Date().getTime()
                     );
                 }
-                let fullName = item.group ? item.name : (item.room_users[0].first_name.length ? `${item.room_users[0].first_name} ${item.room_users[0].last_name}` : item.room_users[0].username)
+                
                 return (
                     <Box
                         key={item.id}
@@ -136,7 +136,7 @@ const Contacts = () => {
                                         : ""
                                 }
                                 status={getRoomOnlineStatus(item.id)}
-                                name={fullName}
+                                name={getRoomDisplayName(item)}
                             />
                             <Box sx={{ ml: 2, width: "100%" }}>
                                 <Typography variant="h4" color={
@@ -144,7 +144,7 @@ const Contacts = () => {
                                         ? theme.palette.text.black
                                         : theme.palette.text.light
                                 }>
-                                    {fullName}
+                                    {getRoomDisplayName(item)}
                                 </Typography>
                                 <Typography
                                     variant="body1"

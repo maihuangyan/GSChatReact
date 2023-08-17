@@ -57,6 +57,7 @@ export default function ForwardModal({ isForwardModal, setIsForward , setIsForwa
         dispatch(selectRoom(room));
         dispatch(getMessages({ id: room.id }))
         setIsForward(true)
+        setIsForwardModal(false);
     }
 
     // ** Renders Chat

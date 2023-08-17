@@ -21,20 +21,22 @@ const CircleButton1 = styled(Button)(({ theme }) => ({
     },
 }));
 
-export default function ForwardBox({ isForward, isForwardClose, ForwardDate, setIsForward }) {
+export default function ForwardBox({ isForward, isForwardClose, ForwardMessage, setIsForward }) {
 
     const theme = useTheme()
     const socketSendMessage = useContext(SocketContext).socketSendMessage
 
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const handleForward = () => {
-        socketSendMessage(selectedRoom.id, '3', ForwardDate.id, 0, ForwardDate);
-        setIsForward(false)
+        if (ForwardMessage) {
+            socketSendMessage(selectedRoom.id, '3', ForwardMessage.id, 0, ForwardMessage);
+            setIsForward(false)
+        }
     }
     return (
         <Box sx={{
             display: isForward ? "flex" : "none", justifyContent: "start", alignItems: "center",
-            pb: 1, pl: "5px", background: "#000", mb: "5px", position: "absolute", left: 0, top: "5px", zIndex: 10, width: "100%"
+            pb: 1, pl: "5px", background: "#101010", mb: "5px", position: "absolute", left: 0, top: "5px", zIndex: 10, width: "100%"
         }}>
             <Typography component="span" sx={{ cursor: "pointer", mr: 1, }} onClick={() => isForwardClose()}>
                 <IconX size={20} stroke={2} color='#b5b5b5' /></Typography>
@@ -43,10 +45,10 @@ export default function ForwardBox({ isForward, isForwardClose, ForwardDate, set
                     color: theme.palette.text.black, p: "0 6px", position: "relative", borderLeft: "2px solid #FBC34A"
                 }}>
                     <Typography component="p" variant="h5" color="#000">
-                        {ForwardDate?.username}
+                        {ForwardMessage?.username}
                     </Typography>
                     <Typography component="p" variant="body2">
-                        {ForwardDate?.type == 0 ? ForwardDate.message : (ForwardDate?.type == 1 ? "image" : (ForwardDate?.type == 3 ? ForwardDate.forward_message.message : ""))}
+                        {ForwardMessage?.type == 0 ? ForwardMessage.message : (ForwardMessage?.type == 1 ? "image" : (ForwardMessage?.type == 3 ? ForwardMessage.forward_message.message : ""))}
                     </Typography>
                 </Typography>
             </Box>

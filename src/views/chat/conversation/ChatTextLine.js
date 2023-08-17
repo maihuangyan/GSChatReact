@@ -13,10 +13,11 @@ import { IconChevronDown, IconArrowForwardUp } from "@tabler/icons";
 import ClientAvatar from "ui-component/ClientAvatar";
 
 import { Image } from 'antd';
+import { getUserDisplayName } from 'utils/common';
 
 import Forward from './ForwardModal';
 
-export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward , setForwardDate}) {
+export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward , setForwardMessage}) {
     const theme = useTheme();
     const [isHover, setIsHover] = useState(false);
     const [isForwardModal, setIsForwardModal] = useState(false);
@@ -38,7 +39,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
     };
 
     const showForward = (message) => {
-        setForwardDate(message)
+        setForwardMessage(message)
         setIsForwardModal(true)
     }
 
@@ -116,15 +117,21 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                     "aria-labelledby": "basic-button",
                                 }}
                             >
-                                <MenuItem>
-                                    <ListItemText>copy</ListItemText>
-                                </MenuItem>
+                                { message.type == 0 ? (
+                                    <MenuItem onClick={() => {
+                                        CopyClick(message); handleClose()
+                                    }}>
+                                        <ListItemText>copy</ListItemText>
+                                    </MenuItem>
+                                ) : ''}
                                 <Divider />
-                                <MenuItem onClick={() => {
-                                    EditClick({ message, right }); handleClose()
-                                }}>
-                                    <ListItemText>edit</ListItemText>
-                                </MenuItem>
+                                { message.type == 0 ? (
+                                     <MenuItem onClick={() => {
+                                        EditClick({ message, right }); handleClose()
+                                    }}>
+                                        <ListItemText>edit</ListItemText>
+                                    </MenuItem>
+                                ) : ''}
                                 <Divider />
                                 <MenuItem sx={{ minWidth: "150px" }} onClick={() => { ReplyClick({ message, right }); handleClose() }}>
                                     <ListItemText>reply</ListItemText>
@@ -134,7 +141,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                     <ListItemText>forward</ListItemText>
                                 </MenuItem>
                                 <Divider />
-                                <MenuItem>
+                                <MenuItem onClick={() => (DeleteClick(message), handleClose())}>
                                     <ListItemText>delete</ListItemText>
                                 </MenuItem>
                                 <Divider />
@@ -214,11 +221,14 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                 MenuListProps={{
                                     "aria-labelledby": "basic-button",
                                 }}
-
                             >
-                                <MenuItem>
-                                    <ListItemText>copy</ListItemText>
-                                </MenuItem>
+                                { message.type == 0 ? (
+                                    <MenuItem onClick={() => {
+                                        CopyClick(message); handleClose()
+                                    }}>
+                                        <ListItemText>copy</ListItemText>
+                                    </MenuItem>
+                                ) : ''}
                                 <Divider />
                                 <MenuItem sx={{ minWidth: "150px" }} onClick={() => { ReplyClick({ message, right }); handleClose() }}>
                                     <ListItemText>reply</ListItemText>
@@ -240,7 +250,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                             : ""
                                     }
                                     size={35}
-                                    name={message.user?.username}
+                                    name={message.user ? getUserDisplayName(message.user) : message.username}
                                 />
                             </Typography>
                         </Typography>

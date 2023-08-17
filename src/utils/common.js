@@ -172,3 +172,74 @@ export const isMessageSeenByOther = (message) => {
 
   return seenStatus;
 }
+
+export const isEmpty = (value) => {
+  if (!value) {
+    return true;
+  }
+  value = ('' + value).replace(/\r?\n|\r/g, '').replace(' ', '')
+  if (value) {
+    return false
+  }
+  return true
+} 
+
+export const getUserDisplayName = (user) => {
+  if (!user) {
+    return "Unkown User";
+  }
+
+  if (typeof user === 'object') {
+    if (!isEmpty(user.full_name)) {
+      return user.full_name;
+    }
+    if (!isEmpty(user.first_name) && !isEmpty(user.last_name)) {
+      return user.first_name + ' ' + user.last_name
+    }
+    if (!isEmpty(user.first_name)) {
+      return user.first_name
+    }
+    if (!isEmpty(user.last_name)) {
+      return user.last_name
+    }
+    if (!isEmpty(user.username)) {
+      return user.username
+    }
+  }
+  
+  return "Unkown User";
+}
+
+export const getRoomDisplayName = (room) => {
+  if (!room) {
+    return "Unkown Room";
+  }
+
+  if (typeof room === 'object') {
+    if (room.group == 1) {
+      return room.name;
+    }
+    if (!room.room_users || !Array.isArray(room.room_users) || room.room_users.length == 0) {
+      return room.name;
+    }
+
+    const user = room.room_users[0];
+    if (!isEmpty(user.full_name)) {
+      return user.full_name;
+    }
+    if (!isEmpty(user.first_name) && !isEmpty(user.last_name)) {
+      return user.first_name + ' ' + user.last_name
+    }
+    if (!isEmpty(user.first_name)) {
+      return user.first_name
+    }
+    if (!isEmpty(user.last_name)) {
+      return user.last_name
+    }
+    if (!isEmpty(user.username)) {
+      return user.username
+    }
+  }
+  
+  return "Unkown Room";
+}

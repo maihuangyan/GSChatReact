@@ -58,3 +58,12 @@ export const reduxUpdateMessages = (messages) => {
         });
     }
 }
+
+export const reduxDeleteMessages = (message_ids) => {
+    return (dispatch) => {
+        dispatch({
+            type: "DELETE_MESSAGES",
+            data: message_ids,
+        });
+    }
+}

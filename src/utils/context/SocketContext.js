@@ -3,7 +3,7 @@ import { createContext, useCallback, useEffect, useState, useContext } from "rea
 import useJwt from "utils/jwt/useJwt"
 import { useDispatch, useSelector } from "react-redux"
 import { getRoomList, selectRoom, updateRoomLastMessage } from "store/actions/room"
-import { getMessages, reduxInsertMessages, reduxUpdateMessages } from "store/actions/messages"
+import { getMessages, reduxDeleteMessages, reduxInsertMessages, reduxUpdateMessages } from "store/actions/messages"
 
 import { isMessageSeen, nowSecs, randomString, sortMessages } from "utils/common"
 
@@ -67,7 +67,6 @@ const SocketProvider = ({ children }) => {
     useJwt
       .getOnlineList()
       .then((res) => {
-        showProgress()
         if (res.data.ResponseCode == 0) {
           setOnlineUsers(res.data.ResponseResult)
 
@@ -172,10 +171,10 @@ const SocketProvider = ({ children }) => {
   );
 
   const handleSocketDeleteMessage = useCallback(
-    (messages) => {
+    (message_id) => {
       // deleted message
-      console.log('deleted messages', messages)
-      deleteMessages(messages)
+      console.log('deleted messages', message_id)
+      deleteMessages([message_id])
     },
     []
   );
@@ -267,10 +266,40 @@ const SocketProvider = ({ children }) => {
     socket.emit("sendMessage", newMessage);
   };
 
+  const socketUpdateMessage = (message, messageText) => {
+    if (!message) return;
+
+    let userData = useJwt.getUserData();
+    let updateMessage = {
+      user_id: userData.id,
+      username: userData.username,
+      token: useJwt.getToken(),
+      room_id: message.room_id,
+      message_id: message.id,
+      message: messageText,
+    };
+    socket.emit("updateMessage", updateMessage);
+  };
+
   const socketOpenMessage = (message_ids) => {
     socket.emit("openMessage", {
       token: useJwt.getToken(),
       message_ids: message_ids,
+    });
+  };
+
+  const socketDeleteMessage = (message) => {
+    if (!message) return;
+
+    let userData = useJwt.getUserData();
+    //dispatch(reduxDeleteMessages([message]))
+
+    socket.emit("deleteMessage", {
+      token: useJwt.getToken(),
+      user_id: userData.id,
+      username: userData.username,
+      room_id: message.room_id,
+      message_id: message.id
     });
   };
 
@@ -305,26 +334,11 @@ const SocketProvider = ({ children }) => {
     }
   };
 
-  const deleteMessages = (messages) => {
-    if (messages.length == 0) return;
+  const deleteMessages = (message_ids) => {
+    //dispatch(updateRoomLastMessage(messages))
+    dispatch(reduxDeleteMessages(message_ids))
 
-    // dispatch(updateRoomLastMessage(messages))
-    // dispatch(reduxUpdateMessages(messages))
-
-    // const selectedChat = { ...room.selectedRoom };
-    // if (selectedChat && Object.keys(selectedChat).length > 0) {
-    //   if (selectedChat.id == messages[0].room_id) {
-    //     const unreadMessageIds = [];
-    //     for (const message of messages) {
-    //       if (!isMessageSeen(message)) {
-    //         unreadMessageIds.push(message.id);
-    //       }
-    //     }
-
-    //     socketOpenMessage(unreadMessageIds);
-    //     setScrollToBottom(!scrollToBottom);
-    //   }
-    // }
+    setScrollToBottom(!scrollToBottom);
   }
 
   const getLatestMessage = (messages) => {
@@ -341,14 +355,6 @@ const SocketProvider = ({ children }) => {
     return result;
   };
 
-  const socketDeleteMessage = (room_id, message_id) => {
-    socket.emit("deleteMessage", {
-      token: useJwt.getToken(),
-      room_id: room_id,
-      message_id: message_id
-    });
-  };
-
   return (
     <SocketContext.Provider value={{
       just_started,
@@ -362,6 +368,7 @@ const SocketProvider = ({ children }) => {
       socketOpenMessage,
       socketSendTyping,
       socketSendMessage,
+      socketUpdateMessage,
       socketDeleteMessage,
       loadRoomData
     }}>{children}

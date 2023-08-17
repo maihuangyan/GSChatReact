@@ -19,6 +19,9 @@ const messagesReducer = (state = initialState, action) => {
         case "UPDATE_MESSAGES":
             return addOrUpdateMessages(state, action.data);
 
+        case "DELETE_MESSAGES":
+            return deleteMessages(state, action.data);
+
         default:
             return state;
     }
@@ -64,6 +67,30 @@ const addOrUpdateMessages = (state, messages) => {
 
     stateMessages[room_id] = roomMessages;
     return { ...state, messages: stateMessages }
+}
+
+const deleteMessages = (state, message_ids) => {
+    if (message_ids.length == 0) return state
+
+    let firstMessage = null;
+    const stateMessages = { ...state.messages }
+    for (const [room_id, messages] of Object.entries(stateMessages)) {
+        for (let item of messages) {
+            if (item.id == message_ids[0]) {
+                firstMessage = {...item};
+            }
+        }
+    }
+
+    if (firstMessage) {
+        const roomId = firstMessage.room_id;
+        const roomMessages = stateMessages[roomId] ? [...stateMessages[roomId]] : [];
+        const newArray = roomMessages.filter(message => message_ids.indexOf(message.id) === -1);
+        stateMessages[roomId] = newArray;
+        return { ...state, messages: stateMessages }
+    }
+
+    return state
 }
 
 export default persistReducer(persistConfig, messagesReducer);

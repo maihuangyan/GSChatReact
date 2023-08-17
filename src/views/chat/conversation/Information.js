@@ -13,6 +13,7 @@ import { orange } from "@mui/material/colors";
 import useJwt from "utils/jwt/useJwt";
 import ClientAvatar from "ui-component/ClientAvatar";
 import { useSelector } from "react-redux"
+import { getUserDisplayName } from 'utils/common';
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50px",
@@ -97,7 +98,6 @@ export default function Information({ CircleButton1, setShowInformation }) {
                         </Typography>
                         {
                             selectedRoom.room_users.map(item => {
-                                let fullName = item.first_name.length ? `${item.first_name} ${item.last_name}` : item.username
                                 return <Box key={item.id}
                                     sx={{
                                         display: "flex",
@@ -118,13 +118,13 @@ export default function Information({ CircleButton1, setShowInformation }) {
                                                     ? item.photo_url
                                                     : ""
                                             }
-                                            name={fullName}
+                                            name={getUserDisplayName(item)}
                                         />
                                         <Box sx={{ ml: 2, width: "100%" }}>
                                             <Typography variant="h4" color={
                                                 theme.palette.text.light
                                             }>
-                                                {fullName}
+                                                {getUserDisplayName(item)}
                                             </Typography>
                                         </Box>
                                     </Box>
