@@ -36,6 +36,7 @@ const addMessages = (state, messages) => {
     const room_id = messages[0].room_id;
     const roomMessages = [...(stateMessages[room_id] ? [...stateMessages[room_id]] : []), ...messages];
     stateMessages[room_id] = roomMessages;
+
     return { ...state, messages: stateMessages }
 }
 
@@ -66,6 +67,7 @@ const addOrUpdateMessages = (state, messages) => {
 
 
     stateMessages[room_id] = roomMessages;
+
     return { ...state, messages: stateMessages }
 }
 

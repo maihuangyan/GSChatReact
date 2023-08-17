@@ -215,8 +215,6 @@ const Conversation = () => {
             }
         }
 
-        // formattedChatLog = formattedChatLog.sort((a,b) => (a.sentTime > b.sentTime) ? 1 : ((a.sentTime < b.sentTime) ? -1 : 0))
-        // console.log('formattedChatLog', formattedChatLog);
         return formattedChatLog;
     };
 

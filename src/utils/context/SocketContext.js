@@ -262,7 +262,6 @@ const SocketProvider = ({ children }) => {
       reply_on,
       forward_message,
     };
-    addMessages([newMessage]);
     socket.emit("sendMessage", newMessage);
   };
 
