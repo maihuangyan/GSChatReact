@@ -42,6 +42,7 @@ const SocketProvider = ({ children }) => {
   const [updateOnlineStatus, setUpdateOnlineStatus] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([]);
 
+
   const hideProgress = useContext(LoaderContext).hideProgress;
   const showProgress = useContext(LoaderContext).showProgress;
 
@@ -64,6 +65,7 @@ const SocketProvider = ({ children }) => {
   }
 
   const loadOnlineList = () => {
+
     useJwt
       .getOnlineList()
       .then((res) => {
@@ -78,7 +80,7 @@ const SocketProvider = ({ children }) => {
           console.log(res.data.ResponseCode);
         }
       })
-      .catch((err) => (console.log(err), hideProgress()));
+      .catch((err) => (console.log(err)));
   }
 
   const getRoomOnlineStatus = (room_id) => {
@@ -140,6 +142,7 @@ const SocketProvider = ({ children }) => {
     (typing) => {
       // received typing
       console.log('typing', typing)
+      setScrollToBottom(false);
       if (typing.user_id != useJwt.getUserID()) {
         updateTyping(typing.room_id, typing.user_id, typing.type == 1);
       }
@@ -153,9 +156,11 @@ const SocketProvider = ({ children }) => {
       console.log('new messages', [message])
       if (message.user_id == useJwt.getUserID()) {
         updateMessages([message])
+        setScrollToBottom(true);
       }
       else {
         addMessages([message]);
+        setScrollToBottom(true);
       }
     },
     []
@@ -309,7 +314,6 @@ const SocketProvider = ({ children }) => {
     dispatch(updateRoomLastMessage(messages))
     dispatch(reduxInsertMessages(messages))
 
-    setScrollToBottom(!scrollToBottom);
   }
 
   const updateMessages = (messages) => {
@@ -328,7 +332,6 @@ const SocketProvider = ({ children }) => {
           }
         }
         socketOpenMessage(unreadMessageIds);
-        setScrollToBottom(!scrollToBottom);
       }
     }
   };

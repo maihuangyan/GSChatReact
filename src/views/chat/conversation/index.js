@@ -121,6 +121,7 @@ const Conversation = () => {
     const socketUpdateMessage = useContext(SocketContext).socketUpdateMessage
     const socketDeleteMessage = useContext(SocketContext).socketDeleteMessage
     const scrollToBottom = useContext(SocketContext).scrollToBottom
+    const addNewMessageCount = useContext(SocketContext).addNewMessageCount
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
 
@@ -129,6 +130,7 @@ const Conversation = () => {
 
     useEffect(() => {
         // console.log(updateOnlineStatus)
+        actionScrollToBottom()
     }, [updateOnlineStatus])
 
     // ** Refs & Dispatch
@@ -140,6 +142,8 @@ const Conversation = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [enlargeImg, setEnlargeImg] = useState(null)
+    const [newMessageCount, setNewMessageCount] = useState(0);
+    const [scrollTop, setScrollTop] = useState(0);
 
     // ** Scroll to chat bottom
     const actionScrollToBottom = () => {
@@ -149,12 +153,30 @@ const Conversation = () => {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
     };
+    const actionScrollToTop = () => {
+        const chatContainer = chatArea.current;
+        chatContainer.onscroll = () => {
+            // console.log(chatContainer.scrollTop)
+            if (chatContainer && chatContainer.scrollTop == 0 && chatContainer.scrollHeight > chatContainer.clientHeight) {
+                // console.log("chatContainer.scrollTop")
+                setScrollTop(scrollTop + 1)
+
+            }
+        }
+        // }
+    };
 
     // ** If user chat is not empty scrollToBottom
     useEffect(() => {
+        actionScrollToTop()
         if (selectedRoom) {
             const roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
-            setRoomMessages(roomMessages)
+
+            if (scrollTop) {
+                setRoomMessages(roomMessages.filter((item, index) => index >= roomMessages.length - (30 + (10 * scrollTop)) - newMessageCount))
+            } else {
+                setRoomMessages(roomMessages.filter((item, index) => index >= roomMessages.length - 30 - newMessageCount))
+            }
             let messageIDs = [];
             roomMessages.forEach((message) => {
                 if (!isMessageSeen(message)) {
@@ -163,17 +185,19 @@ const Conversation = () => {
             });
             if (messageIDs.length > 0) socketOpenMessage(messageIDs);
         }
-
         setIsGroup(selectedRoom.group)
-        //showProgress()
 
-    }, [selectedRoom, store]);
+    }, [selectedRoom, store, scrollTop]);
 
     useEffect(() => {
         setIsReply(false);
         setImg(null)
         setIsPreviewFiles(false)
     }, [store])
+
+    useEffect(() => {
+        setScrollTop(0)
+    }, [selectedRoom])
 
     const formattedChatData = () => {
         var formattedChatLog = [];
@@ -214,6 +238,7 @@ const Conversation = () => {
                 formattedChatLog.push(msgGroup);
             }
         }
+        // console.log(chatLog);
 
         return formattedChatLog;
     };
@@ -227,13 +252,11 @@ const Conversation = () => {
         return formattedChatLog.map((item, index) => {
             const showDateDivider = firstDate != item.sentDate;
             firstDate = item.sentDate;
-            let senderUsername = selectedRoom.room_users.filter(user => user.id === item.senderId)[0]?.username
             const right = item.senderId == useJwt.getUserID()
             return (
                 <Box key={index}
                     sx={{
                         position: "relative", mt: 1,
-
                     }}>
                     {showDateDivider && <DateSeperator value={item.sentDate} />}
                     {item.messages.map((message, i) => (
@@ -265,6 +288,7 @@ const Conversation = () => {
     // ** Sends New Msg
     const handleSendMsg = (e) => {
         e.preventDefault();
+        actionScrollToBottom();
         if (editingMessage) {
             socketUpdateMessage(editingMessage, msg)
             setEditingMessage(null);
@@ -343,7 +367,7 @@ const Conversation = () => {
         setReplyMessage(null)
         setIsForward(false)
         setForwardMessage(null)
-        
+
         setEditingMessage(content.message)
         setMsg(content.message.message);
         socketSendTyping(selectedRoom.id, 1);
@@ -451,8 +475,10 @@ const Conversation = () => {
 
     useEffect(() => {
         actionScrollToBottom();
-        hideProgress()
-    }, [store, showInformation])
+        if (scrollToBottom) {
+            setNewMessageCount(newMessageCount + 1)
+        }
+    }, [showInformation, scrollToBottom, store])
     // console.log(selectedRoom, "6666 ")
 
     return Object.keys(selectedRoom).length ? (
