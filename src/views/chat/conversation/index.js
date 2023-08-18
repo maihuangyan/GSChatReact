@@ -155,15 +155,13 @@ const Conversation = () => {
     };
     const actionScrollToTop = () => {
         const chatContainer = chatArea.current;
-        chatContainer.onscroll = () => {
-            // console.log(chatContainer.scrollTop)
-            if (chatContainer && chatContainer.scrollTop == 0 && chatContainer.scrollHeight > chatContainer.clientHeight) {
-                // console.log("chatContainer.scrollTop")
-                setScrollTop(scrollTop + 1)
-
+        if (chatContainer) {
+            chatContainer.onscroll = () => {
+                if (chatContainer.scrollTop == 0 && chatContainer.scrollHeight > chatContainer.clientHeight) {
+                    setScrollTop(scrollTop + 1)
+                }
             }
         }
-        // }
     };
 
     // ** If user chat is not empty scrollToBottom
