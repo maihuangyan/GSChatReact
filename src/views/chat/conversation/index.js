@@ -150,7 +150,13 @@ const Conversation = () => {
         const chatContainer = chatArea.current;
         if (chatContainer) {
             //     //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            // chatContainer.scrollTop = chatContainer.scrollHeight;
+            setTimeout(() => {
+                chatContainer.scrollTo({
+                    top: chatContainer.scrollHeight,
+                    behavior: "smooth"
+                })
+            },200)
         }
     };
     const actionScrollToTop = () => {
@@ -170,11 +176,8 @@ const Conversation = () => {
         if (selectedRoom) {
             const roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
 
-            if (scrollTop) {
-                setRoomMessages(roomMessages.filter((item, index) => index >= roomMessages.length - (30 + (10 * scrollTop)) - newMessageCount))
-            } else {
-                setRoomMessages(roomMessages.filter((item, index) => index >= roomMessages.length - 30 - newMessageCount))
-            }
+            // console.log(roomMessages)
+            setRoomMessages(roomMessages)
             let messageIDs = [];
             roomMessages.forEach((message) => {
                 if (!isMessageSeen(message)) {
@@ -202,18 +205,24 @@ const Conversation = () => {
         if (!selectedRoom || roomMessages.length == 0) return [];
         var chatLog = [...roomMessages];
         chatLog = chatLog.sort((a, b) => (a.id > b.id ? 1 : a.id < b.id ? -1 : 0));
+        let chatLogs = []
+        if (scrollTop) {
+            chatLogs = chatLog.filter((item, index) => index >= roomMessages.length - (30 + (10 * scrollTop)) - newMessageCount)
+        } else {
+            chatLogs = chatLog.filter((item, index) => index >= roomMessages.length - 30 - newMessageCount)
+        }
         var msgGroup = {
-            sentDate: formatChatDate(+chatLog[0].created_at * 1000), // for date divide,
-            senderId: chatLog[0].user_id,
-            sentTime: chatLog[0].created_at * 1000, // for checking 1 mins delay = diff: 60 * 1000,
-            messages: [chatLog[0]],
+            sentDate: formatChatDate(+chatLogs[0].created_at * 1000), // for date divide,
+            senderId: chatLogs[0].user_id,
+            sentTime: chatLogs[0].created_at * 1000, // for checking 1 mins delay = diff: 60 * 1000,
+            messages: [chatLogs[0]],
         };
-        if (chatLog.length == 1) {
+        if (chatLogs.length == 1) {
             formattedChatLog.push(msgGroup);
         }
 
-        for (let i = 1; i < chatLog.length; i++) {
-            let msg = chatLog[i];
+        for (let i = 1; i < chatLogs.length; i++) {
+            let msg = chatLogs[i];
 
             if (
                 formatChatDate(+msg.created_at * 1000) == msgGroup.sentDate &&
@@ -232,11 +241,11 @@ const Conversation = () => {
                 };
             }
 
-            if (i == chatLog.length - 1) {
+            if (i == chatLogs.length - 1) {
                 formattedChatLog.push(msgGroup);
             }
         }
-        // console.log(chatLog);
+        // console.log(chatLogs);
 
         return formattedChatLog;
     };

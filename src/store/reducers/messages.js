@@ -67,7 +67,6 @@ const addOrUpdateMessages = (state, messages) => {
 
 
     stateMessages[room_id] = roomMessages;
-
     return { ...state, messages: stateMessages }
 }
 
