@@ -151,12 +151,12 @@ const Conversation = () => {
         if (chatContainer) {
             //     //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
             // chatContainer.scrollTop = chatContainer.scrollHeight;
-            setTimeout(() => {
+            // setTimeout(() => {
                 chatContainer.scrollTo({
                     top: chatContainer.scrollHeight,
                     behavior: "smooth"
                 })
-            },200)
+            // },200)
         }
     };
     const actionScrollToTop = () => {
@@ -198,7 +198,8 @@ const Conversation = () => {
 
     useEffect(() => {
         setScrollTop(0)
-    }, [selectedRoom])
+        // console.log(scrollTop)
+    }, [selectedRoom,scrollTop])
 
     const formattedChatDatas = (arr) => {
         if (!selectedRoom || arr.length == 0) return [];
