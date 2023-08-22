@@ -156,7 +156,7 @@ const Conversation = () => {
                     top: chatContainer.scrollHeight,
                     behavior: "smooth"
                 })
-            },1000)
+            },200)
         }
     };
     const actionScrollToTop = () => {
