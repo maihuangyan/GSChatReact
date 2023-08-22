@@ -336,7 +336,7 @@ export default function SearchUser({ CircleButton1, setIsChatClick }) {
                                         Search
                                     </InputLabel>
                                     <OutlinedInput
-                                        id="search-box"
+                                        // id="search-box"
                                         sx={{ color: "white" }}
                                         value={query}
                                         onChange={handleFilter}

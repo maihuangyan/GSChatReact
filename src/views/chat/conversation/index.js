@@ -156,7 +156,7 @@ const Conversation = () => {
                     top: chatContainer.scrollHeight,
                     behavior: "smooth"
                 })
-            },200)
+            },1000)
         }
     };
     const actionScrollToTop = () => {
@@ -177,7 +177,7 @@ const Conversation = () => {
             const roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
 
             // console.log(roomMessages)
-            setRoomMessages(roomMessages)
+            formattedChatDatas(roomMessages)
             let messageIDs = [];
             roomMessages.forEach((message) => {
                 if (!isMessageSeen(message)) {
@@ -200,11 +200,66 @@ const Conversation = () => {
         setScrollTop(0)
     }, [selectedRoom])
 
+    const formattedChatDatas = (arr) => {
+        if (!selectedRoom || arr.length == 0) return [];
+        let formattedChatLog = [];
+        let chatLog = [...arr]
+        chatLog = chatLog.sort((a, b) => (a.id > b.id ? 1 : a.id < b.id ? -1 : 0));
+        let chatLogs = []
+        if (scrollTop) {
+            chatLogs = chatLog.filter((item, index) => index >= arr.length - (30 + (10 * scrollTop)) - newMessageCount)
+        } else {
+            chatLogs = chatLog.filter((item, index) => index >= arr.length - 30 - newMessageCount)
+        }
+        var msgGroup = {
+            sentDate: formatChatDate(chatLogs[0].created_at * 1000), // for date divide,
+            senderId: chatLogs[0].user_id,
+            sentTime: chatLogs[0].created_at * 1000, // for checking 1 mins delay = diff: 60 * 1000,
+            messages: [chatLogs[0]],
+        };
+        if (chatLogs.length == 1) {
+            formattedChatLog.push(msgGroup);
+        }
+
+        for (let i = 1; i < chatLogs.length; i++) {
+            let msg = chatLogs[i];
+
+            if (
+                formatChatDate(+msg.created_at * 1000) == msgGroup.sentDate &&
+                msgGroup.senderId === msg.user_id &&
+                parseInt(msg.created_at * 1000) - parseInt(msgGroup.sentTime) < 60 * 1000
+            ) {
+                msgGroup.messages.push(msg);
+            } else {
+                formattedChatLog.push(msgGroup);
+
+                msgGroup = {
+                    sentDate: formatChatDate(+msg.created_at * 1000),
+                    senderId: msg.user_id,
+                    sentTime: msg.created_at * 1000,
+                    messages: [msg],
+                };
+            }
+
+            if (i == chatLogs.length - 1) {
+                formattedChatLog.push(msgGroup);
+            }
+        }
+        // console.log(formattedChatLog);
+
+        setRoomMessages(formattedChatLog)
+
+        // console.log(chatLogs, "6666")
+
+    }
+
     const formattedChatData = () => {
         var formattedChatLog = [];
         if (!selectedRoom || roomMessages.length == 0) return [];
         var chatLog = [...roomMessages];
         chatLog = chatLog.sort((a, b) => (a.id > b.id ? 1 : a.id < b.id ? -1 : 0));
+        // console.log(chatLog);
+
         let chatLogs = []
         if (scrollTop) {
             chatLogs = chatLog.filter((item, index) => index >= roomMessages.length - (30 + (10 * scrollTop)) - newMessageCount)
@@ -245,13 +300,14 @@ const Conversation = () => {
                 formattedChatLog.push(msgGroup);
             }
         }
-        // console.log(chatLogs);
+        // console.log(formattedChatLog);
 
         return formattedChatLog;
     };
 
     // ** Renders user chat
     const renderChats = () => {
+
         const formattedChatLog = formattedChatData();
         if (formattedChatLog.length == 0) return <div></div>;
 
@@ -488,6 +544,8 @@ const Conversation = () => {
     }, [showInformation, scrollToBottom, store])
     // console.log(selectedRoom, "6666 ")
 
+    let firstDate = ""
+
     return Object.keys(selectedRoom).length ? (
         showInformation ? <Information CircleButton1={CircleButton1} setShowInformation={setShowInformation} /> :
             <>
@@ -584,7 +642,43 @@ const Conversation = () => {
                             sx={{ height: `calc( 100vh - ${isReply ? "209px" : "163px"})`, p: 2, pt: 3, pb: 9, overflowY: "auto", borderRadius: 0, }}
                             ref={chatArea}
                         >
-                            {renderChats()}
+                            {
+
+                                roomMessages.map((item, index) => {
+                                    const showDateDivider = firstDate != item.sentDate;
+                                    firstDate = item.sentDate;
+                                    const right = item.senderId == useJwt.getUserID()
+                                    return (
+                                        <Box key={index}
+                                            sx={{
+                                                position: "relative", mt: 1,
+                                            }}>
+                                            {showDateDivider && <DateSeperator value={item.sentDate} />}
+                                            {item.messages.map((message, i) => (
+                                                <ChatTextLine
+                                                    item={item}
+                                                    i={i}
+                                                    key={i}
+                                                    message={message}
+                                                    right={right}
+                                                    ReplyClick={ReplyClick}
+                                                    EditClick={EditClick}
+                                                    CopyClick={CopyClick}
+                                                    DeleteClick={DeleteClick}
+                                                    formatChatTime={formatChatTime}
+                                                    isGroup={isGroup}
+                                                    TimeSeperator={TimeSeperator}
+                                                    setIsModalOpen={setIsModalOpen}
+                                                    setEnlargeImg={setEnlargeImg}
+                                                    replyScroll={replyScroll}
+                                                    setIsForward={setIsForward}
+                                                    setForwardMessage={setForwardMessage}
+                                                />
+                                            ))}
+                                        </Box>
+                                    )
+                                })
+                            }
                         </Paper>
                     </Box>
 
@@ -626,8 +720,9 @@ const Conversation = () => {
                                         <FormControl fullWidth variant="outlined" sx={{ mr: 1 }}>
                                             <OutlinedInput
                                                 placeholder="New message"
-                                                id="message-box"
+                                                // id="message-box"
                                                 value={msg}
+                                                readOnly={false}
                                                 onPaste={async (e) => {
                                                     // e.preventDefault();
                                                     for (const clipboardItem of e.clipboardData.files) {

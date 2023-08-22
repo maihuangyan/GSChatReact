@@ -116,7 +116,7 @@ export default function ForwardModal({ isForwardModal, setIsForward , setIsForwa
                             Search
                         </InputLabel>
                         <OutlinedInput
-                            id="search-box"
+                            // id="search-box"
                             sx={{ color: "white" }}
                             value={query}
                             onChange={handleFilter}
