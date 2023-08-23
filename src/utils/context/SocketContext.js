@@ -272,7 +272,7 @@ const SocketProvider = ({ children }) => {
 
   const socketUpdateMessage = (message, messageText) => {
     if (!message) return;
-
+    console.log("updateMessage999")
     let userData = useJwt.getUserData();
     let updateMessage = {
       user_id: userData.id,
@@ -319,8 +319,10 @@ const SocketProvider = ({ children }) => {
   const updateMessages = (messages) => {
     if (messages.length == 0) return;
 
+    console.log('updateMessages666')
     dispatch(updateRoomLastMessage(messages))
     dispatch(reduxUpdateMessages(messages))
+
 
     const selectedChat = { ...room.selectedRoom };
     if (selectedChat && Object.keys(selectedChat).length > 0) {

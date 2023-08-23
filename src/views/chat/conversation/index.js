@@ -250,14 +250,13 @@ const Conversation = () => {
                 formattedChatLog.push(msgGroup);
             }
         }
-        // console.log(formattedChatLog);
+        console.log(formattedChatLog);
 
         setRoomMessages(formattedChatLog)
     }
     // ** Sends New Msg
     const handleSendMsg = (e) => {
         e.preventDefault();
-        actionScrollToBottom(true);
         if (editingMessage) {
             socketUpdateMessage(editingMessage, msg)
             setEditingMessage(null);
@@ -447,12 +446,15 @@ const Conversation = () => {
         if (scrollToBottom) {
             setNewMessageCount(newMessageCount + 1)
         }
+        console.log("9999")
     }, [showInformation, roomChange])
 
     useEffect(() => {
         if (scrollToBottom) {
             actionScrollToBottom(true);
+            console.log("6666")
         }
+
     }, [scrollToBottom])
 
     // console.log(selectedRoom, "6666 ")
