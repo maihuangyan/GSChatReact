@@ -140,6 +140,7 @@ const SocketProvider = ({ children }) => {
       // received typing
       console.log('typing', typing)
       setScrollToBottom(false);
+      setSoundPlayers(false)
 
       if (typing.user_id != useJwt.getUserID()) {
         updateTyping(typing.room_id, typing.user_id, typing.type == 1);
