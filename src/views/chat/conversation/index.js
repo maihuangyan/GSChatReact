@@ -202,6 +202,7 @@ const Conversation = () => {
 
     useEffect(() => {
         setScrollTop(0)
+        setNewMessageCount(0)
         setRoomChange(!roomChange)
     }, [selectedRoom])
 
@@ -443,16 +444,12 @@ const Conversation = () => {
 
     useEffect(() => {
         actionScrollToBottom(false);
-        if (scrollToBottom) {
-            setNewMessageCount(newMessageCount + 1)
-        }
-        console.log("9999")
     }, [showInformation, roomChange])
 
     useEffect(() => {
         if (scrollToBottom) {
             actionScrollToBottom(true);
-            console.log("6666")
+            setNewMessageCount(newMessageCount + 1)
         }
 
     }, [scrollToBottom])

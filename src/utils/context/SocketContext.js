@@ -143,6 +143,7 @@ const SocketProvider = ({ children }) => {
       // received typing
       console.log('typing', typing)
       setScrollToBottom(false);
+
       if (typing.user_id != useJwt.getUserID()) {
         updateTyping(typing.room_id, typing.user_id, typing.type == 1);
       }
@@ -157,6 +158,7 @@ const SocketProvider = ({ children }) => {
       if (message.user_id == useJwt.getUserID()) {
         updateMessages([message])
         setScrollToBottom(true);
+
       }
       else {
         addMessages([message]);
