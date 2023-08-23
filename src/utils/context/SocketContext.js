@@ -3,9 +3,9 @@ import { createContext, useCallback, useEffect, useState, useContext } from "rea
 import useJwt from "utils/jwt/useJwt"
 import { useDispatch, useSelector } from "react-redux"
 import { getRoomList, selectRoom, updateRoomLastMessage } from "store/actions/room"
-import { getMessages, reduxDeleteMessages, reduxInsertMessages, reduxUpdateMessages } from "store/actions/messages"
+import { reduxDeleteMessages, reduxInsertMessages, reduxUpdateMessages } from "store/actions/messages"
 
-import { isMessageSeen, nowSecs, randomString, sortMessages } from "utils/common"
+import { isMessageSeen, nowSecs, randomString } from "utils/common"
 
 import { useLocation } from "react-router"
 import { LoaderContext } from "utils/context/ProgressLoader";
@@ -41,10 +41,7 @@ const SocketProvider = ({ children }) => {
   const [scrollToBottom, setScrollToBottom] = useState(false);
   const [updateOnlineStatus, setUpdateOnlineStatus] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([]);
-
-
-  const hideProgress = useContext(LoaderContext).hideProgress;
-  const showProgress = useContext(LoaderContext).showProgress;
+  const [soundPlayers, setSoundPlayers] = useState(false);
 
   useEffect(() => {
     if (auth.userData) {
@@ -158,11 +155,12 @@ const SocketProvider = ({ children }) => {
       if (message.user_id == useJwt.getUserID()) {
         updateMessages([message])
         setScrollToBottom(true);
-
+        setSoundPlayers(false)
       }
       else {
         addMessages([message]);
         setScrollToBottom(true);
+        setSoundPlayers(true)
       }
     },
     []
@@ -171,7 +169,7 @@ const SocketProvider = ({ children }) => {
   const handleSocketUpdateMessage = useCallback(
     (messages) => {
       // updated message
-      console.log('updated messages', messages)
+      // console.log('updated messages', messages)
       // updateMessages(messages);
     },
     []
@@ -274,7 +272,6 @@ const SocketProvider = ({ children }) => {
 
   const socketUpdateMessage = (message, messageText) => {
     if (!message) return;
-    console.log("updateMessage999")
     let userData = useJwt.getUserData();
     let updateMessage = {
       user_id: userData.id,
@@ -366,6 +363,7 @@ const SocketProvider = ({ children }) => {
       just_started,
       socket,
       opponentTyping,
+      soundPlayers,
       scrollToBottom,
       updateOnlineStatus,
       getRoomOnlineStatus,

@@ -7,6 +7,7 @@ import {
     ListItemText,
     Divider,
     Grid,
+    CardMedia,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { IconChevronDown, IconArrowForwardUp } from "@tabler/icons";
@@ -17,7 +18,7 @@ import { getUserDisplayName } from 'utils/common';
 
 import Forward from './ForwardModal';
 
-export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward , setForwardMessage}) {
+export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage }) {
     const theme = useTheme();
     const [isHover, setIsHover] = useState(false);
     const [isForwardModal, setIsForwardModal] = useState(false);
@@ -117,7 +118,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                     "aria-labelledby": "basic-button",
                                 }}
                             >
-                                { message.type == 0 ? (
+                                {message.type == 0 ? (
                                     <MenuItem onClick={() => {
                                         CopyClick(message); handleClose()
                                     }}>
@@ -125,8 +126,8 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                     </MenuItem>
                                 ) : ''}
                                 <Divider />
-                                { message.type == 0 ? (
-                                     <MenuItem onClick={() => {
+                                {message.type == 0 ? (
+                                    <MenuItem onClick={() => {
                                         EditClick({ message, right }); handleClose()
                                     }}>
                                         <ListItemText>edit</ListItemText>
@@ -190,8 +191,13 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                             src={message.files[0].thumbnail}
                                             srcSet={message.files[0].thumbnail}
                                             alt={message.files[0].origin_file_name}
+                                            loading='lazy'
                                         /></Box>) : (
-                                        <Typography variant="body1" sx={{ p: "0 8px" }}>{message.files[0].origin_file_name}</Typography>
+                                        // <CardMedia src={message.files[0].thumbnail} />
+                                        <Typography component="div" variant="body1" sx={{ p: "0 8px" }}>
+                                            <CardMedia src={message.files[0].thumbnail} />
+                                            {message.files[0].thumbnail}
+                                        </Typography>
                                     )
                             ) : (message.type == 3 ? (
                                 <Grid>
@@ -221,7 +227,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                     "aria-labelledby": "basic-button",
                                 }}
                             >
-                                { message.type == 0 ? (
+                                {message.type == 0 ? (
                                     <MenuItem onClick={() => {
                                         CopyClick(message); handleClose()
                                     }}>

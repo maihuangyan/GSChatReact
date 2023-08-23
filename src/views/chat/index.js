@@ -6,10 +6,14 @@ import useJwt from "utils/jwt/useJwt";
 import Contacts from "./contacts";
 import Conversation from "./conversation";
 import { LoaderContext } from "utils/context/ProgressLoader";
-// import { getLocalStorageUsage } from "utils/common";
+import mp from "../../assets/sound.mp3"
+import ReactPlayer from "react-player";
+import { SocketContext } from "utils/context/SocketContext";
+
 
 //Main Component
 const Chat = (props) => {
+  const soundPlayers = useContext(SocketContext).soundPlayers
   const selectedRoom = useSelector((state) => state.room.selectedRoom);
   const [roomTab, setRoomTab] = useState(false)
   const hideProgress = useContext(LoaderContext).hideProgress;
@@ -32,6 +36,12 @@ const Chat = (props) => {
 
   return (
     <>
+      <ReactPlayer
+        playing={soundPlayers}
+        url={mp}
+        controls
+        className="sound"
+      />
       <Grid container
         sx={{
           height: "calc( 100vh )", p: 2, overflowY: "hidden", margin: "0 auto", width: "auto", "@media (min-width: 1500px)": {

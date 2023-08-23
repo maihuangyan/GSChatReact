@@ -11,7 +11,7 @@ import {
 
 // ** Store & Actions
 import { useDispatch, useSelector } from "react-redux";
-import { getRoomList, resetUnreadCount, selectRoom } from "store/actions/room";
+import { resetUnreadCount, selectRoom } from "store/actions/room";
 import { getMessages } from "store/actions/messages";
 
 import { styled, useTheme } from "@mui/material/styles";
@@ -23,7 +23,6 @@ import UserAvatar from "./UserAvatar";
 import SearchUser from "./SearchUser";
 import Settings from "./Settings";
 import { SocketContext } from "utils/context/SocketContext";
-
 
 const CircleButton1 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -103,7 +102,7 @@ const Contacts = () => {
                             : new Date().getTime()
                     );
                 }
-                
+
                 return (
                     <Box
                         key={item.id}
@@ -233,6 +232,8 @@ const Contacts = () => {
                             </Stack>
                         </Paper>
                     </Box>
+
+
                 </Box>}
             {
                 isChatClick && <SearchUser CircleButton1={CircleButton1} setIsChatClick={setIsChatClick} isChatClick={isChatClick} />

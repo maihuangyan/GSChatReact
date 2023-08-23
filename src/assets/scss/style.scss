@@ -274,3 +274,11 @@
 .ant-modal-mask {
     background-color: rgba(0, 0, 0, 0.85) !important;
 }
+
+.sound{
+    position: fixed;
+    opacity: 0;
+    width: 10px !important;
+    height: 10px !important;
+    z-index: -10;
+}
