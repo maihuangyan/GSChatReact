@@ -190,7 +190,6 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                             src={message.files[0].thumbnail}
                                             srcSet={message.files[0].thumbnail}
                                             alt={message.files[0].origin_file_name}
-                                            loading="lazy"
                                         /></Box>) : (
                                         <Typography variant="body1" sx={{ p: "0 8px" }}>{message.files[0].origin_file_name}</Typography>
                                     )

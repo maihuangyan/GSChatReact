@@ -39,6 +39,8 @@ import { Upload } from 'antd';
 import { selectRoomClear } from "store/actions/room";
 import { LoaderContext } from "utils/context/ProgressLoader";
 
+let firstDate = ""
+
 const CircleButton1 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
     minWidth: "45px",
@@ -130,7 +132,6 @@ const Conversation = () => {
 
     useEffect(() => {
         // console.log(updateOnlineStatus)
-        actionScrollToBottom()
     }, [updateOnlineStatus])
 
     // ** Refs & Dispatch
@@ -145,18 +146,21 @@ const Conversation = () => {
     const [newMessageCount, setNewMessageCount] = useState(0);
     const [scrollTop, setScrollTop] = useState(0);
 
+    const [roomChange, setRoomChange] = useState(false);
+
     // ** Scroll to chat bottom
-    const actionScrollToBottom = () => {
+    const actionScrollToBottom = (send) => {
         const chatContainer = chatArea.current;
         if (chatContainer) {
-            //     //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
-            // chatContainer.scrollTop = chatContainer.scrollHeight;
-            // setTimeout(() => {
+            //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
+            if (send) {
                 chatContainer.scrollTo({
                     top: chatContainer.scrollHeight,
                     behavior: "smooth"
                 })
-            // },200)
+            } else {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
         }
     };
     const actionScrollToTop = () => {
@@ -177,7 +181,7 @@ const Conversation = () => {
             const roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
 
             // console.log(roomMessages)
-            formattedChatDatas(roomMessages)
+            formattedChatData(roomMessages)
             let messageIDs = [];
             roomMessages.forEach((message) => {
                 if (!isMessageSeen(message)) {
@@ -198,19 +202,19 @@ const Conversation = () => {
 
     useEffect(() => {
         setScrollTop(0)
-        // console.log(scrollTop)
-    }, [selectedRoom,scrollTop])
+        setRoomChange(!roomChange)
+    }, [selectedRoom])
 
-    const formattedChatDatas = (arr) => {
-        if (!selectedRoom || arr.length == 0) return [];
+    const formattedChatData = (message) => {
+        if (!selectedRoom || message.length == 0) return [];
         let formattedChatLog = [];
-        let chatLog = [...arr]
+        let chatLog = [...message]
         chatLog = chatLog.sort((a, b) => (a.id > b.id ? 1 : a.id < b.id ? -1 : 0));
         let chatLogs = []
         if (scrollTop) {
-            chatLogs = chatLog.filter((item, index) => index >= arr.length - (30 + (10 * scrollTop)) - newMessageCount)
+            chatLogs = chatLog.filter((item, index) => index >= message.length - (30 + (10 * scrollTop)) - newMessageCount)
         } else {
-            chatLogs = chatLog.filter((item, index) => index >= arr.length - 30 - newMessageCount)
+            chatLogs = chatLog.filter((item, index) => index >= message.length - 30 - newMessageCount)
         }
         var msgGroup = {
             sentDate: formatChatDate(chatLogs[0].created_at * 1000), // for date divide,
@@ -249,110 +253,11 @@ const Conversation = () => {
         // console.log(formattedChatLog);
 
         setRoomMessages(formattedChatLog)
-
-        // console.log(chatLogs, "6666")
-
     }
-
-    const formattedChatData = () => {
-        var formattedChatLog = [];
-        if (!selectedRoom || roomMessages.length == 0) return [];
-        var chatLog = [...roomMessages];
-        chatLog = chatLog.sort((a, b) => (a.id > b.id ? 1 : a.id < b.id ? -1 : 0));
-        // console.log(chatLog);
-
-        let chatLogs = []
-        if (scrollTop) {
-            chatLogs = chatLog.filter((item, index) => index >= roomMessages.length - (30 + (10 * scrollTop)) - newMessageCount)
-        } else {
-            chatLogs = chatLog.filter((item, index) => index >= roomMessages.length - 30 - newMessageCount)
-        }
-        var msgGroup = {
-            sentDate: formatChatDate(+chatLogs[0].created_at * 1000), // for date divide,
-            senderId: chatLogs[0].user_id,
-            sentTime: chatLogs[0].created_at * 1000, // for checking 1 mins delay = diff: 60 * 1000,
-            messages: [chatLogs[0]],
-        };
-        if (chatLogs.length == 1) {
-            formattedChatLog.push(msgGroup);
-        }
-
-        for (let i = 1; i < chatLogs.length; i++) {
-            let msg = chatLogs[i];
-
-            if (
-                formatChatDate(+msg.created_at * 1000) == msgGroup.sentDate &&
-                msgGroup.senderId === msg.user_id &&
-                parseInt(msg.created_at * 1000) - parseInt(msgGroup.sentTime) < 60 * 1000
-            ) {
-                msgGroup.messages.push(msg);
-            } else {
-                formattedChatLog.push(msgGroup);
-
-                msgGroup = {
-                    sentDate: formatChatDate(+msg.created_at * 1000),
-                    senderId: msg.user_id,
-                    sentTime: msg.created_at * 1000,
-                    messages: [msg],
-                };
-            }
-
-            if (i == chatLogs.length - 1) {
-                formattedChatLog.push(msgGroup);
-            }
-        }
-        // console.log(formattedChatLog);
-
-        return formattedChatLog;
-    };
-
-    // ** Renders user chat
-    const renderChats = () => {
-
-        const formattedChatLog = formattedChatData();
-        if (formattedChatLog.length == 0) return <div></div>;
-
-        let firstDate = "";
-        return formattedChatLog.map((item, index) => {
-            const showDateDivider = firstDate != item.sentDate;
-            firstDate = item.sentDate;
-            const right = item.senderId == useJwt.getUserID()
-            return (
-                <Box key={index}
-                    sx={{
-                        position: "relative", mt: 1,
-                    }}>
-                    {showDateDivider && <DateSeperator value={item.sentDate} />}
-                    {item.messages.map((message, i) => (
-                        <ChatTextLine
-                            item={item}
-                            i={i}
-                            key={i}
-                            message={message}
-                            right={right}
-                            ReplyClick={ReplyClick}
-                            EditClick={EditClick}
-                            CopyClick={CopyClick}
-                            DeleteClick={DeleteClick}
-                            formatChatTime={formatChatTime}
-                            isGroup={isGroup}
-                            TimeSeperator={TimeSeperator}
-                            setIsModalOpen={setIsModalOpen}
-                            setEnlargeImg={setEnlargeImg}
-                            replyScroll={replyScroll}
-                            setIsForward={setIsForward}
-                            setForwardMessage={setForwardMessage}
-                        />
-                    ))}
-                </Box>
-            );
-        });
-    };
-
     // ** Sends New Msg
     const handleSendMsg = (e) => {
         e.preventDefault();
-        actionScrollToBottom();
+        actionScrollToBottom(true);
         if (editingMessage) {
             socketUpdateMessage(editingMessage, msg)
             setEditingMessage(null);
@@ -538,14 +443,19 @@ const Conversation = () => {
     const [showInformation, setShowInformation] = useState(false)
 
     useEffect(() => {
-        actionScrollToBottom();
+        actionScrollToBottom(false);
         if (scrollToBottom) {
             setNewMessageCount(newMessageCount + 1)
         }
-    }, [showInformation, scrollToBottom, store])
-    // console.log(selectedRoom, "6666 ")
+    }, [showInformation, roomChange])
 
-    let firstDate = ""
+    useEffect(() => {
+        if (scrollToBottom) {
+            actionScrollToBottom(true);
+        }
+    }, [scrollToBottom])
+
+    // console.log(selectedRoom, "6666 ")
 
     return Object.keys(selectedRoom).length ? (
         showInformation ? <Information CircleButton1={CircleButton1} setShowInformation={setShowInformation} /> :
