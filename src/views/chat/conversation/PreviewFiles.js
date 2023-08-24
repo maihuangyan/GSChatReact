@@ -11,7 +11,7 @@ import { useTheme } from "@mui/material/styles";
 import useJwt from "utils/jwt/useJwt";
 import { SocketContext } from 'utils/context/SocketContext';
 
-export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles, img, uploadFiles, CircleButton1, }) {
+export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles, img, uploadFiles, CircleButton1, chatArea }) {
 
     const theme = useTheme();
     const socketSendMessage = useContext(SocketContext).socketSendMessage;
@@ -20,7 +20,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
     const [msg, setMsg] = useState("");
     const [isImage, setIsImage] = useState(false);
     const [isVideo, setIsVideo] = useState(false);
-    
+
     const isPreviewFilesClose = () => {
         setIsPreviewFiles(false)
     }
@@ -41,6 +41,21 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
         }
     }, [uploadFiles])
 
+    const actionScrollToBottom = (send) => {
+        const chatContainer = chatArea.current;
+        if (chatContainer) {
+            //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
+            if (send) {
+                chatContainer.scrollTo({
+                    top: chatContainer.scrollHeight,
+                    behavior: "smooth"
+                })
+            } else {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+    };
+
     const handleSendFiles = () => {
         const formData = new FormData();
         formData.append('type', isImage ? 1 : 2);
@@ -48,7 +63,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
 
         useJwt
             .uploadFiles(formData)
-            .then((res)=>{
+            .then((res) => {
                 if (res.data.ResponseCode == 0) {
                     let fileIds = ''
                     for (let fileRes of res.data.ResponseResult) {
@@ -67,6 +82,9 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
             })
             .catch((err) => console.error(err))
 
+        setTimeout(() => {
+            actionScrollToBottom(true)
+        }, 3000)
         setMsg("")
         setIsPreviewFiles(false)
     }

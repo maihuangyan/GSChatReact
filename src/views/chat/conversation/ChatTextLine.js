@@ -107,6 +107,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                             srcSet={message.files[0].thumbnail}
                                             alt={message.files[0].origin_file_name}
                                             loading="lazy"
+                                            placeholder={true}
                                         /></Box>) : (
                                         <Box>
                                             {
@@ -230,7 +231,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                         <Box>
                                             {
                                                 filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "word" ? (
-                                                    <Typography component="div" sx={{ p: "2px 4px" }}>
+                                                    <Typography component="div" sx={{ p: "1px 4px" }}>
                                                         <form method="get" action={message.files[0].thumbnail} onSubmit={() => downloadFile()}>
                                                             <Button type="submit" sx={{ p: "8px 16px", color: '#000', fontWeight: 400, background: "#b5b5b5", borderRadius: "6px" }}>
                                                                 <IconDownload size={20} stroke={2} />

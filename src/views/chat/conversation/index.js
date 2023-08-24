@@ -450,7 +450,6 @@ const Conversation = () => {
             actionScrollToBottom(true);
             setNewMessageCount(newMessageCount + 1)
         }
-
     }, [scrollToBottom])
 
     // console.log(selectedRoom, "6666 ")
@@ -485,6 +484,7 @@ const Conversation = () => {
                         msg={msg}
                         setMsg={setMsg}
                         setIsTyping={setIsTyping}
+                        chatArea={chatArea}
                         isTyping={isTyping} />
                     <EnlargeImgBox open={isModalOpen} setIsModalOpen={setIsModalOpen} img={enlargeImg} />
                     <Grid container sx={{ borderBottom: "1px solid #997017", p: 1 }}>
