@@ -7,16 +7,20 @@ import {
     ListItemText,
     Divider,
     Grid,
-    CardMedia,
+    Button
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { IconChevronDown, IconArrowForwardUp } from "@tabler/icons";
+import { IconChevronDown, IconArrowForwardUp, IconDownload } from "@tabler/icons";
 import ClientAvatar from "ui-component/ClientAvatar";
 
 import { Image } from 'antd';
 import { getUserDisplayName } from 'utils/common';
 
 import Forward from './ForwardModal';
+import ReactPlayer from "react-player";
+
+const filesType_radio = ["mp3", "wav", "wmv"]
+const filesType_video = ["mp4", "m2v", "mkv", "mov"]
 
 export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage }) {
     const theme = useTheme();
@@ -42,6 +46,22 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
     const showForward = (message) => {
         setForwardMessage(message)
         setIsForwardModal(true)
+    }
+
+    const filesType = (file) => {
+        let radio = filesType_radio.filter(item => item == file)
+        let video = filesType_video.filter(item => item == file)
+        if (video.length) {
+            return "video"
+        } else if (radio.length) {
+            return "radio"
+        } else {
+            return "word"
+        }
+    }
+
+    const downloadFile = (e) => {
+
     }
 
     return (
@@ -70,7 +90,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                             <Typography component="div" sx={{ borderLeft: "2px solid #FBC34A", p: "2px 4px" }} onClick={() => replyScroll(message)}>
                                                 <Grid>
                                                     <Grid item>{message.reply_on_message?.username}</Grid>
-                                                    <Grid item><Typography variant='body2'>{message.reply_on_message?.type == 0 ? message.reply_on_message?.message : (message.reply_on_message?.type == 1 ? "image" : (message.reply_on_message?.type == 3 ? message.reply_on_message?.forward_message.message : ""))}</Typography></Grid>
+                                                    <Grid item><Typography variant='body2'>{message.reply_on_message?.type == 0 ? message.reply_on_message?.message : (message.reply_on_message?.type == 1 ? "image" : (message.reply_on_message?.type == 2 ? "file" : message.reply_on_message?.forward_message.message))}</Typography></Grid>
                                                 </Grid>
                                             </Typography>
                                         </Box> : ""}
@@ -88,7 +108,21 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                             alt={message.files[0].origin_file_name}
                                             loading="lazy"
                                         /></Box>) : (
-                                        <Typography variant="body1" sx={{ p: "0 8px" }}>{message.files[0].origin_file_name}</Typography>
+                                        <Box>
+                                            {
+                                                filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "word" ? (
+                                                    <Typography component="div" sx={{ p: "2px 4px" }}>
+                                                        <form method="get" action={message.files[0].thumbnail} onSubmit={() => downloadFile()}>
+                                                            <Button type="submit" sx={{ p: "8px 16px", color: '#000', fontWeight: 400, background: "#b5b5b5", borderRadius: "6px" }}>
+                                                                <IconDownload size={20} stroke={2} />
+                                                                {message.files[0].origin_file_name}</Button>
+                                                        </form></Typography>) : (<ReactPlayer
+                                                            url={message.files[0].thumbnail}
+                                                            controls
+                                                            className={filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "radio" ? "player-mp3" : "player"}
+                                                        />)
+                                            }
+                                        </Box>
                                     )
                             ) : (message.type == 3 ? (
                                 <Grid>
@@ -175,7 +209,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                             <Typography component="div" sx={{ borderLeft: "2px solid #000", p: "2px 4px" }}>
                                                 <Grid>
                                                     <Grid item>{message.reply_on_message?.username}</Grid>
-                                                    <Grid item><Typography variant='body2'>{message.reply_on_message?.type == 0 ? message.reply_on_message.message : (message.reply_on_message?.type == 1 ? "image" : (message.reply_on_message?.type == 3 ? message.reply_on_message?.forward_message.message : ""))}</Typography></Grid>
+                                                    <Grid item><Typography variant='body2'>{message.reply_on_message?.type == 0 ? message.reply_on_message.message : (message.reply_on_message?.type == 1 ? "image" : (message.reply_on_message?.type == 2 ? "file" : message.reply_on_message?.forward_message.message))}</Typography></Grid>
                                                 </Grid>
                                             </Typography>
                                         </Box> : ""}
@@ -193,11 +227,21 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                             alt={message.files[0].origin_file_name}
                                             loading='lazy'
                                         /></Box>) : (
-                                        // <CardMedia src={message.files[0].thumbnail} />
-                                        <Typography component="div" variant="body1" sx={{ p: "0 8px" }}>
-                                            <CardMedia src={message.files[0].thumbnail} />
-                                            {message.files[0].thumbnail}
-                                        </Typography>
+                                        <Box>
+                                            {
+                                                filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "word" ? (
+                                                    <Typography component="div" sx={{ p: "2px 4px" }}>
+                                                        <form method="get" action={message.files[0].thumbnail} onSubmit={() => downloadFile()}>
+                                                            <Button type="submit" sx={{ p: "8px 16px", color: '#000', fontWeight: 400, background: "#b5b5b5", borderRadius: "6px" }}>
+                                                                <IconDownload size={20} stroke={2} />
+                                                                {message.files[0].origin_file_name}</Button>
+                                                        </form></Typography>) : (<ReactPlayer
+                                                            url={message.files[0].thumbnail}
+                                                            controls
+                                                            className={filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "radio" ? "player-mp3" : "player"}
+                                                        />)
+                                            }
+                                        </Box>
                                     )
                             ) : (message.type == 3 ? (
                                 <Grid>

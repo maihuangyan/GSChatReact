@@ -59,7 +59,6 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                             fileIds += ',' + fileRes.id
                         }
                     }
-
                     socketSendMessage(roomId, (isImage ? 1 : 2), fileIds);
                 }
                 else {

@@ -191,7 +191,6 @@ const Conversation = () => {
             if (messageIDs.length > 0) socketOpenMessage(messageIDs);
         }
         setIsGroup(selectedRoom.group)
-
     }, [selectedRoom, store, scrollTop]);
 
     useEffect(() => {

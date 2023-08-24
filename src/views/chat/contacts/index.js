@@ -154,7 +154,7 @@ const Contacts = () => {
                                     }
                                     sx={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}
                                 >
-                                    {item.last_message?.type == 0 ? item.last_message?.message : (item.last_message?.type == 1 ? "image" : (item.last_message?.type == 3 ? item.last_message?.forward_message.message : ""))}
+                                    {item.last_message?.type == 0 ? item.last_message?.message : (item.last_message?.type == 1 ? "image" : (item.last_message?.type == 2 ? "file" : item.last_message?.forward_message.message ))}
                                 </Typography>
                             </Box>
                         </Box>
