@@ -84,7 +84,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
 
         setTimeout(() => {
             actionScrollToBottom(true)
-        }, 1000)
+        }, 3000)
         setMsg("")
         setIsPreviewFiles(false)
     }
