@@ -151,12 +151,10 @@ const Conversation = () => {
         if (chatContainer) {
             //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
             if (send) {
-                setTimeout(() => {
-                    chatContainer.scrollTo({
-                        top: chatContainer.scrollHeight,
-                        behavior: "smooth"
-                    })
-                }, 100)
+                chatContainer.scrollTo({
+                    top: chatContainer.scrollHeight,
+                    behavior: "smooth"
+                })
             } else {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
