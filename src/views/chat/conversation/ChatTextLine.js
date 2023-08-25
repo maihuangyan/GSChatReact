@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import {
     Box,
     Typography,
@@ -19,11 +19,11 @@ import { getUserDisplayName } from 'utils/common';
 import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
 
-export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage }) {
+export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage , actionScrollToBottom}) {
     const theme = useTheme();
     const [isHover, setIsHover] = useState(false);
     const [isForwardModal, setIsForwardModal] = useState(false);
-    const [imgHeight, setImgHeight] = useState(500);
+    const [imgHeight, setImgHeight] = useState(700);
 
     const onMouseEnterHandler = () => {
         setIsHover(true);
@@ -65,9 +65,13 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
     const downloadFile = (e) => {
 
     }
-    useEffect(() => {
 
+    useEffect(() => {
+        setTimeout(()=>{
+            setImgHeight("auto")
+        }, 200)
     }, [])
+
 
 
     return (
@@ -113,8 +117,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                             alt={message.files[0].origin_file_name}
                                             loading="lazy"
                                             placeholder={true}
-                                            width={250}
-                                            height={250}
+                                            height={imgHeight}
                                         /></Box>) : (
                                         <Box>
                                             {
@@ -234,8 +237,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                             alt={message.files[0].origin_file_name}
                                             loading='lazy'
                                             placeholder={true}
-                                            width={250}
-                                            height={250}
+                                            height={imgHeight}
                                         /></Box>) : (
                                         <Box>
                                             {
