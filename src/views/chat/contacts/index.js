@@ -39,6 +39,7 @@ const CircleButton1 = styled(Button)(({ theme }) => ({
 const Contacts = () => {
     const theme = useTheme();
     const store = useSelector((state) => state.room);
+    const messages = useSelector((state) => state.messages);
     const selectedRoom = store.selectedRoom;
     const dispatch = useDispatch();
     const userData = useSelector((state) => state.auth.userData);
@@ -71,7 +72,9 @@ const Contacts = () => {
     const handleUserClick = (type, room) => {
         dispatch(selectRoom(room));
         setActive({ type, id: room.id, room });
-        dispatch(getMessages({ id: room.id }))
+        if (!messages.messages[room.id]) {
+            dispatch(getMessages({ id: room.id }))
+        }
         dispatch(resetUnreadCount({ room_id: room.id, unread_count: room.unread_count, unreadCount: 0 }))
     };
 
@@ -154,7 +157,7 @@ const Contacts = () => {
                                     }
                                     sx={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}
                                 >
-                                    {item.last_message?.type == 0 ? item.last_message?.message : (item.last_message?.type == 1 ? "image" : (item.last_message?.type == 2 ? "file" : item.last_message?.forward_message.message ))}
+                                    {item.last_message?.type == 0 ? item.last_message?.message : (item.last_message?.type == 1 ? "image" : (item.last_message?.type == 2 ? "file" : item.last_message?.forward_message.message))}
                                 </Typography>
                             </Box>
                         </Box>

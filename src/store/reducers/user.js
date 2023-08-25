@@ -11,7 +11,7 @@ const initialState = {
 const persistConfig = {
   key: "users",
   storage,
-  whitelist: ["connected_users"], // place to select which state you want to persist
+  whitelist: ["connected_users","online_users"], // place to select which state you want to persist
 };
 
 const users = (state = initialState, action) => {

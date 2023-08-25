@@ -48,7 +48,7 @@ const SocketProvider = ({ children }) => {
       loadRoomData()
       loadOnlineList()
     }
-  }, []);
+  }, [auth]);
 
   const loadRoomData = () => {
     // load chat messages

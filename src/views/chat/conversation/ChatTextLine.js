@@ -19,13 +19,12 @@ import { getUserDisplayName } from 'utils/common';
 import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
 
-const filesType_radio = ["mp3", "wav", "wmv"]
-const filesType_video = ["mp4", "m2v", "mkv", "mov"]
-
 export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage }) {
     const theme = useTheme();
     const [isHover, setIsHover] = useState(false);
     const [isForwardModal, setIsForwardModal] = useState(false);
+    const [imgHeight, setImgHeight] = useState(500);
+
     const onMouseEnterHandler = () => {
         setIsHover(true);
     };
@@ -49,6 +48,9 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
     }
 
     const filesType = (file) => {
+        const filesType_radio = ["mp3", "wav", "wmv"]
+        const filesType_video = ["mp4", "m2v", "mkv", "mov"]
+
         let radio = filesType_radio.filter(item => item == file)
         let video = filesType_video.filter(item => item == file)
         if (video.length) {
@@ -63,6 +65,10 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
     const downloadFile = (e) => {
 
     }
+    useEffect(() => {
+
+    }, [])
+
 
     return (
         <Box>
@@ -104,10 +110,11 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                     (<Box sx={{ cursor: "pointer" }} >
                                         <Image
                                             src={message.files[0].thumbnail}
-                                            srcSet={message.files[0].thumbnail}
                                             alt={message.files[0].origin_file_name}
                                             loading="lazy"
                                             placeholder={true}
+                                            width={250}
+                                            height={250}
                                         /></Box>) : (
                                         <Box>
                                             {
@@ -224,9 +231,11 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                     (<Box sx={{ cursor: "pointer" }} >
                                         <Image
                                             src={message.files[0].thumbnail}
-                                            srcSet={message.files[0].thumbnail}
                                             alt={message.files[0].origin_file_name}
                                             loading='lazy'
+                                            placeholder={true}
+                                            width={250}
+                                            height={250}
                                         /></Box>) : (
                                         <Box>
                                             {

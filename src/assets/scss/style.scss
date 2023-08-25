@@ -246,7 +246,9 @@
 }
 
 .ant-image {
-    width: 450px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .ant-modal {

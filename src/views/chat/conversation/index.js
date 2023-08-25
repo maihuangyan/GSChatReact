@@ -37,7 +37,6 @@ import ForwardBox from "./ForwardBox";
 
 import { Upload } from 'antd';
 import { selectRoomClear } from "store/actions/room";
-import { LoaderContext } from "utils/context/ProgressLoader";
 
 let firstDate = ""
 
@@ -110,6 +109,7 @@ const TimeSeperator = ({ content }) => {
 const Conversation = () => {
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const store = useSelector((state) => state.messages);
+    const messagesChange = useSelector((state) => state.messages.change);
 
     const [isTyping, setIsTyping] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -126,9 +126,6 @@ const Conversation = () => {
     const addNewMessageCount = useContext(SocketContext).addNewMessageCount
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
-
-    const hideProgress = useContext(LoaderContext).hideProgress;
-    const showProgress = useContext(LoaderContext).showProgress;
 
     useEffect(() => {
         // console.log(updateOnlineStatus)
@@ -154,10 +151,12 @@ const Conversation = () => {
         if (chatContainer) {
             //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
             if (send) {
-                chatContainer.scrollTo({
-                    top: chatContainer.scrollHeight,
-                    behavior: "smooth"
-                })
+                setTimeout(() => {
+                    chatContainer.scrollTo({
+                        top: chatContainer.scrollHeight,
+                        behavior: "smooth"
+                    })
+                }, 100)
             } else {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
@@ -191,7 +190,7 @@ const Conversation = () => {
             if (messageIDs.length > 0) socketOpenMessage(messageIDs);
         }
         setIsGroup(selectedRoom.group)
-    }, [selectedRoom, store, scrollTop]);
+    }, [store, selectedRoom, scrollTop]);
 
     useEffect(() => {
         setIsReply(false);
@@ -206,7 +205,7 @@ const Conversation = () => {
     }, [selectedRoom])
 
     const formattedChatData = (message) => {
-        if (!selectedRoom || message.length == 0) return [];
+        if (!selectedRoom || message.length == 0) return setRoomMessages([]);
         let formattedChatLog = [];
         let chatLog = [...message]
         chatLog = chatLog.sort((a, b) => (a.id > b.id ? 1 : a.id < b.id ? -1 : 0));
@@ -216,7 +215,7 @@ const Conversation = () => {
         } else {
             chatLogs = chatLog.filter((item, index) => index >= message.length - 30 - newMessageCount)
         }
-        var msgGroup = {
+        let msgGroup = {
             sentDate: formatChatDate(chatLogs[0].created_at * 1000), // for date divide,
             senderId: chatLogs[0].user_id,
             sentTime: chatLogs[0].created_at * 1000, // for checking 1 mins delay = diff: 60 * 1000,
@@ -251,7 +250,6 @@ const Conversation = () => {
             }
         }
         console.log(formattedChatLog);
-
         setRoomMessages(formattedChatLog)
     }
     // ** Sends New Msg
@@ -548,11 +546,13 @@ const Conversation = () => {
                     </Grid>
                     <Box>
                         <Paper
-                            sx={{ height: `calc( 100vh - ${isReply ? "209px" : "163px"})`, p: 2, pt: 3, pb: 9, overflowY: "auto", borderRadius: 0, }}
                             ref={chatArea}
+                            sx={{
+                                height: `calc( 100vh - ${isReply ? "209px" : "163px"})`
+                                , p: 2, pt: 3, pb: 9, borderRadius: 0, overflowY: "auto"
+                            }}
                         >
                             {
-
                                 roomMessages.map((item, index) => {
                                     const showDateDivider = firstDate != item.sentDate;
                                     firstDate = item.sentDate;

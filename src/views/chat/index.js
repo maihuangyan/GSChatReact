@@ -1,11 +1,8 @@
 import { useEffect, useState, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Grid } from "@mui/material";
-import useJwt from "utils/jwt/useJwt";
-
 import Contacts from "./contacts";
 import Conversation from "./conversation";
-import { LoaderContext } from "utils/context/ProgressLoader";
 import mp from "../../assets/sound.mp3"
 import ReactPlayer from "react-player";
 import { SocketContext } from "utils/context/SocketContext";
@@ -16,12 +13,10 @@ const Chat = (props) => {
   const soundPlayers = useContext(SocketContext).soundPlayers
   const selectedRoom = useSelector((state) => state.room.selectedRoom);
   const [roomTab, setRoomTab] = useState(false)
-  const hideProgress = useContext(LoaderContext).hideProgress;
   useEffect(() => {
     if (selectedRoom.id) {
       setRoomTab(true)
     } else {
-      hideProgress()
       setRoomTab(false)
     }
   }, [roomTab, selectedRoom])

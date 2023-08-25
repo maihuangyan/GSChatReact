@@ -3,12 +3,13 @@ import storage from "redux-persist/lib/storage";
 
 const initialState = {
     messages: {},
+    change: false
 };
 
 const persistConfig = {
     key: "messages",
     storage,
-    whitelist: ["messages", "lastMessage"], // place to select which state you want to persist
+    whitelist: ["messages", "change"], // place to select which state you want to persist
 };
 
 const messagesReducer = (state = initialState, action) => {
@@ -37,13 +38,14 @@ const addMessages = (state, messages) => {
     const roomMessages = [...(stateMessages[room_id] ? [...stateMessages[room_id]] : []), ...messages];
     stateMessages[room_id] = roomMessages;
 
-    return { ...state, messages: stateMessages }
+    return { ...state, messages: stateMessages, change: !state.change }
 }
 
 const addOrUpdateMessages = (state, messages) => {
     if (messages.length === 0) {
         return state
     }
+    // console.log("6666")
 
     const stateMessages = { ...state.messages }
     const room_id = messages[0].room_id;
@@ -67,7 +69,7 @@ const addOrUpdateMessages = (state, messages) => {
 
 
     stateMessages[room_id] = roomMessages;
-    return { ...state, messages: stateMessages }
+    return { ...state, messages: stateMessages, change: !state.change }
 }
 
 const deleteMessages = (state, message_ids) => {
@@ -78,7 +80,7 @@ const deleteMessages = (state, message_ids) => {
     for (const [room_id, messages] of Object.entries(stateMessages)) {
         for (let item of messages) {
             if (item.id == message_ids[0]) {
-                firstMessage = {...item};
+                firstMessage = { ...item };
             }
         }
     }
@@ -88,7 +90,7 @@ const deleteMessages = (state, message_ids) => {
         const roomMessages = stateMessages[roomId] ? [...stateMessages[roomId]] : [];
         const newArray = roomMessages.filter(message => message_ids.indexOf(message.id) === -1);
         stateMessages[roomId] = newArray;
-        return { ...state, messages: stateMessages }
+        return { ...state, messages: stateMessages, change: !state.change }
     }
 
     return state

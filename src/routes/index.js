@@ -23,24 +23,14 @@ const AppRoutes = () => {
   const auth = useSelector((state) => state.auth);
   const role = auth.userData?.role;
   const dispatch = useDispatch();
-  const hideProgress = useContext(LoaderContext).hideProgress;
-
-  const loadRoomData = useContext(SocketContext).loadRoomData
 
   useEffect(() => {
     messageService.getMessage().subscribe(message => {
       if (message.text === 'Logout') {
-        hideProgress()
         dispatch(handleLogout())
       }
     });
   }, [])
-
-  useEffect(() => {
-    if (auth.userData) {
-      loadRoomData()
-    }
-  }, [auth])
 
   return (
     <Routes>

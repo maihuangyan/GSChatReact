@@ -41,21 +41,6 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
         }
     }, [uploadFiles])
 
-    const actionScrollToBottom = (send) => {
-        const chatContainer = chatArea.current;
-        if (chatContainer) {
-            //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
-            if (send) {
-                chatContainer.scrollTo({
-                    top: chatContainer.scrollHeight,
-                    behavior: "smooth"
-                })
-            } else {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-        }
-    };
-
     const handleSendFiles = () => {
         const formData = new FormData();
         formData.append('type', isImage ? 1 : 2);
@@ -81,10 +66,6 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                 }
             })
             .catch((err) => console.error(err))
-
-        setTimeout(() => {
-            actionScrollToBottom(true)
-        }, 3000)
         setMsg("")
         setIsPreviewFiles(false)
     }

@@ -8,7 +8,7 @@ export const getMessages = (payload) => {
             .then((res) => {
                 if (res.data.ResponseCode == 0) {
                     let data = res.data.ResponseResult
-                    // console.log('data', data)
+                    console.log('data', data)
                     dispatch({
                         type: "UPDATE_MESSAGES",
                         data,
