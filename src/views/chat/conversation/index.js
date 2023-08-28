@@ -580,6 +580,7 @@ const Conversation = () => {
                                                     replyScroll={replyScroll}
                                                     setIsForward={setIsForward}
                                                     setForwardMessage={setForwardMessage}
+                                                    actionScrollToBottom={actionScrollToBottom}
                                                 />
                                             ))}
                                         </Box>

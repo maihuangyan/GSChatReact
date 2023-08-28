@@ -19,7 +19,9 @@ import { getUserDisplayName } from 'utils/common';
 import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
 
-export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage , actionScrollToBottom}) {
+import defaultImg from "../../../assets/1693198278431.jpg"
+
+export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage, actionScrollToBottom }) {
     const theme = useTheme();
     const [isHover, setIsHover] = useState(false);
     const [isForwardModal, setIsForwardModal] = useState(false);
@@ -65,14 +67,25 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
     const downloadFile = (e) => {
 
     }
+    // useEffect(() => {
+    //     if (message.type == 1) {
+    //         const aa = document.getElementById(message.files[0].id).childNodes[0]
+    //         // console.log(aa.height)
+    //         aa.onload = () => {
+    //             // console.log(item.height)
+    //             aa.src = message.files[0].thumbnail
 
-    useEffect(() => {
-        setTimeout(()=>{
-            setImgHeight("auto")
-        }, 200)
-    }, [])
 
-
+    //         }
+    //         actionScrollToBottom(false)
+    //         console.log("666")
+    //         // const img = new Image();
+    //         // img.src = message.files[0].thumbnail;
+    //     }
+    //     // setTimeout(() => {
+    //     //     setImgHeight("auto")
+    //     // }, 200)
+    // }, [message.type])
 
     return (
         <Box>
@@ -113,11 +126,12 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                 (message.type == 1) ?
                                     (<Box sx={{ cursor: "pointer" }} >
                                         <Image
+                                            id={message.files[0].id}
+                                            alt={message.files[0].thumbnail}
                                             src={message.files[0].thumbnail}
-                                            alt={message.files[0].origin_file_name}
-                                            loading="lazy"
-                                            placeholder={true}
-                                            height={imgHeight}
+                                            loading='lazy'
+                                            placeholder={<div style={{paddingTop:"6000px"}}>loading...</div>}
+                                        // height={imgHeight}
                                         /></Box>) : (
                                         <Box>
                                             {
@@ -233,11 +247,12 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                 (message.type == 1) ?
                                     (<Box sx={{ cursor: "pointer" }} >
                                         <Image
+                                            id={message.files[0].id}
                                             src={message.files[0].thumbnail}
-                                            alt={message.files[0].origin_file_name}
+                                            alt={message.files[0].thumbnail}
                                             loading='lazy'
-                                            placeholder={true}
-                                            height={imgHeight}
+                                            placeholder={<div style={{paddingTop:"6000px"}}>loading...</div>}
+                                        // height={imgHeight}
                                         /></Box>) : (
                                         <Box>
                                             {
