@@ -151,10 +151,13 @@ const Conversation = () => {
         if (chatContainer) {
             //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
             if (send) {
-                chatContainer.scrollTo({
-                    top: chatContainer.scrollHeight,
-                    behavior: "smooth"
-                })
+                console.log("66666")
+                setTimeout(() => {
+                    chatContainer.scrollTo({
+                        top: chatContainer.scrollHeight,
+                        behavior: "smooth"
+                    })
+                }, 50)
             } else {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
@@ -448,10 +451,6 @@ const Conversation = () => {
         }
     }, [scrollToBottom])
 
-    const [imgArr, setImgArr] = useState([]);
-    console.log(imgArr, "6666 ")
-
-
     // console.log(selectedRoom, "6666 ")
 
     return Object.keys(selectedRoom).length ? (
@@ -584,8 +583,6 @@ const Conversation = () => {
                                                     replyScroll={replyScroll}
                                                     setIsForward={setIsForward}
                                                     setForwardMessage={setForwardMessage}
-                                                    setImgArr={setImgArr}
-                                                    imgArr={imgArr}
                                                 />
                                             ))}
                                         </Box>

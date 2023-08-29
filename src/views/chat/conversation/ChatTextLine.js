@@ -20,7 +20,7 @@ import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
 
 
-export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage, setImgArr, imgArr }) {
+export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage }) {
     const theme = useTheme();
     const [isHover, setIsHover] = useState(false);
     const [isForwardModal, setIsForwardModal] = useState(false);
@@ -66,17 +66,11 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
     const downloadFile = (e) => {
 
     }
-    let aa = []
     useEffect(() => {
         setTimeout(() => {
             setImgHeight("auto")
         }, 500)
-        if (message.type == 1) {
-            setImgArr([...imgArr, message.files[0]])
-        }
     }, [message])
-
-    console.log(aa)
 
     return (
         <Box>
