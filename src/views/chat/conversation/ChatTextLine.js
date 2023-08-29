@@ -19,13 +19,12 @@ import { getUserDisplayName } from 'utils/common';
 import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
 
-import defaultImg from "../../../assets/1693198278431.jpg"
 
-export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage, actionScrollToBottom }) {
+export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage, setImgArr, imgArr }) {
     const theme = useTheme();
     const [isHover, setIsHover] = useState(false);
     const [isForwardModal, setIsForwardModal] = useState(false);
-    const [imgHeight, setImgHeight] = useState(700);
+    const [imgHeight, setImgHeight] = useState(800);
 
     const onMouseEnterHandler = () => {
         setIsHover(true);
@@ -67,25 +66,17 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
     const downloadFile = (e) => {
 
     }
-    // useEffect(() => {
-    //     if (message.type == 1) {
-    //         const aa = document.getElementById(message.files[0].id).childNodes[0]
-    //         // console.log(aa.height)
-    //         aa.onload = () => {
-    //             // console.log(item.height)
-    //             aa.src = message.files[0].thumbnail
+    let aa = []
+    useEffect(() => {
+        setTimeout(() => {
+            setImgHeight("auto")
+        }, 500)
+        if (message.type == 1) {
+            setImgArr([...imgArr, message.files[0]])
+        }
+    }, [message])
 
-
-    //         }
-    //         actionScrollToBottom(false)
-    //         console.log("666")
-    //         // const img = new Image();
-    //         // img.src = message.files[0].thumbnail;
-    //     }
-    //     // setTimeout(() => {
-    //     //     setImgHeight("auto")
-    //     // }, 200)
-    // }, [message.type])
+    console.log(aa)
 
     return (
         <Box>
@@ -129,9 +120,9 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                             id={message.files[0].id}
                                             alt={message.files[0].thumbnail}
                                             src={message.files[0].thumbnail}
+                                            placeholder={true}
                                             loading='lazy'
-                                            placeholder={<div style={{paddingTop:"6000px"}}>loading...</div>}
-                                        // height={imgHeight}
+                                            height={imgHeight}
                                         /></Box>) : (
                                         <Box>
                                             {
@@ -250,9 +241,9 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                             id={message.files[0].id}
                                             src={message.files[0].thumbnail}
                                             alt={message.files[0].thumbnail}
+                                            placeholder={true}
                                             loading='lazy'
-                                            placeholder={<div style={{paddingTop:"6000px"}}>loading...</div>}
-                                        // height={imgHeight}
+                                            height={imgHeight}
                                         /></Box>) : (
                                         <Box>
                                             {

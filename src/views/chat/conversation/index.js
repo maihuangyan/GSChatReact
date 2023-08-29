@@ -448,6 +448,10 @@ const Conversation = () => {
         }
     }, [scrollToBottom])
 
+    const [imgArr, setImgArr] = useState([]);
+    console.log(imgArr, "6666 ")
+
+
     // console.log(selectedRoom, "6666 ")
 
     return Object.keys(selectedRoom).length ? (
@@ -580,7 +584,8 @@ const Conversation = () => {
                                                     replyScroll={replyScroll}
                                                     setIsForward={setIsForward}
                                                     setForwardMessage={setForwardMessage}
-                                                    actionScrollToBottom={actionScrollToBottom}
+                                                    setImgArr={setImgArr}
+                                                    imgArr={imgArr}
                                                 />
                                             ))}
                                         </Box>
