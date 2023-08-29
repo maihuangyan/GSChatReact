@@ -151,7 +151,6 @@ const Conversation = () => {
         if (chatContainer) {
             //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
             if (send) {
-                console.log("66666")
                 setTimeout(() => {
                     chatContainer.scrollTo({
                         top: chatContainer.scrollHeight,

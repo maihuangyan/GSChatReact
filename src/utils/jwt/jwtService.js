@@ -175,32 +175,9 @@ export default class JwtService {
     return axios.get(this.jwtConfig.getOnlineListEndpoint,headers);
   }
 
-  updateAdvisorInfo(...args) {
-    return axios.post(this.jwtConfig.updateAdvisorInfoEndpoint, ...args);
-  }
-
-  updateAdvisorPhoto(...args) {
-    return axios.post(this.jwtConfig.updateAdvisorPhotoEndpoint, ...args);
-  }
-
-  uploadFile(...args) {
-    return axios.post(this.jwtConfig.uploadFileEndpoint, ...args);
-  }
-
-  loadAdvisorWorkTimes(advisor_id) {
-    return axios.get(`${this.jwtConfig.loadAdvisorWorkTimes}/${advisor_id}`);
-  }
-
-  setAdvisorWorkTimes(...args) {
-    return axios.post(this.jwtConfig.setAdvisorWorkTimes, ...args);
-  }
 
   loadUnreadMessages() {
     return axios.get(this.jwtConfig.loadUnreadMessagesEndpoint);
-  }
-
-  loadRoomsAndMessages(...args) {
-    return axios.get(this.jwtConfig.loadRoomsAndMessagesEndpoint, ...args);
   }
 
   clearRoomMessages(room_id) {

@@ -10,12 +10,7 @@ export const jwtDefaultConfig = {
   getAllUsersEndpoint: `${process.env.REACT_APP_BASE_API_URL}/user`,
   updateAdvisorInfoEndpoint: `${process.env.REACT_APP_BASE_API_URL}/user/update_profile`,
   updateAdvisorPhotoEndpoint: `${process.env.REACT_APP_BASE_API_URL}/user/update_photo`,
-  uploadFileEndpoint: `${process.env.REACT_APP_BASE_API_URL}/user/upload`,
-  loadAdvisorWorkTimes: `${process.env.REACT_APP_BASE_API_URL}/work-time`,
-  setAdvisorWorkTimes: `${process.env.REACT_APP_BASE_API_URL}/work-time/set_work_times`,
 
-  loadUnreadMessagesEndpoint: `${process.env.REACT_APP_BASE_API_URL}/message/advisor_unread_messages`,
-  loadRoomsAndMessagesEndpoint: `${process.env.REACT_APP_BASE_API_URL}/message/advisor`,
   clearRoomMessagesEndpoint: `${process.env.REACT_APP_BASE_API_URL}/message/clear_room_messages/`,
   getOnlineListEndpoint: `${process.env.REACT_APP_BASE_API_URL}/online/list`,
 

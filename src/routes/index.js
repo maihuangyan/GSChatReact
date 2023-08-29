@@ -1,14 +1,12 @@
 import MainLayout from "layout/MainLayout";
 import MinimalLayout from "layout/MinimalLayout";
-import { lazy, useContext, useEffect } from "react";
+import { lazy, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { handleLogout } from "store/actions";
 
 // project imports
 import Loadable from "ui-component/Loadable";
-import { LoaderContext } from "utils/context/ProgressLoader";
-import { SocketContext } from "utils/context/SocketContext";
 import { messageService } from "utils/jwt/messageService";
 import ForgotPassword from "views/forgot/ForgotPassword";
 import ResetPassword from "views/reset-password/ResetPassword";

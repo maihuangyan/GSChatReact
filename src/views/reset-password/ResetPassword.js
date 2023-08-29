@@ -6,11 +6,8 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import { styled } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
-import Link from "@mui/material/Link";
 import IconButton from "@mui/material/IconButton";
 import Input from "@mui/material/Input";
 import InputLabel from "@mui/material/InputLabel";
@@ -20,8 +17,7 @@ import FormHelperText from "@mui/material/FormHelperText";
 //Icons
 import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlined from "@mui/icons-material/VisibilityOffOutlined";
-import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+
 
 import useJwt from "utils/jwt/useJwt";
 import { useNavigate, useParams } from 'react-router-dom';
@@ -91,7 +87,7 @@ const ResetPassword = (props) => {
     }
 
     useJwt
-      .resetForgotPassword({ code, password: data.password, confirm_password: data.confirm_password })
+      .resetForgotPassword({ code, password: data.password})
       .then((res) => {
         if (res.data.ResponseCode === 0) {
           showToast("success", "Successfully reset, please login now")
