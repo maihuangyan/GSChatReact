@@ -15,7 +15,7 @@ export const getRoomList = () => {
               connected_users.push(user)
             }
           }
-
+          // console.log(data,"room")
           dispatch({
             type: "CONNECTED_USER_LIST",
             data: connected_users,

@@ -168,7 +168,7 @@ export default class JwtService {
   }
 
   getAllUsers() {
-    return axios.get(this.jwtConfig.getAllUsersEndpoint);
+    return axios.get(this.jwtConfig.getAllUsersEndpoint,headers);
   }
 
   getOnlineList() {
@@ -198,6 +198,10 @@ export default class JwtService {
 
   createRoom(...args) {
     return axios.post(this.jwtConfig.createRoomEndpoint, ...args, headers);
+  }
+
+  createRoomWithImg(...args) {
+    return axios.post(this.jwtConfig.createRoomWithImgEndpoint, ...args, headers);
   }
 
   searchUsers(...args) {

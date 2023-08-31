@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useJwt from "utils/jwt/useJwt";
 import { formatChatDate, formatChatTime, isMessageSeen } from "utils/common";
@@ -27,7 +27,6 @@ import { IconSend, IconDotsVertical, IconLink, IconPhoto, IconArrowLeft } from "
 import { SocketContext } from "utils/context/SocketContext";
 
 import ClientAvatar from "ui-component/ClientAvatar";
-import EnlargeImgBox from "ui-component/ImageBox";
 import ChatTextLine from "./ChatTextLine"
 import PreviewFiles from "./PreviewFiles";
 import DraggerBox from "./DraggerBox";
@@ -138,8 +137,6 @@ const Conversation = () => {
     const [msg, setMsg] = useState("");
     const [isGroup, setIsGroup] = useState(null);
 
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [enlargeImg, setEnlargeImg] = useState(null)
     const [newMessageCount, setNewMessageCount] = useState(0);
     const [scrollTop, setScrollTop] = useState(0);
 
@@ -180,6 +177,7 @@ const Conversation = () => {
             const roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
 
             // console.log(roomMessages)
+            // setRoomMessages([])
             formattedChatData(roomMessages)
             let messageIDs = [];
             roomMessages.forEach((message) => {
@@ -226,22 +224,22 @@ const Conversation = () => {
         }
 
         for (let i = 1; i < chatLogs.length; i++) {
-            let msg = chatLogs[i];
+            let msgs = chatLogs[i];
 
             if (
-                formatChatDate(+msg.created_at * 1000) == msgGroup.sentDate &&
-                msgGroup.senderId === msg.user_id &&
-                parseInt(msg.created_at * 1000) - parseInt(msgGroup.sentTime) < 60 * 1000
+                formatChatDate(+msgs.created_at * 1000) == msgGroup.sentDate &&
+                msgGroup.senderId === msgs.user_id &&
+                parseInt(msgs.created_at * 1000) - parseInt(msgGroup.sentTime) < 60 * 1000
             ) {
-                msgGroup.messages.push(msg);
+                msgGroup.messages.push(msgs);
             } else {
                 formattedChatLog.push(msgGroup);
 
                 msgGroup = {
-                    sentDate: formatChatDate(+msg.created_at * 1000),
-                    senderId: msg.user_id,
-                    sentTime: msg.created_at * 1000,
-                    messages: [msg],
+                    sentDate: formatChatDate(+msgs.created_at * 1000),
+                    senderId: msgs.user_id,
+                    sentTime: msgs.created_at * 1000,
+                    messages: [msgs],
                 };
             }
 
@@ -449,7 +447,6 @@ const Conversation = () => {
             setNewMessageCount(newMessageCount + 1)
         }
     }, [scrollToBottom])
-
     // console.log(selectedRoom, "6666 ")
 
     return Object.keys(selectedRoom).length ? (
@@ -484,7 +481,6 @@ const Conversation = () => {
                         setIsTyping={setIsTyping}
                         chatArea={chatArea}
                         isTyping={isTyping} />
-                    <EnlargeImgBox open={isModalOpen} setIsModalOpen={setIsModalOpen} img={enlargeImg} />
                     <Grid container sx={{ borderBottom: "1px solid #997017", p: 1 }}>
                         <Grid item xs={6} container>
                             <Box sx={{ display: "flex", alignItems: "center", pb: 0 }}>
@@ -577,8 +573,6 @@ const Conversation = () => {
                                                     formatChatTime={formatChatTime}
                                                     isGroup={isGroup}
                                                     TimeSeperator={TimeSeperator}
-                                                    setIsModalOpen={setIsModalOpen}
-                                                    setEnlargeImg={setEnlargeImg}
                                                     replyScroll={replyScroll}
                                                     setIsForward={setIsForward}
                                                     setForwardMessage={setForwardMessage}
@@ -630,8 +624,8 @@ const Conversation = () => {
                                             <OutlinedInput
                                                 placeholder="New message"
                                                 // id="message-box"
-                                                value={msg}
                                                 readOnly={false}
+                                                value={msg}
                                                 onPaste={async (e) => {
                                                     // e.preventDefault();
                                                     for (const clipboardItem of e.clipboardData.files) {

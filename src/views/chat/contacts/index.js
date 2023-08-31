@@ -36,7 +36,7 @@ const CircleButton1 = styled(Button)(({ theme }) => ({
     },
 }));
 
-const Contacts = () => {
+const Contacts = ({ setIsChatClick, isChatClick }) => {
     const theme = useTheme();
     const store = useSelector((state) => state.room);
     const messages = useSelector((state) => state.messages);
@@ -197,7 +197,6 @@ const Contacts = () => {
 
     // console.log(store, "6666 ")
 
-    const [isChatClick, setIsChatClick] = useState(false);
     const [isSettingClick, setIsSettingClick] = useState(false);
 
     // useEffect(() => {
@@ -235,12 +234,10 @@ const Contacts = () => {
                             </Stack>
                         </Paper>
                     </Box>
-
-
                 </Box>}
-            {
+            {/* {
                 isChatClick && <SearchUser CircleButton1={CircleButton1} setIsChatClick={setIsChatClick} isChatClick={isChatClick} />
-            }
+            } */}
             {
                 isSettingClick && <Settings CircleButton1={CircleButton1} setIsSettingClick={setIsSettingClick} theme={theme} />
             }

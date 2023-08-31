@@ -16,6 +16,7 @@ export const jwtDefaultConfig = {
 
   getRoomListEndpoint: `${process.env.REACT_APP_BASE_API_URL}/room`,
   createRoomEndpoint: `${process.env.REACT_APP_BASE_API_URL}/room`,
+  createRoomWithImgEndpoint: `${process.env.REACT_APP_BASE_API_URL}/room/create_room_with_image`,
   searchUsersEndpoint:`${process.env.REACT_APP_BASE_API_URL}/user/search`,
 
   getMessagesEndpoint:`${process.env.REACT_APP_BASE_API_URL}/message/room`,

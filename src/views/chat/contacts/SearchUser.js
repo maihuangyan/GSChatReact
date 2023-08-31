@@ -13,46 +13,48 @@ import {
     InputAdornment,
     OutlinedInput,
     Typography,
-    Avatar,
     Button,
-    TextField,
 } from "@mui/material";
+import { Input, Upload } from 'antd';
 import Block from "ui-component/Block";
 import ClientAvatar from "ui-component/ClientAvatar";
 
-import { IconSearch, IconArrowLeft } from "@tabler/icons";
-import defaultAvatar from "../../../assets/images/users/default_avatar.png";
+import { IconSearch, IconArrowLeft, IconPlus, IconCheck } from "@tabler/icons";
+import defaultAvatar from "../../../assets/images/defaultImg.jpg";
 import { styled, useTheme } from "@mui/material/styles";
-import { orange } from "@mui/material/colors";
 
-import { useForm, Controller } from "react-hook-form";
 import { getUserDisplayName } from 'utils/common';
-
-const Item = styled("div")(({ theme }) => ({
-    borderRadius: "24px",
-    padding: "8px",
-    cursor: "pointer",
-    textAlign: "center",
-    marginRight: "10px",
-    color: theme.palette.primary.light,
-}));
+import { useSelector } from "react-redux"
 
 const CircleButton = styled(Button)(({ theme }) => ({
-    borderRadius: "50px",
-    width: "100px",
-    height: "100px",
-    fontWeight: "bold",
-    margin: "20px",
-    color: theme.palette.getContrastText(orange[500]),
-    backgroundColor: "#F8F8F8",
+    borderRadius: "50%",
+    minWidth: "45px",
+    height: "45px",
+    color: theme.palette.primary.light,
+    backgroundColor: theme.palette.dark[900],
     "&:hover": {
         backgroundColor: "#FBC34A",
+        color: theme.palette.common.black,
     },
 }));
 
-export default function SearchUser({ CircleButton1, setIsChatClick }) {
+const CircleButton1 = styled(Button)(({ theme }) => ({
+    borderRadius: "50%",
+    minWidth: "40px",
+    height: "40px",
+    color: theme.palette.primary.light,
+    backgroundColor: theme.palette.dark[900],
+    "&:hover": {
+        backgroundColor: "#FBC34A",
+        color: theme.palette.common.black,
+    },
+}));
+
+export default function SearchUser({ setIsChatClick }) {
 
     const theme = useTheme();
+    const user = useSelector((state) => state.auth);
+    const allUser = useSelector((state) => state.users.connected_users);
 
     const goBackButton = () => {
         setIsChatClick(false);
@@ -60,7 +62,13 @@ export default function SearchUser({ CircleButton1, setIsChatClick }) {
     const [searchUser, setSearchUser] = useState([])
     const [query, setQuery] = useState("");
     const [filteredChat, setFilteredChat] = useState([]);
-    const [active, setActive] = useState(false);
+    const [addGroup, setAddGroup] = useState(false);
+    const [connectedUsers, setConnectedUsers] = useState("")
+    const [selectUser, setSelectUser] = useState([])
+    const [groupName, setGroupName] = useState("")
+    const [groupAvatar, setGroupAvatar] = useState("")
+    const [groupFiles, setGroupFiles] = useState(null)
+
 
     useEffect(() => {
         useJwt
@@ -152,212 +160,274 @@ export default function SearchUser({ CircleButton1, setIsChatClick }) {
         }
     };
 
-    const onSubmit = (data) => {
-        useJwt
-            .createRoom({ name: data.name, opponent_ids: data.opponentIds, group: 1 })
-            .then((res) => {
-                if (res.data.ResponseCode == 0) {
-                    console.log(res.data, "66666")
-                    setIsChatClick(false)
-                }
-                else {
-                    console.log(res.data.ResponseMessage)
-                }
-            })
-            .catch((err) => console.log(err));
+    const onSubmit = () => {
+        if (groupFiles) {
+            useJwt
+                .createRoomWithImg({ name: groupName, opponent_ids: selectUser, group: 1, photo: groupFiles })
+                .then((res) => {
+                    if (res.data.ResponseCode == 0) {
+                        console.log(res.data, "7777")
+                        setIsChatClick(false)
+                    }
+                    else {
+                        console.log(res.data.ResponseMessage)
+                    }
+                })
+                .catch((err) => console.log(err));
+        } else {
+            useJwt
+                .createRoom({ name: groupName, opponent_ids: selectUser, group: 1 })
+                .then((res) => {
+                    if (res.data.ResponseCode == 0) {
+                        console.log(res.data, "66666")
+                        setIsChatClick(false)
+                    }
+                    else {
+                        console.log(res.data.ResponseMessage)
+                    }
+                })
+                .catch((err) => console.log(err));
+        }
     }
-    const { control, handleSubmit } = useForm({
-        reValidateMode: "onBlur",
-    });
+
+    useEffect(() => {
+        const map = new Map();
+        const newArr = allUser.filter(item => !map.has(item.id) && map.set(item.id, item));
+        setConnectedUsers(newArr.filter(item => item.id != user.userData.id))
+    }, [])
+
+    const selectUserClick = (id) => {
+        let user = selectUser.filter(item => item == id);
+        if (user.length) {
+            setSelectUser(selectUser.filter(item => item != id))
+        } else {
+            setSelectUser([...selectUser, id])
+        }
+    }
+
+    const props = {
+        name: 'file',
+        headers: {
+            authorization: 'authorization-text',
+        },
+        beforeUpload: {
+            function() {
+                return false;
+            }
+        },
+        showUploadList: false,
+        maxCount: 1,
+        style: { border: "none" },
+        onChange(file) {
+            const fileReader = new FileReader();
+            fileReader.onload = () => {
+                setGroupFiles(file.file)
+                setGroupAvatar(fileReader.result)
+            }
+            fileReader.readAsDataURL(file.file);
+        },
+    };
 
     return (
         <>
-            <Block
-                sx={{
-                    p: 2,
-                    height: { xs: "auto", sm: "auto", md: "calc(100vh - 67px)" },
-                }}>
-                <Box
+            {
+                addGroup ? (<Block
                     sx={{
-                        borderBottom: "solid 1px #202020",
-                        display: "flex",
-                        justifyContent: "start",
-                        alignItems: "center",
-                    }}
-                >
-                    <CircleButton1 onClick={() => goBackButton()}>
-                        <IconArrowLeft size={20} stroke={3} />
-                    </CircleButton1>
-                    <Typography component="p" variant="h3" sx={{ ml: 1, lineHeight: "50px" }}>Start A New Message</Typography>
-                </Box>
-                <Box>
-                    <Grid container sx={{ p: 2, pl: 4, pr: 4 }}>
-                        <Grid item xs={12} sm={12} md={6}>
-                            <Item sx={{ backgroundColor: !active ? theme.palette.primary.main : "transparent", color: !active ? theme.palette.common.black : theme.palette.primary.light }} onClick={() => setActive(!active)}>Search</Item></Grid>
-                        <Grid item xs={12} sm={12} md={6}><Item sx={{ backgroundColor: active ? theme.palette.primary.main : "transparent", color: active ? theme.palette.common.black : theme.palette.primary.light }} onClick={() => setActive(!active)}>New Group</Item></Grid>
-                    </Grid>
-                </Box>
-                {
-                    active ? (<Box>
-                        <Paper
-                            sx={{ height: "calc( 100vh - 235px)", overflowY: "auto", display: "flex", flexDirection: "column", justifyContent: "space-between" }}
-                        >
-                            <Typography component="div"
-                                sx={{ display: "flex", justifyContent: "center" }}
-                            >
-                                <Avatar
-                                    src={""}
-                                    sx={{
-                                        ...theme.typography.mediumAvatar,
-                                        margin: "8px !important",
-                                        width: "120px",
-                                        height: "120px",
-                                    }}
-                                    alt={""}
-                                    color="inherit"
-                                />
-                            </Typography>
-                            <form
-                                onSubmit={handleSubmit(onSubmit)}
-                                style={{ height: "100%" }}
-                                noValidate
-                            >
-                                <Box
-                                    sx={{
-                                        width: "100%",
-                                        height: "100%",
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        justifyContent: "start",
-                                    }}
-                                >
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            justifyContent: "space-between",
-                                        }}
-                                    >
-                                        <Box sx={{ px: 3 }}>
-                                            <Box>
-                                                <Controller
-                                                    control={control}
-                                                    name="name"
-                                                    defaultValue=""
-                                                    rules={{
-                                                        required: true,
-                                                    }}
-                                                    render={({ field, fieldState: { error } }) => (
-                                                        <TextField
-                                                            {...field}
-                                                            fullWidth
-                                                            sx={{
-                                                                "& .MuiFormLabel-root": {
-                                                                    color: "white",
-                                                                },
-                                                                "& .MuiInputBase-root": {
-                                                                    color: "white",
-                                                                    height: 40,
-                                                                    "& input": {
-                                                                        textAlign: "left",
-                                                                    },
-                                                                },
-                                                            }}
-                                                            variant="standard"
-                                                            type="name"
-                                                            label="Group Name"
-                                                            placeholder="Group Free Format Name"
-                                                            InputLabelProps={{ shrink: true, sx: { mb: 3 } }}
-                                                            error={error !== undefined}
-                                                        />
-                                                    )}
-                                                />
-                                            </Box>
-                                        </Box>
-                                        <Box sx={{ px: 3, mt: 1 }}>
-                                            <Box>
-                                                <Controller
-                                                    control={control}
-                                                    name="opponentIds"
-                                                    defaultValue=""
-                                                    rules={{
-                                                        required: true,
-                                                    }}
-                                                    render={({ field, fieldState: { error } }) => (
-                                                        <TextField
-                                                            {...field}
-                                                            fullWidth
-                                                            sx={{
-                                                                "& .MuiFormLabel-root": {
-                                                                    color: "white",
-                                                                },
-                                                                "& .MuiInputBase-root": {
-                                                                    color: "white",
-                                                                    height: 40,
-                                                                    "& input": {
-                                                                        textAlign: "left",
-                                                                    },
-                                                                },
-                                                            }}
-                                                            variant="standard"
-                                                            type="opponentIds"
-                                                            label="Opponent Ids"
-                                                            placeholder="Opponent Ids"
-                                                            InputLabelProps={{ shrink: true, sx: { mb: 3 } }}
-                                                            error={error !== undefined}
-                                                        />
-                                                    )}
-                                                />
-                                            </Box>
-                                        </Box>
-                                    </Box>
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            pt: 1,
-                                            flexDirection: "column",
-                                            justifyContent: "space-between",
-                                            alignItems: "flex-end",
-                                        }}
-                                    >
-                                        <Grid container></Grid>
-                                        <CircleButton type="submit">Create</CircleButton>
-                                    </Box>
-                                </Box>
-                            </form>
-                        </Paper>
-                    </Box>) : (
-                        <Box>
-                            <Paper
-                                sx={{ height: "calc( 100vh - 235px)", p: 2, overflowY: "auto" }}
-                            >
-                                <FormControl fullWidth variant="outlined">
-                                    <InputLabel sx={{ color: "white" }} htmlFor="search-box">
-                                        Search
-                                    </InputLabel>
-                                    <OutlinedInput
-                                        // id="search-box"
-                                        sx={{ color: "white" }}
-                                        value={query}
-                                        onChange={handleFilter}
-                                        endAdornment={
-                                            <InputAdornment position="end">
-                                                <IconButton aria-label="search icon" edge="end">
-                                                    <IconSearch />
-                                                </IconButton>
-                                            </InputAdornment>
-                                        }
-                                        label="Search"
-                                    />
-                                </FormControl>
-                                <Stack direction="column" spacing={1} divider={<Divider />}>
-                                    {renderChats()}
-                                </Stack>
-                            </Paper>
+                        position: "absolute",
+                        left: 0,
+                        top: 0,
+                        width: "100%",
+                        zIndex: 100,
+                        background: "#101010"
+                    }}>
+                    <Box
+                        sx={{
+                            borderBottom: "solid 1px #202020",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                        }}
+                    >
+                        <Box sx={{
+                            display: "flex",
+                            justifyContent: "start",
+                            alignItems: "center",
+                        }}>
+                            <CircleButton1 onClick={() => setAddGroup(false)}>
+                                <IconArrowLeft size={20} stroke={3} />
+                            </CircleButton1>
+                            <Typography component="p" variant="h4" sx={{ ml: 1, lineHeight: "50px" }}>Add Chat</Typography>
                         </Box>
-                    )
-                }
-            </Block>
+                        <Box sx={{ mr: 2 }}>
+                            <CircleButton onClick={() => onSubmit()}>
+                                Save
+                            </CircleButton>
+                        </Box>
+                    </Box>
+                    <Box>
+                        <Typography sx={{ pl: 2, pb: 3, pt: 1 }} variant="h1">
+                            Group Info
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <Paper
+                            sx={{ height: "calc( 100vh - 235px)", p: 2, overflowY: "auto" }}
+                        >
+                            <Box
+                                sx={{
+                                    width: "100%",
+                                    height: "100%",
+                                    position: "relative",
+                                    overflow: "hidden",
+                                }}
+                            >
+                                <Grid container>
+                                    <Grid item xs={12} sm={12} md={6} sx={{
+                                        overflowY: "auto",
+                                        height: "100%",
+                                    }}>
+                                        <Box
+                                            sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+                                        >
+                                            <Typography component="div"
+                                                sx={{ display: "flex", justifyContent: "center", cursor: "pointer" }}
+                                            >
+                                                <Upload {...props}>
+                                                    <ClientAvatar
+                                                        avatar={groupAvatar ? groupAvatar : defaultAvatar}
+                                                        size={80}
+                                                    />
+                                                </Upload>
+                                            </Typography>
+                                            <Box sx={{ ml: 2, width: "100%" }}>
+                                                <Input
+                                                    value={groupName}
+                                                    onChange={(e) => setGroupName(e.target.value)}
+                                                />
+                                            </Box>
+                                        </Box>
+                                    </Grid>
+                                    <Grid item xs={12} sm={12} md={6}>
+                                        <Typography sx={{ pl: 2, pt: 2 }} variant="h4">
+                                            Members :
+                                        </Typography>
+                                        {
+                                            connectedUsers.map(item => {
+                                                return <Box key={item.id}
+                                                    sx={{
+                                                        display: "flex",
+                                                        justifyContent: "space-between",
+                                                        alignItems: "center",
+                                                        p: "12px",
+                                                        borderRadius: "5px",
+                                                        cursor: "pointer",
+                                                    }}
+                                                    onClick={() => selectUserClick(item.id)}
+                                                >
+                                                    <Box sx={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        width: "60%",
+                                                    }}>
+                                                        <ClientAvatar
+                                                            avatar={
+                                                                item.photo_url
+                                                                    ? item.photo_url
+                                                                    : ""
+                                                            }
+                                                            name={item.username}
+                                                        />
+                                                        <Box sx={{ ml: 2, width: "100%" }}>
+                                                            <Typography variant="h4" color={
+                                                                theme.palette.text.light
+                                                            }>
+                                                                {item.username}
+                                                            </Typography>
+                                                            <Typography variant="h4" color="#b5b5b5">
+                                                                {item.email}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Box>
+                                                    {selectUser.filter(ele => ele == item.id).length ? <Box >
+                                                        <IconCheck size={20} stroke={3} color={theme.palette.primary.main} />
+                                                    </Box> : ""}
+                                                </Box>
+                                            })
+                                        }
+                                    </Grid>
+                                </Grid>
+                            </Box>
+                        </Paper>
+                    </Box>
+                </Block>) : (<Block
+                    sx={{
+                        p: 2,
+                        position: "absolute",
+                        left: 0,
+                        top: 0,
+                        width: "100%",
+                        zIndex: 100,
+                        background: "#101010"
+                    }}>
+                    <Box
+                        sx={{
+                            borderBottom: "solid 1px #202020",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                        }}
+                    >
+                        <Box sx={{
+                            display: "flex",
+                            justifyContent: "start",
+                            alignItems: "center",
+                        }}>
+                            <CircleButton1 onClick={() => goBackButton()}>
+                                <IconArrowLeft size={20} stroke={3} />
+                            </CircleButton1>
+                            <Typography component="p" variant="h4" sx={{ ml: 1, lineHeight: "50px" }}>{user.userData.username}</Typography>
+                        </Box>
+                        <Box sx={{ mr: 2 }}>
+                            <CircleButton1 onClick={() => setAddGroup(true)}>
+                                <IconPlus size={20} stroke={3} />
+                            </CircleButton1>
+                        </Box>
+                    </Box>
+                    <Box>
+                        <Typography sx={{ pl: 2, pb: 3, pt: 1 }} variant="h1">
+                            Add Chat
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <Paper
+                            sx={{ height: "calc( 100vh - 235px)", p: 2, overflowY: "auto" }}
+                        >
+                            <FormControl fullWidth variant="outlined">
+                                <InputLabel sx={{ color: "white" }} htmlFor="search-box">
+                                    Search
+                                </InputLabel>
+                                <OutlinedInput
+                                    // id="search-box"
+                                    sx={{ color: "white" }}
+                                    value={query}
+                                    onChange={handleFilter}
+                                    endAdornment={
+                                        <InputAdornment position="end">
+                                            <IconButton aria-label="search icon" edge="end">
+                                                <IconSearch />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    }
+                                    label="Search"
+                                />
+                            </FormControl>
+                            <Stack direction="column" spacing={1} divider={<Divider />}>
+                                {renderChats()}
+                            </Stack>
+                        </Paper>
+                    </Box>
+                </Block>)
+            }
         </>
     )
 }

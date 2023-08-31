@@ -11,7 +11,7 @@ const initialState = {
 const persistConfig = {
   key: "users",
   storage,
-  whitelist: ["connected_users","online_users"], // place to select which state you want to persist
+  whitelist: ["connected_users", "online_users"], // place to select which state you want to persist
 };
 
 const users = (state = initialState, action) => {
@@ -50,7 +50,7 @@ const users = (state = initialState, action) => {
     case "ADD_USER":
       connected_users = [...state.connected_users];
       let exist = false;
-      for (let i = 0; i < connected_users.length; i++) { 
+      for (let i = 0; i < connected_users.length; i++) {
         const user = connected_users[i];
         if (user.id == action.data.id) {
           connected_users[i] = action.data;

@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { Typography, Avatar, } from "@mui/material";
 import { useSelector } from "react-redux"
+import { EditIcon } from "themes/icons"
 
-import {  IconEdit, IconDotsVertical, IconLayoutSidebar } from "@tabler/icons";
+import {  IconEdit, IconDotsVertical } from "@tabler/icons";
 
 export default function UserAvatar({ CircleButton1, theme, setIsChatClick, setIsSettingClick }) {
 
@@ -23,18 +24,6 @@ export default function UserAvatar({ CircleButton1, theme, setIsChatClick, setIs
                 alignItems: "center",
                 pl: 2,
             }}>
-                <IconLayoutSidebar size={25} stroke={2} color='#d5d5d5' />
-                {/* <Avatar
-                    src={userData.avatar_url}
-                    sx={{
-                        ...theme.typography.mediumAvatar,
-                        margin: "8px !important",
-                        width: "40px",
-                        height: "40px",
-                    }}
-                    alt={userData.fullName}
-                    color="inherit"
-                /> */}
             </Typography>
             <Typography component="div" sx={{
                 display: "flex",
@@ -42,7 +31,7 @@ export default function UserAvatar({ CircleButton1, theme, setIsChatClick, setIs
                 alignItems: "center",
             }}>
                 <CircleButton1 onClick={() => chatClick()}>
-                    <IconEdit size={25} stroke={2} color='#d5d5d5' />
+                    <EditIcon />
                 </CircleButton1>
                 <CircleButton1 onClick={() => settingsClick()} sx={{ ml: 1 }}>
                     <IconDotsVertical size={25} stroke={2} color='#d5d5d5' />

@@ -15,11 +15,11 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { IconSearch } from "@tabler/icons";
 import ClientAvatar from "ui-component/ClientAvatar";
-import { useSelector , useDispatch} from "react-redux"
-import {  selectRoom } from "store/actions/room";
+import { useSelector, useDispatch } from "react-redux"
+import { selectRoom } from "store/actions/room";
 import { getMessages } from "store/actions/messages";
 
-export default function ForwardModal({ isForwardModal, setIsForward , setIsForwardModal}) {
+export default function ForwardModal({ isForwardModal, setIsForward, setIsForwardModal }) {
 
     const theme = useTheme();
     const room = useSelector((state) => state.room);
@@ -53,7 +53,7 @@ export default function ForwardModal({ isForwardModal, setIsForward , setIsForwa
         setFilteredChat(searchUser)
     }, [])
 
-    const forwardClick = (room) =>{
+    const forwardClick = (room) => {
         dispatch(selectRoom(room));
         dispatch(getMessages({ id: room.id }))
         setIsForward(true)
@@ -83,7 +83,7 @@ export default function ForwardModal({ isForwardModal, setIsForward , setIsForwa
                                 background: theme.palette.primary.main,
                             }
                         }}
-                        onClick={()=>forwardClick(item)}
+                        onClick={() => forwardClick(item)}
                     >
                         <ClientAvatar
                             avatar={

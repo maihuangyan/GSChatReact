@@ -271,7 +271,7 @@
     background-color: rgba(0, 0, 0, 0.85) !important;
 }
 
-.sound{
+.sound {
     position: fixed;
     opacity: 0;
     width: 10px !important;
@@ -279,14 +279,28 @@
     z-index: -10;
 }
 
-.player-mp3{
+.player-mp3 {
     height: 50px !important;
     width: 350px !important;
 }
 
-.player{
+.player {
     width: 340px !important;
     height: 200px !important;
+}
+
+.ant-input {
+    background-color: #555;
+    border-color: #555;
+    color: #fff;
+}
+
+.ant-input:hover{
+    border-color: #FBC34A;
+}
+
+.ant-input:focus{
+    border-color: #FBC34A;
 }
 
 @media (max-width: 720px) {
