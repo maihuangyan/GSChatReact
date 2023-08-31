@@ -5,7 +5,7 @@ import { EditIcon } from "themes/icons"
 
 import {  IconEdit, IconDotsVertical } from "@tabler/icons";
 
-export default function UserAvatar({ CircleButton1, theme, setIsChatClick, setIsSettingClick }) {
+export default function UserAvatar({ CircleButton1, setIsChatClick, setIsSettingClick }) {
 
     const userData = useSelector((state) => state.auth.userData);
 

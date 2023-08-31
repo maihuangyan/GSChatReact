@@ -233,6 +233,7 @@ export default function SearchUser({ setIsChatClick }) {
             {
                 addGroup ? (<Block
                     sx={{
+                        p: 2,
                         position: "absolute",
                         left: 0,
                         top: 0,
@@ -421,9 +422,16 @@ export default function SearchUser({ setIsChatClick }) {
                                     label="Search"
                                 />
                             </FormControl>
-                            <Stack direction="column" spacing={1} divider={<Divider />}>
-                                {renderChats()}
-                            </Stack>
+                            <Paper
+                                sx={{
+                                    height: `calc( 100vh - 330px)`
+                                    , p: 2, pt: 3, pb: 9, borderRadius: 0, overflowY: "auto"
+                                }}
+                            >
+                                <Stack direction="column" spacing={1} divider={<Divider />}>
+                                    {renderChats()}
+                                </Stack>
+                            </Paper>
                         </Paper>
                     </Box>
                 </Block>)

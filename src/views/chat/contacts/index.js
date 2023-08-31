@@ -36,7 +36,7 @@ const CircleButton1 = styled(Button)(({ theme }) => ({
     },
 }));
 
-const Contacts = ({ setIsChatClick, isChatClick }) => {
+const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
     const theme = useTheme();
     const store = useSelector((state) => state.room);
     const messages = useSelector((state) => state.messages);
@@ -197,50 +197,41 @@ const Contacts = ({ setIsChatClick, isChatClick }) => {
 
     // console.log(store, "6666 ")
 
-    const [isSettingClick, setIsSettingClick] = useState(false);
-
     // useEffect(() => {
     //     dispatch(getRoomList())
     // }, [isChatClick])
 
     return (
         <>
-            {
-                !isChatClick && !isSettingClick && <Box
+            <Box
+                sx={{
+                    pt: 0,
+                    height: { xs: "auto", sm: "auto", md: "calc(100vh - 67px)" },
+                }}
+            >
+                <Box
                     sx={{
-                        pt: 0,
-                        height: { xs: "auto", sm: "auto", md: "calc(100vh - 67px)" },
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        pt: 1
                     }}
                 >
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            pt: 1
-                        }}
+                    <UserAvatar CircleButton1={CircleButton1} theme={theme} setIsChatClick={setIsChatClick} setIsSettingClick={setIsSettingClick} />
+                </Box>
+                <Typography sx={{ pl: 2, pb: 3, pt: 1 }} variant="h1">
+                    {userData.username}
+                </Typography>
+                <Box sx={{ height: "90%" }}>
+                    <Paper
+                        sx={{ height: "100%", overflowY: "auto", borderRadius: 0, p: "0 8px" }}
                     >
-                        <UserAvatar CircleButton1={CircleButton1} theme={theme} setIsChatClick={setIsChatClick} setIsSettingClick={setIsSettingClick} />
-                    </Box>
-                    <Typography sx={{ pl: 2, pb: 3, pt: 1 }} variant="h1">
-                        {userData.username}
-                    </Typography>
-                    <Box sx={{ height: "90%" }}>
-                        <Paper
-                            sx={{ height: "100%", overflowY: "auto", borderRadius: 0, p: "0 8px" }}
-                        >
-                            <Stack direction="column" spacing={1} >
-                                {renderChats()}
-                            </Stack>
-                        </Paper>
-                    </Box>
-                </Box>}
-            {/* {
-                isChatClick && <SearchUser CircleButton1={CircleButton1} setIsChatClick={setIsChatClick} isChatClick={isChatClick} />
-            } */}
-            {
-                isSettingClick && <Settings CircleButton1={CircleButton1} setIsSettingClick={setIsSettingClick} theme={theme} />
-            }
+                        <Stack direction="column" spacing={1} >
+                            {renderChats()}
+                        </Stack>
+                    </Paper>
+                </Box>
+            </Box>
         </>
     );
 };

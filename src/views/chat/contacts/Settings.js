@@ -10,12 +10,11 @@ import {
 import Block from "ui-component/Block";
 import { IconArrowLeft } from "@tabler/icons";
 import { useSelector } from "react-redux"
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
 import { messageService } from "utils/jwt/messageService";
 import { SocketContext } from "utils/context/SocketContext";
 import useJwt from "utils/jwt/useJwt";
-
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50px",
@@ -23,14 +22,26 @@ const CircleButton = styled(Button)(({ theme }) => ({
     height: "50px",
     fontWeight: "bold",
     color: theme.palette.getContrastText(orange[500]),
-    backgroundColor: "#F8F8F8",
+    backgroundColor: "#FBC34A",
     "&:hover": {
-        backgroundColor: "#FBC34A",
+        backgroundColor: "#F8F8F8",
     },
 }));
 
-export default function Settings({ theme, CircleButton1, setIsSettingClick }) {
+const CircleButton1 = styled(Button)(({ theme }) => ({
+    borderRadius: "50%",
+    minWidth: "40px",
+    height: "40px",
+    color: theme.palette.primary.light,
+    backgroundColor: theme.palette.dark[900],
+    "&:hover": {
+        backgroundColor: "#FBC34A",
+        color: theme.palette.common.black,
+    },
+}));
 
+export default function Settings({ setIsSettingClick }) {
+    const theme = useTheme();
     const socket = useContext(SocketContext).socket;
     const userData = useSelector((state) => state.auth.userData);
     const goBackButton = () => {
@@ -41,7 +52,12 @@ export default function Settings({ theme, CircleButton1, setIsSettingClick }) {
             <Block
                 sx={{
                     p: 2,
-                    height: { xs: "auto", sm: "auto", md: "calc(100vh - 67px)" },
+                    position: "absolute",
+                    left: 0,
+                    top: 0,
+                    width: "100%",
+                    zIndex: 100,
+                    background: "#101010"
                 }}>
                 <Box
                     sx={{
@@ -54,11 +70,11 @@ export default function Settings({ theme, CircleButton1, setIsSettingClick }) {
                     <CircleButton1 onClick={() => goBackButton()} >
                         <IconArrowLeft size={20} stroke={3} />
                     </CircleButton1>
-                    <Typography component="p" variant="h3" sx={{ ml: 1, lineHeight: "50px" }}>Account Settings</Typography>
+                    <Typography component="p" variant="h3" sx={{ ml: 1, lineHeight: "50px" }}>{userData.username}</Typography>
                 </Box>
                 <Box sx={{ p: 3 }}>
                     <Paper
-                        sx={{ height: "calc( 100vh - 235px)", p: 3, overflowY: "auto", display: "flex", flexDirection: "column", justifyContent: "space-between" }}
+                        sx={{ height: "calc( 100vh - 235px)", p: 3, overflowY: "auto", display: "flex", flexDirection: "column", justifyContent: "start" }}
                     >
                         <Box>
                             <Typography component="div"
@@ -103,8 +119,7 @@ export default function Settings({ theme, CircleButton1, setIsSettingClick }) {
                                 </Grid>
                             </Grid>
                         </Box>
-                        <Box>
-
+                        <Box sx={{mt:3}}>
                             <CircleButton onClick={() => (messageService.sendMessage("Logout"), socket.emit("logout", useJwt.getToken()))} >
                                 Login Out
                             </CircleButton>

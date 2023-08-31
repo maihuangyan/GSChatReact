@@ -7,7 +7,7 @@ import mp from "../../assets/sound.mp3"
 import ReactPlayer from "react-player";
 import { SocketContext } from "utils/context/SocketContext";
 import SearchUser from "./contacts/SearchUser";
-
+import Settings from "./contacts/Settings";
 
 //Main Component
 const Chat = (props) => {
@@ -15,6 +15,8 @@ const Chat = (props) => {
   const selectedRoom = useSelector((state) => state.room.selectedRoom);
   const [roomTab, setRoomTab] = useState(false)
   const [isChatClick, setIsChatClick] = useState(false);
+  const [isSettingClick, setIsSettingClick] = useState(false);
+
 
   useEffect(() => {
     if (selectedRoom.id) {
@@ -57,7 +59,7 @@ const Chat = (props) => {
             borderRight: "1px solid #383838 ",
           }
         }}>
-          <Contacts setIsChatClick={setIsChatClick} isChatClick={isChatClick} />
+          <Contacts setIsChatClick={setIsChatClick} setIsSettingClick={setIsSettingClick} />
         </Grid>
         <Grid
           item
@@ -79,6 +81,9 @@ const Chat = (props) => {
         </Grid>
         {
           isChatClick && <SearchUser setIsChatClick={setIsChatClick} />
+        }
+        {
+          isSettingClick && <Settings setIsSettingClick={setIsSettingClick} />
         }
       </Grid >
     </>
