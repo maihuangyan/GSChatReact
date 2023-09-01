@@ -47,6 +47,7 @@ export default function Settings({ setIsSettingClick }) {
     const goBackButton = () => {
         setIsSettingClick(false);
     }
+
     return (
         <>
             <Block
@@ -74,9 +75,9 @@ export default function Settings({ setIsSettingClick }) {
                 </Box>
                 <Box sx={{ p: 3 }}>
                     <Paper
-                        sx={{ height: "calc( 100vh - 235px)", p: 3, overflowY: "auto", display: "flex", flexDirection: "column", justifyContent: "start" }}
+                        sx={{ height: "calc( 100vh - 235px)", p: 3, overflowY: "auto", display: "flex", flexDirection: "column", justifyContent: "start", alignItems: "center" }}
                     >
-                        <Box>
+                        <Box sx={{ width: { xs: "100%", sm: "80%", md: "60%" } }}>
                             <Typography component="div"
                                 sx={{ display: "flex", justifyContent: "center" }}
                             >
@@ -94,34 +95,35 @@ export default function Settings({ setIsSettingClick }) {
                             </Typography>
 
                             <Grid container>
-                                <Grid item xs={12} sm={6} md={6} elevation={6}>
-                                    <Typography component="p" variant="settingsInfo">username</Typography>
+                                <Grid item xs={6} sm={6} md={6} elevation={6}>
+                                    <Typography component="p" variant="settingsInfo">Name</Typography>
                                 </Grid>
-                                <Grid item xs={12} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                    <Typography component="p" variant="settingsInfo1">{userData.username}</Typography>
+                                <Grid item xs={6} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
+                                    <Typography component="p" variant="settingsInfo1">{userData.full_name == "" ? userData.full_name : userData.username}</Typography>
                                 </Grid>
                             </Grid>
 
                             <Grid container>
-                                <Grid item xs={12} sm={6} md={6} elevation={6}>
-                                    <Typography component="p" variant="settingsInfo">gender</Typography>
+                                <Grid item xs={6} sm={6} md={6} elevation={6}>
+                                    <Typography component="p" variant="settingsInfo">User Type </Typography>
                                 </Grid>
-                                <Grid item xs={12} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                    <Typography component="p" variant="settingsInfo1">{userData.gender}</Typography>
+                                <Grid item xs={6} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
+                                    <Typography component="p" variant="settingsInfo1">{userData.role}</Typography>
                                 </Grid>
                             </Grid>
+
                             <Grid container>
-                                <Grid item xs={12} sm={6} md={6} elevation={6}>
-                                    <Typography component="p" variant="settingsInfo">email</Typography>
+                                <Grid item xs={6} sm={6} md={6} elevation={6}>
+                                    <Typography component="p" variant="settingsInfo">Email</Typography>
                                 </Grid>
-                                <Grid item xs={12} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
+                                <Grid item xs={6} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
                                     <Typography component="p" variant="settingsInfo1">{userData.email}</Typography>
                                 </Grid>
                             </Grid>
                         </Box>
-                        <Box sx={{mt:3}}>
+                        <Box sx={{ mt: 3, width: { xs: "50%", sm: "30%", md: "20%" }, display: "flex", justifyContent: "center" }}>
                             <CircleButton onClick={() => (messageService.sendMessage("Logout"), socket.emit("logout", useJwt.getToken()))} >
-                                Login Out
+                                Log Out
                             </CircleButton>
                         </Box>
                     </Paper>

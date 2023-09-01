@@ -8,6 +8,7 @@ import ReactPlayer from "react-player";
 import { SocketContext } from "utils/context/SocketContext";
 import SearchUser from "./contacts/SearchUser";
 import Settings from "./contacts/Settings";
+import 'animate.css';
 
 //Main Component
 const Chat = (props) => {

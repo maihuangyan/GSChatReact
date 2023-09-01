@@ -10,6 +10,7 @@ import App from "./App";
 
 // style + assets
 import "assets/scss/style.scss";
+import 'animate.css';
 
 const container = document.getElementById("root");
 const root = createRoot(container);

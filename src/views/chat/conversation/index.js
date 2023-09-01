@@ -19,10 +19,13 @@ import {
     DialogTitle,
     ListItemText,
     Divider,
+    InputLabel,
+    InputAdornment,
+    IconButton
 } from "@mui/material";
 
 import { styled, useTheme } from "@mui/material/styles";
-import { IconSend, IconDotsVertical, IconLink, IconPhoto, IconArrowLeft } from "@tabler/icons";
+import { IconSend, IconDotsVertical, IconLink, IconPhoto, IconArrowLeft, IconSearch, IconX } from "@tabler/icons";
 
 import { SocketContext } from "utils/context/SocketContext";
 
@@ -449,6 +452,13 @@ const Conversation = () => {
     }, [scrollToBottom])
     // console.log(selectedRoom, "6666 ")
 
+    const [navSearch, setNavSearch] = useState(false)
+    const [query, setQuery] = useState("");
+
+    const handleSearch = (e) => {
+        setQuery(e.target.value);
+    };
+
     return Object.keys(selectedRoom).length ? (
         showInformation ? <Information CircleButton1={CircleButton1} setShowInformation={setShowInformation} /> :
             <>
@@ -481,7 +491,30 @@ const Conversation = () => {
                         setIsTyping={setIsTyping}
                         chatArea={chatArea}
                         isTyping={isTyping} />
-                    <Grid container sx={{ borderBottom: "1px solid #997017", p: 1 }}>
+                    <Grid container sx={{ borderBottom: "1px solid #997017", p: 1, position: "relative" }}>
+                        <Box sx={{ background: "#101010", position: "absolute", top: navSearch ? 0 : "-80px", left: "0", zIndex: 100, width: "100%", height: "100%", transition: "0.5s" }}>
+                            <Box sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
+                                <FormControl fullWidth variant="outlined" sx={{ width: "50%" }}>
+                                    <OutlinedInput
+                                        // id="search-box"
+                                        placeholder="Search Messages"
+                                        sx={{ color: "white" }}
+                                        value={query}
+                                        onChange={handleSearch}
+                                        endAdornment={
+                                            <InputAdornment position="end">
+                                                <IconButton aria-label="search icon" edge="end">
+                                                    <IconSearch size={25} stroke={1} />
+                                                </IconButton>
+                                            </InputAdornment>
+                                        }
+                                    />
+                                </FormControl>
+                                <CircleButton1 sx={{ m: "0 10px" }} onClick={() => setNavSearch(false)}>
+                                    <IconX size={25} stroke={1} />
+                                </CircleButton1>
+                            </Box>
+                        </Box>
                         <Grid item xs={6} container>
                             <Box sx={{ display: "flex", alignItems: "center", pb: 0 }}>
                                 <Box sx={{
@@ -517,9 +550,13 @@ const Conversation = () => {
                                     justifyContent: "end",
                                 }}
                             >
+                                <CircleButton1 sx={{ mr: 1 }} onClick={() => setNavSearch(true)}>
+                                    <IconSearch size={25} stroke={1} />
+                                </CircleButton1>
                                 <CircleButton1 type="button" onClick={handleClick}>
                                     <IconDotsVertical size={25} stroke={1} />
                                 </CircleButton1>
+
                             </Paper>
                             <Menu
                                 id="basic-menu"
