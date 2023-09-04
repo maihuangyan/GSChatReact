@@ -4,7 +4,7 @@ import useJwt from "utils/jwt/useJwt"
 import { useDispatch, useSelector } from "react-redux"
 import { getRoomList, selectRoom, updateRoomLastMessage } from "store/actions/room"
 import { reduxDeleteMessages, reduxInsertMessages, reduxUpdateMessages } from "store/actions/messages"
-
+import OneSignal from 'react-onesignal';
 import { isMessageSeen, nowSecs, randomString } from "utils/common"
 
 import { useLocation } from "react-router"
@@ -128,7 +128,7 @@ const SocketProvider = ({ children }) => {
       setOnlineUsers(online_users)
 
       setTimeout(() => {
-        console.log('updateOnlineStatus on user left', userLeft)
+        //console.log('updateOnlineStatus on user left', userLeft)
         setUpdateOnlineStatus(!updateOnlineStatus);
       }, 1000);
     },
@@ -138,7 +138,7 @@ const SocketProvider = ({ children }) => {
   const handleSocketTyping = useCallback(
     (typing) => {
       // received typing
-      console.log('typing', typing)
+      //console.log('typing', typing)
       setScrollToBottom(false);
       setSoundPlayers(false)
 
@@ -152,7 +152,7 @@ const SocketProvider = ({ children }) => {
   const handleSocketNewMessage = useCallback(
     (message) => {
       // console.log('new message', message);
-      console.log('new messages', [message])
+      //console.log('new messages', [message])
       if (message.user_id == useJwt.getUserID()) {
         updateMessages([message])
         setScrollToBottom(true);
@@ -214,8 +214,30 @@ const SocketProvider = ({ children }) => {
     handleSocketDeleteMessage,
   ]);
 
+  function foregroundWillDisplayListener(notification) {
+    console.log(`notification will display: ${notification}`);
+  }
+
+  function promptListener(event) {
+    console.log(`permission prompt dispslayed event: ${event}`);
+  }
+
+  function permissionChangeListener(permission) {
+    if (permission) {
+      console.log(`permission accepted!`);
+    }
+  }  
+
+  useEffect(() => {
+    if (OneSignal.Notifications) {
+      OneSignal.Notifications.addEventListener("foregroundWillDisplay", foregroundWillDisplayListener);
+      OneSignal.Notifications.addEventListener("permissionPromptDisplay", promptListener);
+      OneSignal.Notifications.addEventListener("permissionChange", permissionChangeListener);
+    }
+  }, [])
+
   const getUser = (user_id) => {
-    console.log('users', users);
+    //console.log('users', users);
     if (!users) return null;
 
     for (let user of users) {
@@ -229,7 +251,7 @@ const SocketProvider = ({ children }) => {
 
   const updateTyping = (room_id, user_id, typing) => {
     const user = getUser(user_id)
-    console.log(user_id, user)
+    //console.log(user_id, user)
     if (user) {
       let ot = { ...opponentTyping };
       ot[room_id] = {
@@ -309,7 +331,7 @@ const SocketProvider = ({ children }) => {
 
   const addMessages = (messages) => {
     if (messages.length == 0) return;
-    console.log('messages', messages)
+    //console.log('messages', messages)
 
     dispatch(updateRoomLastMessage(messages))
     dispatch(reduxInsertMessages(messages))
@@ -319,7 +341,7 @@ const SocketProvider = ({ children }) => {
   const updateMessages = (messages) => {
     if (messages.length == 0) return;
 
-    console.log('updateMessages666')
+    //console.log('updateMessages666')
     dispatch(updateRoomLastMessage(messages))
     dispatch(reduxUpdateMessages(messages))
 

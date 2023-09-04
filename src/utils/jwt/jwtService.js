@@ -1,12 +1,13 @@
 import axios from "axios";
 import { jwtDefaultConfig } from "./jwtDefaultConfig";
 import { messageService } from "./messageService";
+import OneSignal from 'react-onesignal';
 
 const headers = {
   headers: {
     "x-api-key": process.env.REACT_APP_X_API_KEY,
-    "x-api-secret": "asdf",
-    "device_id": "device_id",
+    "x-api-secret": "secret",
+    "device_id": "browser",
   }
 }
 
@@ -30,6 +31,9 @@ export default class JwtService {
         const accessToken = this.getToken();
 
         // ** If token is present add it to request's Authorization Header
+        if (OneSignal.User && OneSignal.User.PushSubscription) {
+          config.headers.headers.device_id = OneSignal.User.PushSubscription.device_id ? OneSignal.User.PushSubscription.device_id : 'browser';
+        }
         if (accessToken) {
           // ** eslint-disable-next-line no-param-reassign
           config.headers.Authorization = `${this.jwtConfig.tokenType} ${accessToken}`;
@@ -143,6 +147,10 @@ export default class JwtService {
 
   login(...args) {
     return axios.post(this.jwtConfig.loginEndpoint, ...args, headers);
+  }
+
+  postDeviceInfo(...args) {
+    return axios.post(this.jwtConfig.postOneSignal, ...args, headers);
   }
 
   forgotPassword(...args) {

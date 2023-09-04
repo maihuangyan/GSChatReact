@@ -1,6 +1,7 @@
 // ** Auth Endpoints
 export const jwtDefaultConfig = {
   loginEndpoint: `${process.env.REACT_APP_BASE_API_URL}/auth/login`,
+  postOneSignal: `${process.env.REACT_APP_BASE_API_URL}/push`,
   forgotPasswordEndpoint: `${process.env.REACT_APP_BASE_API_URL}/auth/forgot_password`,
   resetForgotPasswordEndpoint: `${process.env.REACT_APP_BASE_API_URL}/auth/reset_forgot_password`,
   registerEndpoint: `${process.env.REACT_APP_BASE_API_URL}/auth/register`,

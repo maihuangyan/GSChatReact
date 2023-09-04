@@ -138,11 +138,8 @@ const Conversation = () => {
     const dispatch = useDispatch();
 
     const [msg, setMsg] = useState("");
-    const [isGroup, setIsGroup] = useState(null);
-
     const [newMessageCount, setNewMessageCount] = useState(0);
     const [scrollTop, setScrollTop] = useState(0);
-
     const [roomChange, setRoomChange] = useState(false);
 
     // ** Scroll to chat bottom
@@ -162,6 +159,7 @@ const Conversation = () => {
             }
         }
     };
+
     const actionScrollToTop = () => {
         const chatContainer = chatArea.current;
         if (chatContainer) {
@@ -175,13 +173,12 @@ const Conversation = () => {
 
     // ** If user chat is not empty scrollToBottom
     useEffect(() => {
-        actionScrollToTop()
         if (selectedRoom) {
             const roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
 
             // console.log(roomMessages)
             // setRoomMessages([])
-            formattedChatData(roomMessages)
+            formatChatData(roomMessages)
             let messageIDs = [];
             roomMessages.forEach((message) => {
                 if (!isMessageSeen(message)) {
@@ -190,26 +187,27 @@ const Conversation = () => {
             });
             if (messageIDs.length > 0) socketOpenMessage(messageIDs);
         }
-        setIsGroup(selectedRoom.group)
-    }, [store, selectedRoom, scrollTop]);
-
-    useEffect(() => {
         setIsReply(false);
         setImg(null)
         setIsPreviewFiles(false)
-    }, [store])
+    }, [store, selectedRoom]);
+
+    useEffect(() => {
+        actionScrollToTop()
+    }, [scrollTop]);
 
     useEffect(() => {
         setScrollTop(0)
         setNewMessageCount(0)
         setRoomChange(!roomChange)
+        actionScrollToTop()
     }, [selectedRoom])
 
-    const formattedChatData = (message) => {
+    const formatChatData = (message) => {
         if (!selectedRoom || message.length == 0) return setRoomMessages([]);
         let formattedChatLog = [];
         let chatLog = [...message]
-        chatLog = chatLog.sort((a, b) => (a.id > b.id ? 1 : a.id < b.id ? -1 : 0));
+        chatLog = chatLog.sort((a, b) => (a.created_at > b.created_at ? 1 : a.created_at < b.created_at ? -1 : 0));
         let chatLogs = []
         if (scrollTop) {
             chatLogs = chatLog.filter((item, index) => index >= message.length - (30 + (10 * scrollTop)) - newMessageCount)
@@ -250,9 +248,9 @@ const Conversation = () => {
                 formattedChatLog.push(msgGroup);
             }
         }
-        console.log(formattedChatLog);
         setRoomMessages(formattedChatLog)
     }
+
     // ** Sends New Msg
     const handleSendMsg = (e) => {
         e.preventDefault();
@@ -492,9 +490,9 @@ const Conversation = () => {
                         chatArea={chatArea}
                         isTyping={isTyping} />
                     <Grid container sx={{ borderBottom: "1px solid #997017", p: 1, position: "relative" }}>
-                        <Box sx={{ background: "#101010", position: "absolute", top: navSearch ? 0 : "-80px", left: "0", zIndex: 100, width: "100%", height: "100%", transition: "0.5s" }}>
+                        <Box sx={{ background: "#101010", position: "absolute", top: 0, left: navSearch ? 0 : "100%", zIndex: 100, width: "100%", height: "100%", transition: "0.5s" }}>
                             <Box sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                <FormControl fullWidth variant="outlined" sx={{ width: "50%" }}>
+                                <FormControl fullWidth variant="outlined" sx={{ p: "0 10px" }}>
                                     <OutlinedInput
                                         // id="search-box"
                                         placeholder="Search Messages"
@@ -510,7 +508,7 @@ const Conversation = () => {
                                         }
                                     />
                                 </FormControl>
-                                <CircleButton1 sx={{ m: "0 10px" }} onClick={() => setNavSearch(false)}>
+                                <CircleButton1 onClick={() => setNavSearch(false)}>
                                     <IconX size={25} stroke={1} />
                                 </CircleButton1>
                             </Box>
@@ -590,6 +588,7 @@ const Conversation = () => {
                                     const showDateDivider = firstDate != item.sentDate;
                                     firstDate = item.sentDate;
                                     const right = item.senderId == useJwt.getUserID()
+                                    console.log("6666")
                                     return (
                                         <Box key={index}
                                             sx={{
@@ -608,7 +607,7 @@ const Conversation = () => {
                                                     CopyClick={CopyClick}
                                                     DeleteClick={DeleteClick}
                                                     formatChatTime={formatChatTime}
-                                                    isGroup={isGroup}
+                                                    isGroup={selectedRoom.group}
                                                     TimeSeperator={TimeSeperator}
                                                     replyScroll={replyScroll}
                                                     setIsForward={setIsForward}

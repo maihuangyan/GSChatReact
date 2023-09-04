@@ -22,6 +22,7 @@ import {
 
 import { styled } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
+import OneSignal from 'react-onesignal';
 
 //Icons
 import {
@@ -86,11 +87,37 @@ const Login = (props) => {
   const onSubmit = (data) => {
     useJwt
       .login({ email: data.email, password: data.password })
-      .then((res) => {
+      .then(async (res) => {
         if (res.data.ResponseCode === 0) {
-          const data = res.data.ResponseResult;
-          dispatch(handleLogin(data));
-          socket.emit("login", { token: data.access_token });
+          const userData = res.data.ResponseResult;
+          
+          if (OneSignal.Notifications) {
+            const isSupported = OneSignal.Notifications.isPushSupported();
+            if (isSupported) {
+              let permission = await OneSignal.Notifications.permission;
+              if (permission && OneSignal.User && OneSignal.User.PushSubscription) {
+                const params = {
+                  one_signal_id: OneSignal.User.PushSubscription.id,
+                  push_token: OneSignal.User.PushSubscription.token,
+                  device_id: OneSignal.User.PushSubscription.device_id,
+                  device_type: 0
+                }
+                console.log(params);
+                useJwt
+                  .postDeviceInfo(params)
+                  .then(res => {
+                    afterLogin(userData)
+                  })
+                  .catch((err) => {
+                    afterLogin(userData)
+                    showToast("error", err.message)
+                  });
+                return;
+              }
+            }
+          }
+          
+          afterLogin(userData)
         }
         else {
           showToast("error", res.data.ResponseMessage)
@@ -100,6 +127,15 @@ const Login = (props) => {
         showToast("error", err.message)
       });
   };
+
+  const afterLogin = (userData) => {
+    dispatch(handleLogin(userData));
+    socket.emit("login", { token: userData.access_token });
+  }
+
+  function eventListener(event) {
+    console.log(`${event}`);
+  }
 
   return (
     <Grid
