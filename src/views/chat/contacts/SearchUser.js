@@ -69,7 +69,6 @@ export default function SearchUser({ setIsChatClick }) {
     const [groupAvatar, setGroupAvatar] = useState("")
     const [groupFiles, setGroupFiles] = useState(null)
 
-
     useEffect(() => {
         useJwt
             .searchUsers({ search_key: query, status: 1, page: 0, limit: 0 })

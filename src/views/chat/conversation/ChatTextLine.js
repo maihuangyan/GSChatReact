@@ -14,7 +14,7 @@ import { IconChevronDown, IconArrowForwardUp, IconDownload } from "@tabler/icons
 import ClientAvatar from "ui-component/ClientAvatar";
 
 import { Image } from 'antd';
-import { getUserDisplayName } from 'utils/common';
+import { getUserDisplayName, getSeenStatus } from 'utils/common';
 
 import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
@@ -191,10 +191,9 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                 </MenuItem>
                                 <Divider />
                             </Menu>
-                            <Typography component="div" variant={right ? "positionRight" : "positionLeft"} sx={{ color: theme.palette.text.icon }}><TimeSeperator
-                                content={formatChatTime(+item.sentTime)}
-                            /></Typography>
-
+                            <Typography component="div" variant={right ? "positionRight" : "positionLeft"} sx={{ color: theme.palette.text.icon, width: '100px' }}>
+                                <TimeSeperator content={getSeenStatus(message) + formatChatTime(+item.sentTime)} />
+                            </Typography>
                         </Typography>
                     </Box >
                 ) : (
@@ -299,9 +298,9 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                     <ListItemText>forward</ListItemText>
                                 </MenuItem>
                             </Menu>
-                            <Typography component="div" variant={right ? "positionRight" : "positionLeft"} sx={{ color: theme.palette.text.icon }}><TimeSeperator
-                                content={formatChatTime(+item.sentTime)}
-                            /></Typography>
+                            <Typography component="div" variant={right ? "positionRight" : "positionLeft"} sx={{ color: theme.palette.text.icon }}>
+                                <TimeSeperator content={formatChatTime(+item.sentTime)}/>
+                            </Typography>
 
                             <Typography component="div" variant={"positionLeft1"} sx={{ display: isGroup ? "block" : "none" }}>
                                 <ClientAvatar

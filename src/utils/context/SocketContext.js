@@ -171,9 +171,8 @@ const SocketProvider = ({ children }) => {
     (messages) => {
       // updated message
       // console.log('updated messages', messages)
-      // updateMessages(messages);
-    },
-    []
+      updateMessages(messages);
+    }, []
   );
 
   const handleSocketDeleteMessage = useCallback(
@@ -226,7 +225,7 @@ const SocketProvider = ({ children }) => {
     if (permission) {
       console.log(`permission accepted!`);
     }
-  }  
+  }
 
   useEffect(() => {
     if (OneSignal.Notifications) {
@@ -304,6 +303,8 @@ const SocketProvider = ({ children }) => {
       message_id: message.id,
       message: messageText,
     };
+
+    console.log('update message', updateMessage);
     socket.emit("updateMessage", updateMessage);
   };
 
@@ -339,9 +340,9 @@ const SocketProvider = ({ children }) => {
   }
 
   const updateMessages = (messages) => {
+    console.log('updateMessages', messages)
     if (messages.length == 0) return;
 
-    //console.log('updateMessages666')
     dispatch(updateRoomLastMessage(messages))
     dispatch(reduxUpdateMessages(messages))
 

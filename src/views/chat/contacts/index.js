@@ -16,7 +16,7 @@ import { getMessages } from "store/actions/messages";
 
 import { styled, useTheme } from "@mui/material/styles";
 
-import { formatDateToMonthShort, formatChatTime, getRoomDisplayName } from "utils/common";
+import { formatDateToMonthShort, formatChatTime, getRoomDisplayName, getUserDisplayName } from "utils/common";
 import ClientAvatar from "ui-component/ClientAvatar";
 
 import UserAvatar from "./UserAvatar";
@@ -121,7 +121,7 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
                                     ? theme.palette.primary.main
                                     : "inherit",
                             "&:hover": {
-                                background: theme.palette.primary.main,
+                                background: active.id === item.id ? theme.palette.primary.main : '#FFFFFF11',
                             }
                         }}
                         onClick={() => handleUserClick("chat", item)}
@@ -220,7 +220,7 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
                     <UserAvatar CircleButton1={CircleButton1} theme={theme} setIsChatClick={setIsChatClick} setIsSettingClick={setIsSettingClick} />
                 </Box>
                 <Typography sx={{ pl: 2, pb: 3, pt: 1 }} variant="h1">
-                    {userData.username}
+                    {getUserDisplayName(userData)}
                 </Typography>
                 <Box sx={{ height: "90%" }}>
                     <Paper

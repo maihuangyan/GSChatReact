@@ -62,7 +62,6 @@ const ResetPassword = (props) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const showToast = useContext(LoaderContext).showToast
 
-
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };

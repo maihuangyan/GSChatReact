@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useContext, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useJwt from "utils/jwt/useJwt";
-import { formatChatDate, formatChatTime, isMessageSeen } from "utils/common";
+import { formatChatDate, formatChatTime, getRoomDisplayName, isMessageSeen } from "utils/common";
 import typingAnim from 'assets/images/anim/typing.gif'
 
 import {
@@ -265,7 +265,7 @@ const Conversation = () => {
         }
         else {
             if (msg.length) {
-                socketSendMessage(selectedRoom.id, '0', msg, replyMessage.id ? replyMessage.id : 0);
+                socketSendMessage(selectedRoom.id, '0', msg, replyMessage ? replyMessage.id : 0);
                 setMsg("");
                 socketSendTyping(selectedRoom.id, 0);
                 setIsTyping(false);
@@ -490,7 +490,7 @@ const Conversation = () => {
                         chatArea={chatArea}
                         isTyping={isTyping} />
                     <Grid container sx={{ borderBottom: "1px solid #997017", p: 1, position: "relative" }}>
-                        <Box sx={{ background: "#101010", position: "absolute", top: 0, left: navSearch ? 0 : "100%", zIndex: 100, width: "100%", height: "100%", transition: "0.5s" }}>
+                        <Box sx={{ background: "#101010", position: "absolute", top: 0, left: navSearch ? 0 : "100%", zIndex: 100, width: "100%", height: "90%", marginTop: '5px', transition: "0.5s" }}>
                             <Box sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
                                 <FormControl fullWidth variant="outlined" sx={{ p: "0 10px" }}>
                                     <OutlinedInput
@@ -531,11 +531,11 @@ const Conversation = () => {
                                     avatar={selectedRoom.photo_url ? selectedRoom.photo_url : ""}
                                     status={getRoomOnlineStatus(selectedRoom.id)}
                                     size={40}
-                                    name={selectedRoom.name}
+                                    name={getRoomDisplayName(selectedRoom)}
                                 />
                                 <Box sx={{ ml: 2 }}>
                                     <Typography variant={selectedRoom.group ? "h2" : "h4"}>
-                                        {selectedRoom.name}
+                                        {getRoomDisplayName(selectedRoom)}
                                     </Typography>
                                     <Typography color={"#d5d5d5"}>{selectedRoom.group ? "" : (getRoomOnlineStatus(selectedRoom.id) ? "Online" : "Leave")}</Typography>
                                 </Box>
@@ -588,7 +588,6 @@ const Conversation = () => {
                                     const showDateDivider = firstDate != item.sentDate;
                                     firstDate = item.sentDate;
                                     const right = item.senderId == useJwt.getUserID()
-                                    console.log("6666")
                                     return (
                                         <Box key={index}
                                             sx={{

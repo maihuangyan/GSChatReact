@@ -1,5 +1,6 @@
 import moment from "moment";
 import useJwt from "utils/jwt/useJwt"
+import JwtService from "./jwt/jwtService";
 var _ = require('lodash');
 
 
@@ -133,7 +134,7 @@ export const sortMessages = (messages) => {
 
 export const isMessageSeen = (message) => {
   const mUserId = useJwt.getUserID()
-  if (message.user_id == mUserId) {
+  if (message.user_id != mUserId) {
     return true;
   }
 
@@ -153,11 +154,6 @@ export const isMessageSeen = (message) => {
 }
 
 export const isMessageSeenByOther = (message) => {
-  const mUserId = useJwt.getUserID()
-  if (message.user_id == mUserId) {
-    return false;
-  }
-
   if (!message.seens || message.seens.length == 0) {
     return false;
   }
@@ -171,6 +167,21 @@ export const isMessageSeenByOther = (message) => {
   }
 
   return seenStatus;
+}
+
+export const getSeenStatus = (message) => {
+  if (!message.id) {
+    return 'Sending... ';
+  }
+
+  if (message.created_at != message.updated_at) {
+    return 'Edited, ';
+  }
+
+  if (isMessageSeenByOther(message)) {
+    return 'Seen, ';
+  }
+  return 'Sent, ';
 }
 
 export const isEmpty = (value) => {
@@ -223,21 +234,10 @@ export const getRoomDisplayName = (room) => {
       return room.name;
     }
 
-    const user = room.room_users[0];
-    if (!isEmpty(user.full_name)) {
-      return user.full_name;
-    }
-    if (!isEmpty(user.first_name) && !isEmpty(user.last_name)) {
-      return user.first_name + ' ' + user.last_name
-    }
-    if (!isEmpty(user.first_name)) {
-      return user.first_name
-    }
-    if (!isEmpty(user.last_name)) {
-      return user.last_name
-    }
-    if (!isEmpty(user.username)) {
-      return user.username
+    for (let user of room.room_users) {
+      if (user.id != useJwt.getUserID()) {
+        return getUserDisplayName(user);
+      }
     }
   }
   

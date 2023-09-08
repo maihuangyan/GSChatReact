@@ -45,7 +45,6 @@ const addOrUpdateMessages = (state, messages) => {
     if (messages.length === 0) {
         return state
     }
-    // console.log("6666")
 
     const stateMessages = { ...state.messages }
     const room_id = messages[0].room_id;

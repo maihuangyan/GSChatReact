@@ -32,7 +32,7 @@ export default class JwtService {
 
         // ** If token is present add it to request's Authorization Header
         if (OneSignal.User && OneSignal.User.PushSubscription) {
-          config.headers.headers.device_id = OneSignal.User.PushSubscription.device_id ? OneSignal.User.PushSubscription.device_id : 'browser';
+          headers.headers.device_id = OneSignal.User.PushSubscription.device_id ? OneSignal.User.PushSubscription.device_id : 'browser';
         }
         if (accessToken) {
           // ** eslint-disable-next-line no-param-reassign
