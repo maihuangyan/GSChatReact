@@ -106,6 +106,7 @@ export default function componentStyleOverrides(theme) {
           borderRadius: "30px",
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor: theme.colors?.grey900,
+            borderWidth: "1px !important",
           },
           "&:hover $notchedOutline": {
             borderColor: theme.colors?.grey700,
@@ -113,6 +114,9 @@ export default function componentStyleOverrides(theme) {
           "&.MuiInputBase-multiline": {
             padding: 1,
           },
+          "& .Mui-focused":{
+            borderWidth:"1px"
+          }
         },
         input: {
           fontWeight: 500,

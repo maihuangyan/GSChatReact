@@ -560,7 +560,7 @@ const Conversation = () => {
                                         </CircleButton2>
                                     </Grid>
                                 </Grid>
-                                <CircleButton2 onClick={() => setNavSearch(false)}>
+                                <CircleButton2 onClick={() => (setNavSearch(false),setQuery(""),setSearchCount(0),setSearchMessages([]))}>
                                     <IconX size={25} stroke={2} />
                                 </CircleButton2>
                             </Box>
@@ -710,7 +710,7 @@ const Conversation = () => {
                                         <FormControl fullWidth variant="outlined" sx={{ mr: 1 }}>
                                             <OutlinedInput
                                                 placeholder="New message"
-                                                // id="message-box"
+                                                id="message-box"
                                                 readOnly={false}
                                                 value={msg}
                                                 onPaste={async (e) => {
