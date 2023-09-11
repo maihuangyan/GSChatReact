@@ -25,7 +25,7 @@ import {
 } from "@mui/material";
 
 import { styled, useTheme } from "@mui/material/styles";
-import { IconSend, IconDotsVertical, IconLink, IconPhoto, IconArrowLeft, IconSearch, IconX } from "@tabler/icons";
+import { IconSend, IconDotsVertical, IconLink, IconPhoto, IconArrowLeft, IconSearch, IconX, IconArrowDown, IconArrowUp } from "@tabler/icons";
 
 import { SocketContext } from "utils/context/SocketContext";
 
@@ -452,10 +452,46 @@ const Conversation = () => {
 
     const [navSearch, setNavSearch] = useState(false)
     const [query, setQuery] = useState("");
+    const [searchMessages, setSearchMessages] = useState([]);
+    const [allSearchMessages, setAllSearchMessages] = useState([]);
+    const [searchCount, setSearchCount] = useState(0);
+
+    useEffect(() => {
+        let handleMessages = []
+        roomMessages.map(item => handleMessages.push(item.messages))
+        setAllSearchMessages(handleMessages.flat(Infinity))
+        setNavSearch(false)
+        setQuery("")
+        setSearchCount(0)
+        setSearchMessages([])
+    }, [roomChange, roomMessages])
 
     const handleSearch = (e) => {
+        let newSearchMessages = allSearchMessages.filter(item => item.message.toLowerCase().includes(e.target.value.toLowerCase()))
+        setSearchMessages(allSearchMessages.filter(item => item.message.toLowerCase().includes(e.target.value.toLowerCase())))
+        setSearchCount(newSearchMessages.length)
         setQuery(e.target.value);
+        if (newSearchMessages.length) {
+            searchScroll(newSearchMessages.pop())
+        }
     };
+
+    const searchScroll = (message) => {
+        const chatContainer = chatArea.current;
+        let btn = document.getElementById(message.id)
+        let options = {
+            top: 0,
+            behavior: 'smooth'
+        }
+        options.top = btn.parentNode.parentNode.parentNode.offsetTop + btn.offsetTop - 70
+        chatContainer.scrollTo(options)
+    }
+
+    useEffect(() => {
+        if (searchCount > 0) {
+            searchScroll(searchMessages[searchCount - 1])
+        }
+    }, [searchCount])
 
     return Object.keys(selectedRoom).length ? (
         showInformation ? <Information CircleButton1={CircleButton1} setShowInformation={setShowInformation} /> :
@@ -494,7 +530,6 @@ const Conversation = () => {
                             <Box sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
                                 <FormControl fullWidth variant="outlined" sx={{ p: "0 10px" }}>
                                     <OutlinedInput
-                                        // id="search-box"
                                         placeholder="Search Messages"
                                         sx={{ color: "white" }}
                                         value={query}
@@ -508,9 +543,26 @@ const Conversation = () => {
                                         }
                                     />
                                 </FormControl>
-                                <CircleButton1 onClick={() => setNavSearch(false)}>
-                                    <IconX size={25} stroke={1} />
-                                </CircleButton1>
+                                <Box sx={{ width: "66px" }}>
+                                    {searchCount} / {searchMessages.length}
+                                </Box>
+                                <Grid container sx={{ width: "auto", mr: 2 }}>
+                                    <Grid item xs={6} md={6} sm={6}>
+                                        <CircleButton2 onClick={() => searchMessages.length > searchCount && setSearchCount(searchCount + 1)
+                                        }>
+                                            <IconArrowDown size={20} stroke={2} />
+                                        </CircleButton2>
+                                    </Grid>
+                                    <Grid item xs={6} md={6} sm={6} sx={{ pl: 1 }}>
+                                        <CircleButton2 onClick={() => searchCount > 1 && setSearchCount(searchCount - 1)
+                                        }>
+                                            <IconArrowUp size={20} stroke={2} />
+                                        </CircleButton2>
+                                    </Grid>
+                                </Grid>
+                                <CircleButton2 onClick={() => setNavSearch(false)}>
+                                    <IconX size={25} stroke={2} />
+                                </CircleButton2>
                             </Box>
                         </Box>
                         <Grid item xs={6} container>
