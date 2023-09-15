@@ -30,7 +30,6 @@ const SocketContext = createContext()
 const SocketProvider = ({ children }) => {
   const dispatch = useDispatch();
   const room = useSelector((state) => state.room);
-  const messages = useSelector((state) => state.messages.messages);
   const users = useSelector((state) => state.users)?.connected_users;
   const auth = useSelector((state) => state.auth);
 
