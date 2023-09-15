@@ -168,7 +168,7 @@ const SocketProvider = ({ children }) => {
     (messages) => {
       // updated message
       // console.log('updated messages', messages)
-      updateMessages(messages);
+      // updateMessages(messages);
     }, []
   );
 

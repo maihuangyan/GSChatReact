@@ -141,7 +141,7 @@ const Conversation = () => {
     const actionScrollToBottom = (send) => {
         const chatContainer = chatArea.current;
         if (chatContainer) {
-            chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
+            // chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
             if (send) {
                 setTimeout(() => {
                     chatContainer.scrollTo({
