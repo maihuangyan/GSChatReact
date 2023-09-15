@@ -148,7 +148,7 @@ const Conversation = () => {
                         top: chatContainer.scrollHeight,
                         behavior: "smooth"
                     })
-                }, 500)
+                }, 50)
             } else {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
