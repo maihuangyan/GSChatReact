@@ -7,9 +7,6 @@ import { reduxDeleteMessages, reduxInsertMessages, reduxUpdateMessages } from "s
 import OneSignal from 'react-onesignal';
 import { isMessageSeen, nowSecs, randomString } from "utils/common"
 
-import { useLocation } from "react-router"
-import { LoaderContext } from "utils/context/ProgressLoader";
-
 const handleConnect = (socket) => {
   if (useJwt.getToken()) {
     //console.log("socket login", useJwt.getToken())

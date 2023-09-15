@@ -121,7 +121,6 @@ const Conversation = () => {
     const socketUpdateMessage = useContext(SocketContext).socketUpdateMessage
     const socketDeleteMessage = useContext(SocketContext).socketDeleteMessage
     const scrollToBottom = useContext(SocketContext).scrollToBottom
-    const addNewMessageCount = useContext(SocketContext).addNewMessageCount
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
 
@@ -143,16 +142,16 @@ const Conversation = () => {
         const chatContainer = chatArea.current;
         if (chatContainer) {
             //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
-            if (send) {
-                setTimeout(() => {
-                    chatContainer.scrollTo({
-                        top: chatContainer.scrollHeight,
-                        behavior: "smooth"
-                    })
-                }, 50)
-            } else {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
+            // if (send) {
+            //     setTimeout(() => {
+            //         chatContainer.scrollTo({
+            //             top: chatContainer.scrollHeight,
+            //             behavior: "smooth"
+            //         })
+            //     }, 50)
+            // } else {
+            //     chatContainer.scrollTop = chatContainer.scrollHeight;
+            // }
         }
     };
 
@@ -690,7 +689,6 @@ const Conversation = () => {
                                         <FormControl fullWidth variant="outlined" sx={{ mr: 1 }}>
                                             <OutlinedInput
                                                 placeholder="New message"
-                                                id="message-box"
                                                 readOnly={false}
                                                 value={msg}
                                                 onPaste={async (e) => {
