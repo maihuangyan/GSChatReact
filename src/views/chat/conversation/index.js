@@ -141,17 +141,17 @@ const Conversation = () => {
     const actionScrollToBottom = (send) => {
         const chatContainer = chatArea.current;
         if (chatContainer) {
-            //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
-            // if (send) {
-            //     setTimeout(() => {
-            //         chatContainer.scrollTo({
-            //             top: chatContainer.scrollHeight,
-            //             behavior: "smooth"
-            //         })
-            //     }, 50)
-            // } else {
-            //     chatContainer.scrollTop = chatContainer.scrollHeight;
-            // }
+            chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
+            if (send) {
+                setTimeout(() => {
+                    chatContainer.scrollTo({
+                        top: chatContainer.scrollHeight,
+                        behavior: "smooth"
+                    })
+                }, 500)
+            } else {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
         }
     };
 
