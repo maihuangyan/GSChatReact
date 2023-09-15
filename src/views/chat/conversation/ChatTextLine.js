@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect, useContext, memo } from 'react'
 import {
     Box,
     Typography,
@@ -20,19 +20,11 @@ import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
 
 
-export default function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage }) {
+function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage }) {
     const theme = useTheme();
-    const [isHover, setIsHover] = useState(false);
     const [isForwardModal, setIsForwardModal] = useState(false);
     const [imgHeight, setImgHeight] = useState(800);
 
-    const onMouseEnterHandler = () => {
-        setIsHover(true);
-    };
-
-    const onMouseLeaveHandler = () => {
-        setIsHover(false);
-    };
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -40,7 +32,6 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
     };
     const handleClose = () => {
         setAnchorEl(null);
-        setIsHover(false);
     };
 
     const showForward = (message) => {
@@ -77,8 +68,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
             <Forward isForwardModal={isForwardModal} setIsForwardModal={setIsForwardModal} setIsForward={setIsForward} />
             {
                 right ? (
-                    <Box sx={{ display: "flex", justifyContent: "flex-end" }} onMouseEnter={onMouseEnterHandler}
-                        onMouseLeave={onMouseLeaveHandler}>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end", "&:hover .down": { opacity: 1 } }} >
                         <Typography
                             id={`${message.id}`}
                             component="div"
@@ -150,9 +140,10 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                 </Grid>
                             ) : "")
                             )}
-                            <Typography component="div" sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer", display: isHover ? "block" : "none" }} onClick={handleClick}>
+                            <Box className
+                                ='down' sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer", opacity: 0 }} onClick={(e) => handleClick(e)}>
                                 <IconChevronDown size={20} stroke={1} />
-                            </Typography>
+                            </Box>
                             <Menu
                                 id="basic-menu"
                                 anchorEl={anchorEl}
@@ -197,8 +188,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                         </Typography>
                     </Box >
                 ) : (
-                    <Box sx={{ display: "flex", justifyContent: "flex-start" }} onMouseEnter={onMouseEnterHandler}
-                        onMouseLeave={onMouseLeaveHandler}>
+                    <Box sx={{ display: "flex", justifyContent: "flex-start", "&:hover .down": { opacity: 1 } }}>
                         <Typography
                             id={`${message.id}`}
                             component="div"
@@ -270,9 +260,9 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                 </Grid>
                             ) : "")
                             )}
-                            <Typography component="div" sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer", display: isHover ? "block" : "none" }} onClick={handleClick}>
+                            <Box className="down" sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer", opacity: 1 }} onClick={(e) => handleClick(e)}>
                                 <IconChevronDown size={20} stroke={1} />
-                            </Typography>
+                            </Box>
                             <Menu
                                 id="basic-menu"
                                 anchorEl={anchorEl}
@@ -299,7 +289,7 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
                                 </MenuItem>
                             </Menu>
                             <Typography component="div" variant={right ? "positionRight" : "positionLeft"} sx={{ color: theme.palette.text.icon }}>
-                                <TimeSeperator content={formatChatTime(+item.sentTime)}/>
+                                <TimeSeperator content={formatChatTime(+item.sentTime)} />
                             </Typography>
 
                             <Typography component="div" variant={"positionLeft1"} sx={{ display: isGroup ? "block" : "none" }}>
@@ -321,3 +311,5 @@ export default function ChatTextLine({ item, right, message, ReplyClick, EditCli
         </Box>
     )
 }
+
+export default memo(ChatTextLine)

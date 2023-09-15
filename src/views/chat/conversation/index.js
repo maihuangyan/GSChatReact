@@ -19,7 +19,6 @@ import {
     DialogTitle,
     ListItemText,
     Divider,
-    InputLabel,
     InputAdornment,
     IconButton
 } from "@mui/material";
@@ -30,7 +29,7 @@ import { IconSend, IconDotsVertical, IconLink, IconPhoto, IconArrowLeft, IconSea
 import { SocketContext } from "utils/context/SocketContext";
 
 import ClientAvatar from "ui-component/ClientAvatar";
-import ChatTextLine from "./ChatTextLine"
+import MessagesBox from "./MessagesBox"
 import PreviewFiles from "./PreviewFiles";
 import DraggerBox from "./DraggerBox";
 import ReplyBox from "./ReplyBox";
@@ -39,8 +38,6 @@ import ForwardBox from "./ForwardBox";
 
 import { Upload } from 'antd';
 import { selectRoomClear } from "store/actions/room";
-
-let firstDate = ""
 
 const CircleButton1 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -111,7 +108,6 @@ const TimeSeperator = ({ content }) => {
 const Conversation = () => {
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const store = useSelector((state) => state.messages);
-    const messagesChange = useSelector((state) => state.messages.change);
 
     const [isTyping, setIsTyping] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -190,7 +186,7 @@ const Conversation = () => {
         setIsReply(false);
         setImg(null)
         setIsPreviewFiles(false)
-    }, [store, selectedRoom]);
+    }, [store, selectedRoom,scrollTop]);
 
     useEffect(() => {
         actionScrollToTop()
@@ -316,7 +312,7 @@ const Conversation = () => {
     const [ForwardMessage, setForwardMessage] = useState(null);
     const [editingMessage, setEditingMessage] = useState(null);
 
-    const ReplyClick = (content) => {
+    const ReplyClick = useCallback((content) => {
         console.log(content)
         setEditingMessage(null)
         setMsg('')
@@ -325,9 +321,9 @@ const Conversation = () => {
 
         setReplyMessage(content.message)
         setIsReply(true)
-    }
+    }, [])
 
-    const EditClick = (content) => {
+    const EditClick = useCallback((content) => {
         setIsReply(false)
         setReplyMessage(null)
         setIsForward(false)
@@ -337,19 +333,19 @@ const Conversation = () => {
         setMsg(content.message.message);
         socketSendTyping(selectedRoom.id, 1);
         setIsTyping(true);
-    }
+    }, [selectedRoom.id, socketSendTyping])
 
-    const CopyClick = async (content) => {
+    const CopyClick = useCallback(async (content) => {
         try {
             await navigator.clipboard.writeText(content.message);
         } catch (err) {
             console.error('Failed to copy: ', err);
         }
-    }
+    }, [])
 
-    const DeleteClick = (content) => {
+    const DeleteClick = useCallback((content) => {
         socketDeleteMessage(content)
-    }
+    }, [socketDeleteMessage])
 
     const isReplyClose = () => {
         setIsReply(false)
@@ -365,16 +361,18 @@ const Conversation = () => {
         }
     }, [isReply, selectedRoom])
 
-    const replyScroll = (message) => {
+    const replyScroll = useCallback((message) => {
         const chatContainer = chatArea.current;
         let btn = document.getElementById(message.reply_on_message ? message.reply_on_message.id : message.id)
-        let options = {
-            top: 0,
-            behavior: 'smooth'
+        if (btn) {
+            let options = {
+                top: 0,
+                behavior: 'smooth'
+            }
+            options.top = btn.parentNode.parentNode.parentNode.offsetTop + btn.offsetTop - 70
+            chatContainer.scrollTo(options)
         }
-        options.top = btn.parentNode.parentNode.parentNode.offsetTop + btn.offsetTop - 70
-        chatContainer.scrollTo(options)
-    }
+    }, [])
 
     // useEffect(() => {
     //     if (selectedRoom && isChangeClient !== selectedRoom.id) {
@@ -390,8 +388,7 @@ const Conversation = () => {
 
     const [isPreviewFiles, setIsPreviewFiles] = useState(false);
 
-    useEffect(() => {
-
+    const handleFilesMove = useCallback(() => {
         if (selectedRoom.id) {
             const uploadStyle = document.querySelector(".ant-upload-btn")
             uploadStyle.style.padding = "0"
@@ -408,7 +405,10 @@ const Conversation = () => {
             e.preventDefault();
             setDraggerFile(false)
         }
+    }, [])
 
+    useEffect(() => {
+        handleFilesMove()
     }, [])
 
     const props = {
@@ -560,7 +560,7 @@ const Conversation = () => {
                                         </CircleButton2>
                                     </Grid>
                                 </Grid>
-                                <CircleButton2 onClick={() => (setNavSearch(false),setQuery(""),setSearchCount(0),setSearchMessages([]))}>
+                                <CircleButton2 onClick={() => (setNavSearch(false), setQuery(""), setSearchCount(0), setSearchMessages([]))}>
                                     <IconX size={25} stroke={2} />
                                 </CircleButton2>
                             </Box>
@@ -635,40 +635,20 @@ const Conversation = () => {
                                 , p: 2, pt: 3, pb: 9, borderRadius: 0, overflowY: "auto"
                             }}
                         >
-                            {
-                                roomMessages.map((item, index) => {
-                                    const showDateDivider = firstDate != item.sentDate;
-                                    firstDate = item.sentDate;
-                                    const right = item.senderId == useJwt.getUserID()
-                                    return (
-                                        <Box key={index}
-                                            sx={{
-                                                position: "relative", mt: 1,
-                                            }}>
-                                            {showDateDivider && <DateSeperator value={item.sentDate} />}
-                                            {item.messages.map((message, i) => (
-                                                <ChatTextLine
-                                                    item={item}
-                                                    i={i}
-                                                    key={i}
-                                                    message={message}
-                                                    right={right}
-                                                    ReplyClick={ReplyClick}
-                                                    EditClick={EditClick}
-                                                    CopyClick={CopyClick}
-                                                    DeleteClick={DeleteClick}
-                                                    formatChatTime={formatChatTime}
-                                                    isGroup={selectedRoom.group}
-                                                    TimeSeperator={TimeSeperator}
-                                                    replyScroll={replyScroll}
-                                                    setIsForward={setIsForward}
-                                                    setForwardMessage={setForwardMessage}
-                                                />
-                                            ))}
-                                        </Box>
-                                    )
-                                })
-                            }
+                            <MessagesBox
+                                roomMessages={roomMessages}
+                                ReplyClick={ReplyClick}
+                                EditClick={EditClick}
+                                CopyClick={CopyClick}
+                                DeleteClick={DeleteClick}
+                                formatChatTime={formatChatTime}
+                                isGroup={selectedRoom.group}
+                                TimeSeperator={TimeSeperator}
+                                DateSeperator={DateSeperator}
+                                replyScroll={replyScroll}
+                                setIsForward={setIsForward}
+                                setForwardMessage={setForwardMessage}
+                            />
                         </Paper>
                     </Box>
 

@@ -26,7 +26,6 @@ export default function ForwardModal({ isForwardModal, setIsForward, setIsForwar
     const { selectedRoom, chats } = room
     const dispatch = useDispatch();
 
-
     const [query, setQuery] = useState("");
     const [searchUser, setSearchUser] = useState(chats.filter(item => item.id !== selectedRoom.id))
     const [filteredChat, setFilteredChat] = useState([]);
