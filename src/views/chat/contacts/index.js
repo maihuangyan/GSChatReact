@@ -45,9 +45,12 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
     const userData = useSelector((state) => state.auth.userData);
     const [active, setActive] = useState({});
     const [chats, setChats] = useState([]);
+    const [count, setCount] = useState(1);
+
 
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
+    const scrollToBottom = useContext(SocketContext).scrollToBottom
 
     useEffect(() => {
         setChats([...store.chats])
@@ -55,28 +58,37 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
 
     useEffect(() => {
         if (selectedRoom && selectedRoom.id) {
-            setActive({ type: "chat", id: selectedRoom.id });
+            setActive({ type: "chat", id: selectedRoom.id, unread_count: selectedRoom.unread_count });
         } else {
             setActive({});
         }
-    }, [selectedRoom]);
+    }, []);
 
     useEffect(() => {
-        // console.log(updateOnlineStatus)
-        if (active) {
-            dispatch(resetUnreadCount({ room_id: active.id, unread_count: active.room?.unread_count, unreadCount: 0 }))
-        }
-    }, [updateOnlineStatus])
+        setCount(1)
+    }, [selectedRoom]);
 
     // ** Handles User Chat Click
     const handleUserClick = (type, room) => {
+
         dispatch(selectRoom(room));
-        setActive({ type, id: room.id, room });
+        setActive({ type, id: room.id, unread_count: room.unread_count });
         if (!messages.messages[room.id]) {
             dispatch(getMessages({ id: room.id }))
         }
         dispatch(resetUnreadCount({ room_id: room.id, unread_count: room.unread_count, unreadCount: 0 }))
     };
+
+    useEffect(() => {
+        if (scrollToBottom) {
+            if (active.unread_count) {
+                dispatch(resetUnreadCount({ room_id: active.id, unread_count: active.unread_count, unreadCount: 0 }))
+            } else {
+                dispatch(resetUnreadCount({ room_id: active.id, unread_count: count, unreadCount: 0 }))
+            }
+            setCount(count + 1)
+        }
+    }, [scrollToBottom])
 
     // ** Renders Chat
     const renderChats = () => {
@@ -182,7 +194,7 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
                                     </Box>
                                 )}
                                 <Box sx={{ width: "100%" }}>
-                                    <Badge sx={{ width: "100%" }} color="primary" badgeContent={item.unread_count} overlap="circular">
+                                    <Badge sx={{ width: "100%" }} color="primary" badgeContent={active.id === item.id ? 0 : item.unread_count} overlap="circular">
                                     </Badge>
                                 </Box>
                             </Box>
