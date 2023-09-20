@@ -260,7 +260,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                 </Grid>
                             ) : "")
                             )}
-                            <Box className="down" sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer", opacity: 1 }} onClick={(e) => handleClick(e)}>
+                            <Box className="down" sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer", opacity: 0 }} onClick={(e) => handleClick(e)}>
                                 <IconChevronDown size={20} stroke={1} />
                             </Box>
                             <Menu

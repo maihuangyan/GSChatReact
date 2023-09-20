@@ -249,6 +249,7 @@ const Conversation = () => {
     // ** Sends New Msg
     const handleSendMsg = (e) => {
         e.preventDefault();
+
         if (editingMessage) {
             socketUpdateMessage(editingMessage, msg)
             setEditingMessage(null);

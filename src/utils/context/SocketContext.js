@@ -148,7 +148,7 @@ const SocketProvider = ({ children }) => {
   const handleSocketNewMessage = useCallback(
     (message) => {
       // console.log('new message', message);
-      //console.log('new messages', [message])
+      console.log('new messages', [message])
       if (message.user_id == useJwt.getUserID()) {
         updateMessages([message])
         setScrollToBottom(true);
@@ -183,10 +183,15 @@ const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (socket) {
       // subscribe to socket events
+      const handlePromise = async () => {
+        console.log("1")
+        socket.on("typing", handleSocketTyping);
+        await socket.on("newMessage", handleSocketNewMessage);
+        console.log("3")
+      }
+      handlePromise()
       socket.on("newUser", handleSocketNewUser);
       socket.on("userLeft", handleSocketUserLeft);
-      socket.on("typing", handleSocketTyping);
-      socket.on("newMessage", handleSocketNewMessage);
       socket.on("updateMessage", handleSocketUpdateMessage);
       socket.on("deleteMessage", handleSocketDeleteMessage);
     }
@@ -285,6 +290,7 @@ const SocketProvider = ({ children }) => {
       reply_on,
       forward_message,
     };
+
     socket.emit("sendMessage", newMessage);
   };
 
