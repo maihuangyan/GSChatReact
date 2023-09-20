@@ -120,7 +120,6 @@ const Conversation = () => {
     const socketOpenMessage = useContext(SocketContext).socketOpenMessage
     const socketUpdateMessage = useContext(SocketContext).socketUpdateMessage
     const socketDeleteMessage = useContext(SocketContext).socketDeleteMessage
-    const scrollToBottom = useContext(SocketContext).scrollToBottom
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
 
@@ -185,7 +184,7 @@ const Conversation = () => {
         setIsReply(false);
         setImg(null)
         setIsPreviewFiles(false)
-    }, [store, selectedRoom,scrollTop]);
+    }, [store, selectedRoom, scrollTop]);
 
     useEffect(() => {
         actionScrollToTop()
@@ -443,11 +442,10 @@ const Conversation = () => {
     }, [showInformation, roomChange])
 
     useEffect(() => {
-        if (scrollToBottom) {
-            actionScrollToBottom(true);
-            setNewMessageCount(newMessageCount + 1)
-        }
-    }, [scrollToBottom])
+        actionScrollToBottom(true);
+        setNewMessageCount(newMessageCount + 1)
+    }, [roomMessages])
+
     // console.log(selectedRoom, "6666 ")
 
     const [navSearch, setNavSearch] = useState(false)

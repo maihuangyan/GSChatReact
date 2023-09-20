@@ -135,7 +135,7 @@ const SocketProvider = ({ children }) => {
     (typing) => {
       // received typing
       //console.log('typing', typing)
-      setScrollToBottom(false);
+      setScrollToBottom(!scrollToBottom);
       setSoundPlayers(false)
 
       if (typing.user_id != useJwt.getUserID()) {
@@ -148,15 +148,14 @@ const SocketProvider = ({ children }) => {
   const handleSocketNewMessage = useCallback(
     (message) => {
       // console.log('new message', message);
-      console.log('new messages', [message])
+      // console.log('new messages', [message])
+      setScrollToBottom(!scrollToBottom);
       if (message.user_id == useJwt.getUserID()) {
         updateMessages([message])
-        setScrollToBottom(true);
         setSoundPlayers(false)
       }
       else {
         addMessages([message]);
-        setScrollToBottom(true);
         setSoundPlayers(true)
       }
     },
@@ -183,16 +182,11 @@ const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (socket) {
       // subscribe to socket events
-      const handlePromise = async () => {
-        console.log("1")
-        socket.on("typing", handleSocketTyping);
-        await socket.on("newMessage", handleSocketNewMessage);
-        console.log("3")
-      }
-      handlePromise()
+      socket.on("typing", handleSocketTyping);
+      socket.on("newMessage", handleSocketNewMessage);
+      socket.on("updateMessage", handleSocketUpdateMessage);
       socket.on("newUser", handleSocketNewUser);
       socket.on("userLeft", handleSocketUserLeft);
-      socket.on("updateMessage", handleSocketUpdateMessage);
       socket.on("deleteMessage", handleSocketDeleteMessage);
     }
 
