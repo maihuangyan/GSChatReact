@@ -18,16 +18,17 @@ import ClientAvatar from "ui-component/ClientAvatar";
 import { useSelector, useDispatch } from "react-redux"
 import { selectRoom } from "store/actions/room";
 import { getMessages } from "store/actions/messages";
+import { getRoomDisplayName, getUserDisplayName } from 'utils/common';
 
 export default function ForwardModal({ isForwardModal, setIsForward, setIsForwardModal }) {
 
     const theme = useTheme();
     const room = useSelector((state) => state.room);
-    const { selectedRoom, chats } = room
+    const { selectedRoom, rooms } = room
     const dispatch = useDispatch();
 
     const [query, setQuery] = useState("");
-    const [searchUser, setSearchUser] = useState(chats.filter(item => item.id !== selectedRoom.id))
+    const [searchUser, setSearchUser] = useState(rooms.filter(item => item.id !== selectedRoom.id))
     const [filteredChat, setFilteredChat] = useState([]);
 
     const handleOk = () => {
@@ -66,13 +67,13 @@ export default function ForwardModal({ isForwardModal, setIsForward, setIsForwar
         }
         else {
             return filteredChat.map((item) => {
-                let fullName = item.group ? item.name : (item.room_users[0].first_name.length ? `${item.room_users[0].first_name} ${item.room_users[0].last_name}` : item.room_users[0].username)
+                let fullName = getRoomDisplayName(item);
                 return (
                     <Box
                         key={item.id}
                         sx={{
                             display: "flex",
-                            alignItems: "flex-start",
+                            alignItems: "center",
                             p: 1,
                             mt: 2,
                             borderRadius: "5px",
@@ -94,7 +95,7 @@ export default function ForwardModal({ isForwardModal, setIsForward, setIsForwar
                         />
                         <Box sx={{ ml: 2 }}>
                             <Typography variant="h4" color={theme.palette.text.primary}>
-                                {item.name}
+                                {fullName}
                             </Typography>
                         </Box>
                     </Box>
@@ -115,7 +116,6 @@ export default function ForwardModal({ isForwardModal, setIsForward, setIsForwar
                             Search
                         </InputLabel>
                         <OutlinedInput
-                            // id="search-box"
                             sx={{ color: "white" }}
                             value={query}
                             onChange={handleFilter}

@@ -2,12 +2,14 @@ import useJwt from "utils/jwt/useJwt";
 
 // ** Get messages
 export const getMessages = (payload) => {
+    // console.log(payload, 'get messages');
     return async (dispatch) => {
         useJwt
             .getMessages(payload)
             .then((res) => {
                 if (res.data.ResponseCode == 0) {
                     let data = res.data.ResponseResult
+                    // console.log(res, 'get messages');
                     dispatch({
                         type: "UPDATE_MESSAGES",
                         data,
@@ -22,10 +24,12 @@ export const getMessages = (payload) => {
 
 // ** Get last messages
 export const getLastMessages = (payload) => {
+    // console.log('get last messages', payload);
     return async (dispatch) => {
         useJwt
             .getLastMessages(payload)
             .then((res) => {
+                // console.log('get last messages result', res)
                 if (res.data.ResponseCode == 0) {
                     let data = res.data.ResponseResult
                     dispatch({
@@ -65,4 +69,14 @@ export const reduxDeleteMessages = (message_ids) => {
             data: message_ids,
         });
     }
+}
+
+
+export const clearRoomMessages = (room_id) => {
+    return (dispatch) => {
+        dispatch({
+            type: "CLEAR_ROOM_MESSAGES",
+            data: room_id
+        });
+    };
 }

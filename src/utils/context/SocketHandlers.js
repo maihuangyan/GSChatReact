@@ -5,8 +5,8 @@ export const getOnlineStatuses = (chatStore) => {
   if (!chatStore) {
     return result;
   }
-  for (let i = 0; i < chatStore.chats.length; i++) {
-    let item = chatStore.chats[i];
+  for (let i = 0; i < chatStore.rooms.length; i++) {
+    let item = chatStore.rooms[i];
     result[item.room.client_id] = item.room.status
   }
   return result;
@@ -16,8 +16,8 @@ export const getOnlineStatus = (chatStore, userId) => {
   if (!chatStore) {
     return false;
   }
-  for (let i = 0; i < chatStore.chats.length; i++) {
-    let item = chatStore.chats[i];
+  for (let i = 0; i < chatStore.rooms.length; i++) {
+    let item = chatStore.rooms[i];
     if (item.room.client_id == userId) {
       return item.room.status;
     }

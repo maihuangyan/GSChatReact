@@ -21,16 +21,18 @@ const CircleButton1 = styled(Button)(({ theme }) => ({
     },
 }));
 
-export default function ForwardBox({ isForward, isForwardClose, ForwardMessage, setIsForward }) {
+export default function ForwardBox({ isForward, isForwardClose, ForwardMessage, setIsForward, setForwardMessage }) {
 
     const theme = useTheme()
     const socketSendMessage = useContext(SocketContext).socketSendMessage
 
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const handleForward = () => {
+        // console.log(ForwardMessage)
         if (ForwardMessage) {
-            socketSendMessage(selectedRoom.id, '3', ForwardMessage.id, 0, ForwardMessage);
-            setIsForward(false)
+            socketSendMessage(selectedRoom.id, '3', "" + ForwardMessage.id, 0, ForwardMessage);
+            setIsForward(false);
+            setForwardMessage(null);
         }
     }
     return (

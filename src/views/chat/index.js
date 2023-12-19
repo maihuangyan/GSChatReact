@@ -27,14 +27,6 @@ const Chat = (props) => {
     }
   }, [roomTab, selectedRoom])
 
-  // useEffect(() => {
-  //   // getLocalStorageUsage();
-  //   // load chat messages
-  //   // const selectedChat = { ...store.selectedChat };
-  //   // console.log('selectChatRoomID', store.selectChatRoomID)
-  //   // dispatch(getChatContacts(selectedChat, store.selectChatRoomID));
-  // }, [store.selectChatRoomID]);.allMessage
-
   return (
     <>
       <ReactPlayer

@@ -57,40 +57,15 @@ export default class JwtService {
         return response;
       },
       (error) => {
-        // ** const { config, response: { status } } = error
         const { config, response } = error;
         const originalRequest = config;
         console.log("error", error);
 
-        // ** if (status === 401) {
         if (response) {
           console.log("response", response);
           if (response.status === 401) {
             console.log('logout: 57')
             messageService.sendMessage("Logout");
-
-            // if (!this.isAlreadyFetchingAccessToken) {
-            //   this.isAlreadyFetchingAccessToken = true
-            //   this.refreshToken().then(r => {
-            //     this.isAlreadyFetchingAccessToken = false
-
-            //     // ** Update accessToken in localStorage
-            //     this.setToken(r.data.accessToken)
-            //     this.setRefreshToken(r.data.refreshToken)
-
-            //     this.onAccessTokenFetched(r.data.accessToken)
-            //   })
-            // }
-            // const retryOriginalRequest = new Promise(resolve => {
-            //   this.addSubscriber(accessToken => {
-            //     // ** Make sure to assign accessToken according to your response.
-            //     // ** Check: https://pixinvent.ticksy.com/ticket/2413870
-            //     // ** Change Authorization header
-            //     originalRequest.headers.Authorization = `${this.jwtConfig.tokenType} ${accessToken}`
-            //     resolve(this.axios(originalRequest))
-            //   })
-            // })
-            // return retryOriginalRequest
           }
           else if (response.status === 403) {
             const data = {
@@ -189,13 +164,13 @@ export default class JwtService {
   }
 
   clearRoomMessages(room_id) {
-    return axios.post(`${this.jwtConfig.clearRoomMessagesEndpoint}${room_id}`);
+    console.log({
+      headers: {...headers.headers, Authorization: "Bearer " + this.getRefreshToken()},
+    })
+    return axios.post(`${this.jwtConfig.clearRoomMessagesEndpoint}${room_id}`, {}, {
+      headers: {...headers.headers, Authorization: "Bearer " + this.getRefreshToken()},
+    });
   }
-
-  // loadSettingsInfo() {
-  //   return axios.get(this.jwtConfig.loadConfigurationsInfoEndpoint);
-  // }
-
   updateSettingsInfo(...args) {
     return axios.post(this.jwtConfig.updateConfigurationsInfoEndpoint, ...args);
   }
@@ -205,7 +180,12 @@ export default class JwtService {
   }
 
   createRoom(...args) {
-    return axios.post(this.jwtConfig.createRoomEndpoint, ...args, headers);
+    console.log(args, {
+      headers: {...headers.headers, Authorization: "Bearer " + this.getRefreshToken()},
+    });
+    return axios.post(this.jwtConfig.createRoomEndpoint, ...args, {
+      headers: {...headers.headers, Authorization: "Bearer " + this.getRefreshToken()},
+    });
   }
 
   createRoomWithImg(...args) {

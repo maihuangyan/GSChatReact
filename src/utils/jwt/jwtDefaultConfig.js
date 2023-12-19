@@ -12,7 +12,7 @@ export const jwtDefaultConfig = {
   updateAdvisorInfoEndpoint: `${process.env.REACT_APP_BASE_API_URL}/user/update_profile`,
   updateAdvisorPhotoEndpoint: `${process.env.REACT_APP_BASE_API_URL}/user/update_photo`,
 
-  clearRoomMessagesEndpoint: `${process.env.REACT_APP_BASE_API_URL}/message/clear_room_messages/`,
+  clearRoomMessagesEndpoint: `${process.env.REACT_APP_BASE_API_URL}/message/clear_messages/`,
   getOnlineListEndpoint: `${process.env.REACT_APP_BASE_API_URL}/online/list`,
 
   getRoomListEndpoint: `${process.env.REACT_APP_BASE_API_URL}/room`,

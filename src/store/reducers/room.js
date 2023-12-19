@@ -4,7 +4,7 @@ import { isMessageSeen, sortMessages } from "utils/common";
 
 // ** Initial State
 const initialState = {
-    chats: [],
+    rooms: [],
     selectedRoom: {},
     unreadCount: [],
 };
@@ -12,19 +12,18 @@ const initialState = {
 const persistConfig = {
     key: "rooms",
     storage,
-    whitelist: ["chats", "selectedRoom", "unreadCount"], // place to select which state you want to persist
+    whitelist: ["rooms", "selectedRoom", "unreadCount"], // place to select which state you want to persist
 };
 
 const roomReducer = (state = initialState, action) => {
-    let chats;
+    let rooms;
     switch (action.type) {
         case "GET_ROOM_LIST":
-            return { ...state, chats: action.data };
-
+            return { ...state, rooms: action.data };
         case "CREATE_ROOM":
-            chats = [...state.chats];
-            chats.push(action.data);
-            return { ...state, chats };
+            rooms = [...state.rooms];
+            rooms.push(action.data);
+            return { ...state, rooms };
 
         case "SELECT_ROOM":
             return { ...state, selectedRoom: action.data };
@@ -38,24 +37,71 @@ const roomReducer = (state = initialState, action) => {
         case "RESET_UNREAD_MESSAGE_COUNT":
             return resetUnreadMessageCount(state, action.data);
 
+        case "INSERT_ROOM_USER" :
+            const roomUser = action.data;
+            // console.log('INSERT_ROOM_USER', roomUser);
+            rooms = state.rooms;
+            let room = findRoom(rooms, roomUser.room_id);
+            let selectedRoom = state.selectedRoom;
+            if (room) {
+                room = updateRoomUser(room, roomUser.user_id, roomUser);
+                rooms = updateRoom(rooms, roomUser.room_id, room);
+                if (room.id == selectedRoom.id) {
+                    selectedRoom = room;
+                }
+            }
+            // console.log({ ...state, rooms, selectedRoom });
+            return { ...state, rooms, selectedRoom }
         default:
             return state;
     }
 };
 
-const resetUnreadMessageCount = (state, data) => {
+const findRoom = (rooms, room_id) => {
+    if (!rooms) return null;
+    for (let i = 0; i < rooms.length; i++) {
+        if (rooms[i].id == room_id) return rooms[i];
+    }
+    return null;
+}
 
-    if (!data.unread_count) {
+const updateRoom = (rooms, room_id, update) => {
+    for (let i = 0; i < rooms.length; i++) {
+        if (rooms[i].id == room_id) {
+            rooms[i] = update;
+            return rooms;
+        }
+    }
+    rooms.push(update);
+    return rooms;
+}
+
+const updateRoomUser = (room, user_id, update) => {
+    if (room.room_users) {
+        for (let i = 0; i < room.room_users.length; i++) {
+            if (room.room_users[i].user_id == user_id) {
+                room.room_users[i] = update;
+                return room;
+            }
+        }
+        room.room_users.push(update);
+        return room;
+    } else {
+        room.room_users = [update];
+        return room;
+    }
+}
+
+const resetUnreadMessageCount = (state, data) => {
+    if (data.unread_count == null) {
         return state;
     }
 
-    const chats = [...state.chats];
-    for (let i = 0; i < state.chats.length; i++) {
-        const room = { ...chats[i] };
-        if (room.id == data.room_id) {
-            room.unread_count = data.unreadCount;
-            chats[i] = room;
-            return { ...state, chats: chats }
+    const rooms = [...state.rooms];
+    for (let i = 0; i < rooms.length; i++) {
+        if (rooms[i].id == data.room_id) {
+            rooms[i].unread_count = data.unread_count;
+            return { ...state, rooms: rooms }
         }
     }
 
@@ -78,15 +124,17 @@ const calculateUnSeenMessagesCount = (messages) => {
 const updateLatestMessage = (state, messages) => {
     if (messages.length === 0) return state;
 
-    const chats = [...state.chats];
-    for (let i = 0; i < state.chats.length; i++) {
-        const room = { ...chats[i] };
+    // console.log('update latest room', state.selectedRoom);
+    const rooms = [...state.rooms];
+    const selectedRoom = state.selectedRoom;
+    for (let i = 0; i < state.rooms.length; i++) {
         const latestMessage = sortMessages(messages)[0];
-        if (room.id == latestMessage.room_id && (!room.last_message || room.last_message.created_at < latestMessage.created_at)) {
-            room.last_message = latestMessage
-            room.unread_count += calculateUnSeenMessagesCount(messages);
-            chats[i] = room;
-            return { ...state, chats: chats }
+        if (rooms[i].id == latestMessage.room_id && (!rooms[i].last_message || rooms[i].last_message.created_at < latestMessage.created_at)) {
+            rooms[i].last_message = latestMessage;
+            if (selectedRoom && rooms[i].id != selectedRoom.id) {
+                rooms[i].unread_count++;
+            }
+            return { ...state, rooms: rooms }
         }
     }
 

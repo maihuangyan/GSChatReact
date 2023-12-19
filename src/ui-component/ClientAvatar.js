@@ -105,15 +105,17 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           color={status ? "success" : "warning"}
           badgeContent=""
+          overlap="circular"
           variant="dot"
           sx={{
             "& .MuiBadge-dot": {
-              margin: "3px",
-              height: "5px",
-              minWidth: "5px",
+              visibility: status ? 'visible' : 'hidden',
+              height: "10px",
+              width: '10px',
+              borderRadius: '5px'
             },
           }}
-        >
+      >
           <Avatar {...stringAvatar(name)} alt={name} src={avatar} />
         </Badge>
       ) : (
@@ -122,12 +124,14 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
             anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             color={status ? "success" : "warning"}
             badgeContent=""
+            overlap="circular"
             variant="dot"
             sx={{
               "& .MuiBadge-dot": {
-                margin: "3px",
-                height: "5px",
-                minWidth: "5px",
+                visibility: status ? 'visible' : 'hidden',
+                height: "10px",
+                width: '10px',
+                borderRadius: '5px'
               },
             }}
           >

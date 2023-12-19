@@ -2,7 +2,7 @@ import socket_io from "socket.io-client"
 import { createContext, useCallback, useEffect, useState, useContext } from "react"
 import useJwt from "utils/jwt/useJwt"
 import { useDispatch, useSelector } from "react-redux"
-import { getRoomList, selectRoom, updateRoomLastMessage } from "store/actions/room"
+import { getRoomList, insertRoomUser, selectRoom, updateRoomLastMessage } from "store/actions/room"
 import { reduxDeleteMessages, reduxInsertMessages, reduxUpdateMessages } from "store/actions/messages"
 import OneSignal from 'react-onesignal';
 import { isMessageSeen, nowSecs, randomString } from "utils/common"
@@ -63,6 +63,7 @@ const SocketProvider = ({ children }) => {
       .getOnlineList()
       .then((res) => {
         if (res.data.ResponseCode == 0) {
+          // console.log('online list', res.data.ResponseResult);
           setOnlineUsers(res.data.ResponseResult)
 
           setTimeout(() => {
@@ -76,10 +77,12 @@ const SocketProvider = ({ children }) => {
       .catch((err) => (console.log(err)));
   }
 
-  const getRoomOnlineStatus = (room_id) => {
-    for (let roomUser of onlineUsers) {
-      if (roomUser.room_id == room_id && roomUser.user_id != useJwt.getUserID()) {
-        return true;
+  const getRoomOnlineStatus = (room) => {
+    if (room && room.room_users.length > 0) {
+      for (let roomUser of room.room_users) {
+        for (let onlineUser of onlineUsers) {
+          if (roomUser.user_id != useJwt.getUserID() && roomUser.user_id == onlineUser.user_id) return true;
+        }        
       }
     }
     return false;
@@ -115,7 +118,9 @@ const SocketProvider = ({ children }) => {
       const online_users = [...onlineUsers];
       for (let i = 0; i < online_users.length; i++) {
         const room_user = online_users[i];
-        if (room_user.room_id == userLeft.room_id &&
+        // console.log('user left', room_user, userLeft);
+        if (userLeft == null) return;
+        if (room_user.token == userLeft.token &&
           room_user.token == userLeft.token) {
           online_users.splice(i, 1);
           break;
@@ -135,7 +140,7 @@ const SocketProvider = ({ children }) => {
     (typing) => {
       // received typing
       //console.log('typing', typing)
-      setScrollToBottom(!scrollToBottom);
+      setScrollToBottom(false);
       setSoundPlayers(false)
 
       if (typing.user_id != useJwt.getUserID()) {
@@ -148,14 +153,14 @@ const SocketProvider = ({ children }) => {
   const handleSocketNewMessage = useCallback(
     (message) => {
       // console.log('new message', message);
-      // console.log('new messages', [message])
-      setScrollToBottom(!scrollToBottom);
       if (message.user_id == useJwt.getUserID()) {
         updateMessages([message])
+        setScrollToBottom(true);
         setSoundPlayers(false)
       }
       else {
         addMessages([message]);
+        setScrollToBottom(true);
         setSoundPlayers(true)
       }
     },
@@ -167,6 +172,12 @@ const SocketProvider = ({ children }) => {
       // updated message
       // console.log('updated messages', messages)
       // updateMessages(messages);
+    }, []
+  );
+
+  const handleSocketOpenMessage = useCallback(
+    (message) => {
+      openMessage(message);
     }, []
   );
 
@@ -182,11 +193,12 @@ const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (socket) {
       // subscribe to socket events
+      socket.on("newUser", handleSocketNewUser);
+      socket.on("userLeft", handleSocketUserLeft);
       socket.on("typing", handleSocketTyping);
       socket.on("newMessage", handleSocketNewMessage);
       socket.on("updateMessage", handleSocketUpdateMessage);
-      socket.on("newUser", handleSocketNewUser);
-      socket.on("userLeft", handleSocketUserLeft);
+      socket.on("openMessage", handleSocketOpenMessage);
       socket.on("deleteMessage", handleSocketDeleteMessage);
     }
 
@@ -231,11 +243,11 @@ const SocketProvider = ({ children }) => {
   }, [])
 
   const getUser = (user_id) => {
-    //console.log('users', users);
+    // console.log('users', users);
     if (!users) return null;
 
     for (let user of users) {
-      if (user.id == user_id) {
+      if (user.user_id == user_id) {
         return user;
       }
     }
@@ -245,13 +257,25 @@ const SocketProvider = ({ children }) => {
 
   const updateTyping = (room_id, user_id, typing) => {
     const user = getUser(user_id)
-    //console.log(user_id, user)
+    // console.log(user_id, typing)
     if (user) {
       let ot = { ...opponentTyping };
-      ot[room_id] = {
-        user,
-        typing
-      };
+      // console.log("before", ot[room_id]);
+      if (typing) {
+        if (!ot[room_id] || ot[room_id].length == 0) {
+          ot[room_id] = [user_id];
+        } else {
+          if (ot[room_id].indexOf(user_id) == -1) {
+            ot[room_id].push(user_id);
+          }
+        }
+      } else {
+        if (ot[room_id]) {
+          let idx = ot[room_id].indexOf(user_id);
+          if (idx != -1) ot[room_id].splice(idx, 1);
+        }
+      }
+      // console.log("after", ot[room_id]);
       setOpponentTyping(ot);
     }
   };
@@ -284,7 +308,7 @@ const SocketProvider = ({ children }) => {
       reply_on,
       forward_message,
     };
-
+    // console.log(newMessage)
     socket.emit("sendMessage", newMessage);
   };
 
@@ -300,14 +324,15 @@ const SocketProvider = ({ children }) => {
       message: messageText,
     };
 
-    console.log('update message', updateMessage);
+    // console.log('update message', updateMessage);
     socket.emit("updateMessage", updateMessage);
   };
 
-  const socketOpenMessage = (message_ids) => {
+  const socketOpenMessage = (message_id) => {
+    // console.log('socketOpenMessage', message_id, useJwt.getToken());
     socket.emit("openMessage", {
       token: useJwt.getToken(),
-      message_ids: message_ids,
+      message_id: message_id,
     });
   };
 
@@ -328,15 +353,14 @@ const SocketProvider = ({ children }) => {
 
   const addMessages = (messages) => {
     if (messages.length == 0) return;
-    //console.log('messages', messages)
 
     dispatch(updateRoomLastMessage(messages))
     dispatch(reduxInsertMessages(messages))
 
-  }
+  } 
 
   const updateMessages = (messages) => {
-    console.log('updateMessages', messages)
+    // console.log('updateMessages', messages)
     if (messages.length == 0) return;
 
     dispatch(updateRoomLastMessage(messages))
@@ -362,6 +386,10 @@ const SocketProvider = ({ children }) => {
     dispatch(reduxDeleteMessages(message_ids))
 
     setScrollToBottom(!scrollToBottom);
+  }
+
+  const openMessage = (message) => {
+    dispatch(insertRoomUser(message));
   }
 
   const getLatestMessage = (messages) => {

@@ -134,7 +134,7 @@ export const sortMessages = (messages) => {
 
 export const isMessageSeen = (message) => {
   const mUserId = useJwt.getUserID()
-  if (message.user_id != mUserId) {
+  if (message.user_id == mUserId) {
     return true;
   }
 
@@ -153,23 +153,22 @@ export const isMessageSeen = (message) => {
   return seenStatus;
 }
 
-export const isMessageSeenByOther = (message) => {
-  if (!message.seens || message.seens.length == 0) {
-    return false;
-  }
+export const isMessageSeenByOther = (message, room) => {
+  if (!message || message.id == 0) return false;
 
-  let seenStatus = false;
-  for (let seen of message.seens) {
-    if (seen.user_id != useJwt.getUserID() && seen.status == 1) {
-      seenStatus = true;
-      break;
+  if (!room || !room.room_users || room.room_users.length == 0) return false;
+  // console.log(message, room)
+  for (let i = 0; i < room.room_users.length; i++) {
+    const room_user = room.room_users[i];
+    if (room_user.user_id != useJwt.getUserID()) {
+      if (room_user.seen_message_id >= message.id) return true;
     }
   }
 
-  return seenStatus;
+  return false;
 }
 
-export const getSeenStatus = (message) => {
+export const getSeenStatus = (message, room) => {
   if (!message.id) {
     return 'Sending... ';
   }
@@ -178,7 +177,7 @@ export const getSeenStatus = (message) => {
     return 'Edited, ';
   }
 
-  if (isMessageSeenByOther(message)) {
+  if (isMessageSeenByOther(message, room)) {
     return 'Seen, ';
   }
   return 'Sent, ';
@@ -222,6 +221,7 @@ export const getUserDisplayName = (user) => {
 }
 
 export const getRoomDisplayName = (room) => {
+  // console.log(room)
   if (!room) {
     return "Unkown Room";
   }
@@ -230,11 +230,11 @@ export const getRoomDisplayName = (room) => {
     if (room.group == 1) {
       return room.name;
     }
-    if (!room.room_users || !Array.isArray(room.room_users) || room.room_users.length == 0) {
+    if (!room.opponents || !Array.isArray(room.opponents) || room.opponents.length == 0) {
       return room.name;
     }
 
-    for (let user of room.room_users) {
+    for (let user of room.opponents) {
       if (user.id != useJwt.getUserID()) {
         return getUserDisplayName(user);
       }

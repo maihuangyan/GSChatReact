@@ -97,7 +97,7 @@ export default function Information({ CircleButton1, setShowInformation }) {
                             Room Member
                         </Typography>
                         {
-                            selectedRoom.room_users.map(item => {
+                            selectedRoom.opponents.map(item => {
                                 return <Box key={item.id}
                                     sx={{
                                         display: "flex",

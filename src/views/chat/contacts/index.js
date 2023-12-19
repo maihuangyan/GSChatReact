@@ -12,7 +12,7 @@ import {
 // ** Store & Actions
 import { useDispatch, useSelector } from "react-redux";
 import { resetUnreadCount, selectRoom } from "store/actions/room";
-import { getMessages } from "store/actions/messages";
+import { getLastMessages, getMessages } from "store/actions/messages";
 
 import { styled, useTheme } from "@mui/material/styles";
 
@@ -44,56 +44,41 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
     const dispatch = useDispatch();
     const userData = useSelector((state) => state.auth.userData);
     const [active, setActive] = useState({});
-    const [chats, setChats] = useState([]);
-    const [count, setCount] = useState(1);
-
+    const [rooms, setRooms] = useState([]);
 
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
-    const scrollToBottom = useContext(SocketContext).scrollToBottom
 
     useEffect(() => {
-        setChats([...store.chats])
+        setRooms([...store.rooms])
     }, [store]);
 
     useEffect(() => {
         if (selectedRoom && selectedRoom.id) {
-            setActive({ type: "chat", id: selectedRoom.id, unread_count: selectedRoom.unread_count });
+            setActive({ type: "chat", id: selectedRoom.id });
         } else {
             setActive({});
         }
-    }, []);
+    }, [selectedRoom]);
 
     useEffect(() => {
-        setCount(1)
-    }, [selectedRoom]);
+        if (active) {
+            dispatch(resetUnreadCount({ room_id: active.id, unread_count: 0 }))
+        }
+    }, [updateOnlineStatus])
 
     // ** Handles User Chat Click
     const handleUserClick = (type, room) => {
-
         dispatch(selectRoom(room));
-        setActive({ type, id: room.id, unread_count: room.unread_count });
-        if (!messages.messages[room.id]) {
-            dispatch(getMessages({ id: room.id }))
-        }
-        dispatch(resetUnreadCount({ room_id: room.id, unread_count: room.unread_count, unreadCount: 0 }))
+        setActive({ type, id: room.id, room });
+        dispatch(getMessages({ id: room.id }))
+        dispatch(resetUnreadCount({ room_id: room.id, unread_count: 0 }))
     };
-
-    useEffect(() => {
-        if (scrollToBottom) {
-            if (active.unread_count) {
-                dispatch(resetUnreadCount({ room_id: active.id, unread_count: active.unread_count, unreadCount: 0 }))
-            } else {
-                dispatch(resetUnreadCount({ room_id: active.id, unread_count: count, unreadCount: 0 }))
-            }
-            setCount(count + 1)
-        }
-    }, [scrollToBottom])
 
     // ** Renders Chat
     const renderChats = () => {
-        if (chats && chats.length) {
-            chats.sort(function (b, a) {
+        if (rooms && rooms.length) {
+            rooms.sort(function (b, a) {
                 if (a.last_message && b.last_message) {
                     return a.last_message.created_at > b.last_message.created_at ? 1 : -1
                 }
@@ -107,8 +92,7 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
                     return -1
                 }
             })
-            return chats.map((item) => {
-                //if (!item.chat.lastMessage) return null;
+            return rooms.map((item) => {
                 let time = "";
                 if (item.last_message) {
                     time = formatChatTime(
@@ -149,7 +133,7 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
                                         ? item.photo_url
                                         : ""
                                 }
-                                status={getRoomOnlineStatus(item.id)}
+                                status={getRoomOnlineStatus(item)}
                                 name={getRoomDisplayName(item)}
                             />
                             <Box sx={{ ml: 2, width: "100%" }}>
@@ -169,7 +153,7 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
                                     }
                                     sx={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}
                                 >
-                                    {item.last_message?.type == 0 ? item.last_message?.message : (item.last_message?.type == 1 ? "image" : (item.last_message?.type == 2 ? "file" : item.last_message?.forward_message.message))}
+                                    {item.last_message ? (item.last_message?.type == 0 ? item.last_message?.message : (item.last_message?.type == 1 ? "image" : (item.last_message?.type == 2 ? "file" : "Forwared message"))) : ""}
                                 </Typography>
                             </Box>
                         </Box>
@@ -194,7 +178,7 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
                                     </Box>
                                 )}
                                 <Box sx={{ width: "100%" }}>
-                                    <Badge sx={{ width: "100%" }} color="primary" badgeContent={active.id === item.id ? 0 : item.unread_count} overlap="circular">
+                                    <Badge sx={{ width: "100%" }} color="error" badgeContent={item.unread_count} overlap="circular">
                                     </Badge>
                                 </Box>
                             </Box>
@@ -206,12 +190,6 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
             return <Typography sx={{ minHeight: "50vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>No Contacts</Typography>;
         }
     };
-
-    // console.log(store, "6666 ")
-
-    // useEffect(() => {
-    //     dispatch(getRoomList())
-    // }, [isChatClick])
 
     return (
         <>

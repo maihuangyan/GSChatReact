@@ -15,7 +15,6 @@ export const getRoomList = () => {
               connected_users.push(user)
             }
           }
-          // console.log(data,"room")
           dispatch({
             type: "CONNECTED_USER_LIST",
             data: connected_users,
@@ -42,6 +41,12 @@ export const createRoom = (user) => {
     });
   };
 };
+
+export const insertRoomUser = (roomUser) => {
+  return (dispatch) => {
+    dispatch({ type: "INSERT_ROOM_USER", data: roomUser });
+  }
+}
 
 // ** Select Chat
 export const selectRoom = (room) => {

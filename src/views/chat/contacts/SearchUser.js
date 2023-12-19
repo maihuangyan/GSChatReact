@@ -96,10 +96,9 @@ export default function SearchUser({ setIsChatClick }) {
 
     const createPrivate = (item) => {
         useJwt
-            .createRoom({ name: item.username, opponent_ids: item.id, group: 0 })
+            .createRoom({ name: item.id, opponent_ids: item.id, group: 0 })
             .then((res) => {
                 if (res.data.ResponseCode == 0) {
-                    console.log(res.data, "66666")
                     setIsChatClick(false)
                 }
                 else {

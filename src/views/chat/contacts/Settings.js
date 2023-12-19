@@ -108,7 +108,7 @@ export default function Settings({ setIsSettingClick }) {
         console.log('data', data)
     };
 
-    console.log(userData)
+    // console.log(userData)
     return (
         <>
             {
@@ -414,7 +414,10 @@ export default function Settings({ setIsSettingClick }) {
                                     </Grid>
                                 </Box>
                                 <Box sx={{ mt: 4, width: { xs: "50%", sm: "30%", md: "20%" }, display: "flex", justifyContent: "center" }}>
-                                    <CircleButton onClick={() => (messageService.sendMessage("Logout"), socket.emit("logout", useJwt.getToken()))} >
+                                    <CircleButton onClick={() => {
+                                            socket.emit("logout", useJwt.getToken());
+                                            messageService.sendMessage("Logout");
+                                        }} >
                                         Log Out
                                     </CircleButton>
                                 </Box>

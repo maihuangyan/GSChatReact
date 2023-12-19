@@ -23,6 +23,12 @@ const messagesReducer = (state = initialState, action) => {
         case "DELETE_MESSAGES":
             return deleteMessages(state, action.data);
 
+        case "CLEAR_ROOM_MESSAGES":
+            const stateMessages = { ...state.messages }
+            const room_id = action.data;
+            console.log('CLEAR_ROOM_MESSAGES', state, action);
+            stateMessages[room_id] = [];
+            return { ...state, messages: stateMessages }
         default:
             return state;
     }
