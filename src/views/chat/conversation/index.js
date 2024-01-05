@@ -94,6 +94,7 @@ const Conversation = () => {
     const socketUpdateMessage = useContext(SocketContext).socketUpdateMessage
     const socketDeleteMessage = useContext(SocketContext).socketDeleteMessage
     const scrollToBottom = useContext(SocketContext).scrollToBottom
+    const soundPlayers = useContext(SocketContext).soundPlayers
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
     let reachedTop = false;
@@ -493,6 +494,13 @@ const Conversation = () => {
             // setNewMessageCount(newMessageCount + 1)
         }
     }, [roomChange, scrollToBottom])
+
+
+    useEffect(() => {
+        if (soundPlayers) {
+            actisToBottom({ send: true, isOneself: true });
+        }
+    }, [soundPlayers])
     // console.log(selectedRoom, "6666 ")
 
     const [navSearch, setNavSearch] = useState(false)
@@ -514,7 +522,6 @@ const Conversation = () => {
         setSearchCount(0)
         setSearchMessages([])
         actisToTop()
-        actisToBottom({ send: true, isOneself: true });
     }, [roomChange, roomMessage])
 
     const handleSearch = (e) => {
