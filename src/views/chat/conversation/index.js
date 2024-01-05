@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useContext, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useJwt from "utils/jwt/useJwt";
-import { formatChatDate, formatChatTime, getRoomDisplayName, getUserDisplayName, isMessageSeen } from "utils/common";
+import { formatChatDate, getRoomDisplayName, getUserDisplayName, isMessageSeen } from "utils/common";
 import typingAnim from 'assets/images/anim/typing.gif'
 
 import {
@@ -77,48 +77,6 @@ const CircleButton3 = styled(Button)(({ theme }) => ({
     },
 }));
 
-//Date seperator
-const DateSeperator = ({ value }) => {
-    const theme = useTheme();
-    return (
-        <Box sx={{ display: "flex", alignItems: "center", py: 2 }}>
-            <Box
-                sx={{ background: theme.palette.common.silverBar, flexGrow: 1, height: "1px" }}
-            />
-            <Box
-                variant="span"
-                sx={{
-                    borderRadius: "15px",
-                    padding: "3px 16px",
-                    color: theme.palette.text.icon
-                }}
-            >
-                {value}
-            </Box>
-            <Box
-                sx={{ background: theme.palette.common.silverBar, flexGrow: 1, height: "1px" }}
-            />
-        </Box>
-    );
-};
-
-//Time seperator
-const TimeSeperator = ({ content }) => {
-    const theme = useTheme();
-    return (
-        <Box sx={{ m: 0, textAlign: "right" }}>
-            {/* <IconClock size={14} stroke={1} color={theme.palette.text.dark} />{" "} */}
-            <Typography
-                variant="span"
-                color={theme.palette.text.icon}
-                sx={{ verticalAlign: "text-bottom", fontSize: "12px" }}
-            >
-                {content}
-            </Typography>
-        </Box>
-    );
-};
-
 const Conversation = () => {
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const userData = useSelector((state) => state.auth.userData);
@@ -126,7 +84,7 @@ const Conversation = () => {
 
     const [isTyping, setIsTyping] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [roomMessages, setRoomMessages] = useState([]);
+    const [roomMessage, setRoomMessages] = useState([]);
 
     const opponentTyping = useContext(SocketContext).opponentTyping
 
@@ -138,6 +96,7 @@ const Conversation = () => {
     const scrollToBottom = useContext(SocketContext).scrollToBottom
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
+    let reachedTop = false;
 
     useEffect(() => {
         // console.log(updateOnlineStatus)
@@ -152,18 +111,33 @@ const Conversation = () => {
     const [scrollTop, setScrollTop] = useState(0);
     const [roomChange, setRoomChange] = useState(false);
     const [typingText, setTypingText] = useState('');
+    const [isToTop, setIsToTop] = useState(false);
 
     // ** Scroll to chat bottom
     const actisToBottom = (send) => {
+        // console.log('called');
         const chatContainer = chatArea.current;
         if (chatContainer) {
-            if (send) {
-                setTimeout(() => {
-                    chatContainer.scrollTo({
-                        top: chatContainer.scrollHeight,
-                        behavior: "smooth"
-                    })
-                }, 50)
+            if (send.send) {
+                if (send.isOneself) {
+                    setTimeout(() => {
+                        chatContainer.scrollTo({
+                            top: chatContainer.scrollHeight,
+                            behavior: "smooth"
+                        })
+                    }, 200)
+                    console.log("6666")
+                } else {
+                    if (chatContainer.scrollTop + chatContainer.offsetHeight + 500 >= chatContainer.scrollHeight) {
+                        setTimeout(() => {
+                            chatContainer.scrollTo({
+                                top: chatContainer.scrollHeight,
+                                behavior: "smooth"
+                            })
+                        }, 50)
+                        console.log("8888")
+                    }
+                }
             } else {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             }
@@ -171,6 +145,7 @@ const Conversation = () => {
     };
 
     const actisToTop = () => {
+
         const chatContainer = chatArea.current;
         if (chatContainer) {
             if (chatContainer.scrollTop + chatContainer.offsetHeight + 1 >= chatContainer.scrollHeight) {
@@ -178,27 +153,55 @@ const Conversation = () => {
             } else {
                 setShowToButton(true)
             }
+
+            let roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
+
             chatContainer.onscroll = () => {
-                // console.log(chatContainer.offsetHeight)
+
                 if (chatContainer.scrollTop + chatContainer.offsetHeight + 1 >= chatContainer.scrollHeight) {
                     setShowToButton(false)
                 } else {
                     setShowToButton(true)
                 }
                 if (chatContainer.scrollTop == 0 && chatContainer.scrollHeight > chatContainer.clientHeight) {
-                    // setScrollTop(scrollTop + 1)
-                    let roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
-                    dispatch(getMessages({ id: selectedRoom.id, last_message_id: roomMessages[0].id }))
+
+                    let LastScrollTop = chatContainer.scrollHeight - chatContainer.scrollTop 
+
+                    let options = {
+                        top: chatContainer.scrollHeight - LastScrollTop,
+                        behavior: 'smooth'
+                    }
+                    if (!isToTop) {
+                        setScrollTop(scrollTop + 1)
+
+                        setTimeout(() => {
+                            chatContainer.scrollTo(0, chatContainer.scrollHeight - LastScrollTop);
+                        }, 10);
+
+                    } else {
+                        reachedTop = true;
+                        console.log("9999")
+                        setIsToTop(false)
+
+                        dispatch(getMessages({ id: selectedRoom.id, last_message_id: roomMessages[0].id }))
+                        setTimeout(() => {
+                            chatContainer.scrollTo(options)
+                        }, 10);
+                    }
                 }
             }
         }
     };
+
+
+
 
     // ** If user chat is not empty scrollToBottom
     useEffect(() => {
         // console.log('room changed', selectedRoom);
         if (selectedRoom) {
             let roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
+
             if (roomMessages.length > 0) {
                 roomMessages = roomMessages.sort((a, b) => (a.created_at > b.created_at ? 1 : a.created_at < b.created_at ? -1 : 0));
                 const roomUsers = selectedRoom.room_users;
@@ -214,7 +217,20 @@ const Conversation = () => {
                     socketOpenMessage(roomMessages[roomMessages.length - 1].id);
                 }
             }
-            formatChatData(roomMessages);
+
+            let chatLogs = []
+            if (scrollTop) {
+                chatLogs = roomMessages.filter((item, index) => index >= roomMessages.length - (30 + (10 * scrollTop)) - newMessageCount)
+                setRoomMessages(formatChatData(chatLogs))
+
+            } else {
+                chatLogs = roomMessages.filter((item, index) => index >= roomMessages.length - 30 - newMessageCount)
+                setRoomMessages(formatChatData(chatLogs))
+            }
+
+            if (roomMessages.length == chatLogs.length + 10) {
+                setIsToTop(true)
+            }
         }
         setIsReply(false);
         setImg(null)
@@ -230,6 +246,7 @@ const Conversation = () => {
         setNewMessageCount(0)
         setRoomChange(!roomChange)
         actisToTop()
+        setIsToTop(false)
     }, [selectedRoom])
 
     const formatChatData = (message) => {
@@ -237,12 +254,6 @@ const Conversation = () => {
         let formattedChatLog = [];
         let chatLogs = [...message]
         chatLogs = chatLogs.sort((a, b) => (a.created_at > b.created_at ? 1 : a.created_at < b.created_at ? -1 : 0));
-        // let chatLogs = []
-        // if (scrollTop) {
-        //     chatLogs = chatLog.filter((item, index) => index >= message.length - (30 + (10 * scrollTop)) - newMessageCount)
-        // } else {
-        //     chatLogs = chatLog.filter((item, index) => index >= message.length - 30 - newMessageCount)
-        // }
         let msgGroup = {
             sentDate: formatChatDate(chatLogs[0].created_at * 1000), // for date divide,
             senderId: chatLogs[0].user_id,
@@ -277,8 +288,7 @@ const Conversation = () => {
                 formattedChatLog.push(msgGroup);
             }
         }
-        
-        setRoomMessages(formattedChatLog)
+        return formattedChatLog
     }
 
     // ** Sends New Msg
@@ -300,6 +310,7 @@ const Conversation = () => {
                 socketSendTyping(selectedRoom.id, 0);
                 setIsTyping(false);
                 setIsReply(false)
+                actisToBottom({ send: true, isOneself: true })
             }
         }
     };
@@ -464,15 +475,23 @@ const Conversation = () => {
     const [showInformation, setShowInformation] = useState(false)
 
     useEffect(() => {
-        actisToBottom(false);
+        actisToBottom({ send: false, isOneself: false });
+        // console.log('reachedTop', reachedTop);
+        // if (!reachedTop) {
+        //     actisToBottom(false);
+        // }
     }, [showInformation, roomChange])
 
     useEffect(() => {
         if (scrollToBottom) {
-            actisToBottom(true);
+            actisToBottom({ send: true, isOneself: false });
+            // console.log('reachedTop', reachedTop);
+            // if (!reachedTop) {
+            //     actisToBottom(true);
+            // }
             setNewMessageCount(newMessageCount + 1)
         }
-    }, [scrollToBottom, roomChange, roomMessages])
+    }, [roomChange, scrollToBottom])
     // console.log(selectedRoom, "6666 ")
 
     const [navSearch, setNavSearch] = useState(false)
@@ -485,14 +504,16 @@ const Conversation = () => {
 
     useEffect(() => {
         let handleMessages = []
-        roomMessages.map(item => handleMessages.push(item.messages))
+        if (roomMessage) {
+            roomMessage.map(item => handleMessages.push(item.messages))
+        }
         setAllSearchMessages(handleMessages.flat(Infinity))
         setNavSearch(false)
         setQuery("")
         setSearchCount(0)
         setSearchMessages([])
         actisToTop()
-    }, [roomChange, roomMessages])
+    }, [roomChange, roomMessage])
 
     const handleSearch = (e) => {
         let newSearchMessages = allSearchMessages.filter(item => item.message.toLowerCase().includes(e.target.value.toLowerCase()))
@@ -701,19 +722,15 @@ const Conversation = () => {
                             ref={chatArea}
                             sx={{
                                 height: `calc( 100vh - ${isReply ? "209px" : "163px"})`
-                                , p: 2, pt: 3, pb: 9, borderRadius: 0, overflowY: "auto", position: "relative"
+                                , p: 2, pt: 3, pb: 9, borderRadius: 0, overflowY: "auto", position: "relative", mb: { xs: 9, md: 0 }
                             }}
                         >
                             <MessagesBox
-                                roomMessages={roomMessages}
+                                roomMessages={roomMessage ? roomMessage : []}
                                 ReplyClick={ReplyClick}
                                 EditClick={EditClick}
                                 CopyClick={CopyClick}
                                 DeleteClick={DeleteClick}
-                                formatChatTime={formatChatTime}
-                                isGroup={selectedRoom.group}
-                                TimeSeperator={TimeSeperator}
-                                DateSeperator={DateSeperator}
                                 replyScroll={replyScroll}
                                 setIsForward={setIsForward}
                                 setForwardMessage={setForwardMessage}
@@ -723,7 +740,7 @@ const Conversation = () => {
                     </Box>
 
                     <Box sx={{ position: "absolute", bottom: 0, width: "100%", background: "#101010" }}>
-                        <Box sx={{ position: "absolute", left: "10px", top: "-50px", opacity: showToButton ? 1 : 0, transition: "0.3s all" }} onClick={() => actisToBottom(true)}>
+                        <Box sx={{ position: "absolute", left: "10px", top: "-50px", opacity: showToButton ? 1 : 0, transition: "0.3s all" }} onClick={() => actisToBottom({ send: true, isOneself: true })}>
                             <CircleButton3>
                                 <IconArrowNarrowDown size={20} stroke={2} />
                             </CircleButton3>

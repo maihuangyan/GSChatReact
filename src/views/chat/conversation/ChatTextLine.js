@@ -14,18 +14,18 @@ import { IconChevronDown, IconArrowForwardUp, IconDownload } from "@tabler/icons
 import ClientAvatar from "ui-component/ClientAvatar";
 
 import { Image } from 'antd';
-import { getUserDisplayName, getSeenStatus } from 'utils/common';
+import { getUserDisplayName, getSeenStatus, formatChatTime } from 'utils/common';
 
 import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
 import { useSelector } from 'react-redux';
 
 
-function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, TimeSeperator, formatChatTime, i, replyScroll, setIsForward, setForwardMessage }) {
+function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, i, replyScroll, setIsForward, setForwardMessage }) {
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const theme = useTheme();
     const [isForwardModal, setIsForwardModal] = useState(false);
-    const [imgHeight, setImgHeight] = useState(800);
+    const [imgHeight, setImgHeight] = useState(500);
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -60,12 +60,30 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
 
     }
     useEffect(() => {
-        setTimeout(() => {
-            setImgHeight("auto")
-        }, 500)
+        // setImgHeight("auto")
+        // setTimeout(() => {
+        //     setImgHeight("auto")
+        // }, 500)
     }, [message])
 
-    // console.log(message.message)
+    // console.log(message)
+
+    //Time seperator
+    const TimeSeperator = ({ content }) => {
+        const theme = useTheme();
+        return (
+            <Box sx={{ m: 0, textAlign: "right" }}>
+                {/* <IconClock size={14} stroke={1} color={theme.palette.text.dark} />{" "} */}
+                <Typography
+                    variant="span"
+                    color={theme.palette.text.icon}
+                    sx={{ verticalAlign: "text-bottom", fontSize: "12px" }}
+                >
+                    {content}
+                </Typography>
+            </Box>
+        );
+    };
     return (
         <Box>
             <Forward isForwardModal={isForwardModal} setIsForwardModal={setIsForwardModal} setIsForward={setIsForward} />
@@ -142,21 +160,21 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     </Grid>
                                     <Grid item>
                                         {
-                                            message.forward_message.type == 0 ? 
-                                            (<Typography variant="body1" sx={{ p: "0 8px" }}>
-                                                {message.forward_message.message}
-                                            </Typography>)
-                                            :
-                                            (<Box sx={{ cursor: "pointer" }} >
-                                                <Image
-                                                    id={message.forward_message.files[0].id}
-                                                    alt={message.forward_message.files[0].thumbnail}
-                                                    src={message.forward_message.files[0].thumbnail}
-                                                    placeholder={true}
-                                                    loading='lazy'
-                                                    height={imgHeight}
-                                                />
-                                            </Box>)
+                                            message.forward_message.type == 0 ?
+                                                (<Typography variant="body1" sx={{ p: "0 8px" }}>
+                                                    {message.forward_message.message}
+                                                </Typography>)
+                                                :
+                                                (<Box sx={{ cursor: "pointer" }} >
+                                                    <Image
+                                                        id={message.forward_message.files[0].id}
+                                                        alt={message.forward_message.files[0].thumbnail}
+                                                        src={message.forward_message.files[0].thumbnail}
+                                                        placeholder={true}
+                                                        loading='lazy'
+                                                        height={imgHeight}
+                                                    />
+                                                </Box>)
                                         }
                                     </Grid>
                                 </Grid>
@@ -281,21 +299,21 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     </Grid>
                                     <Grid item>
                                         {
-                                            message.forward_message.type == 0 ? 
-                                            (<Typography variant="body1" sx={{ p: "0 8px" }}>
-                                                {message.forward_message.message}
-                                            </Typography>)
-                                            :
-                                            (<Box sx={{ cursor: "pointer" }} >
-                                                <Image
-                                                    id={message.forward_message.files[0].id}
-                                                    alt={message.forward_message.files[0].thumbnail}
-                                                    src={message.forward_message.files[0].thumbnail}
-                                                    placeholder={true}
-                                                    loading='lazy'
-                                                    height={imgHeight}
-                                                />
-                                            </Box>)
+                                            message.forward_message.type == 0 ?
+                                                (<Typography variant="body1" sx={{ p: "0 8px" }}>
+                                                    {message.forward_message.message}
+                                                </Typography>)
+                                                :
+                                                (<Box sx={{ cursor: "pointer" }} >
+                                                    <Image
+                                                        id={message.forward_message.files[0].id}
+                                                        alt={message.forward_message.files[0].thumbnail}
+                                                        src={message.forward_message.files[0].thumbnail}
+                                                        placeholder={true}
+                                                        loading='lazy'
+                                                        height={imgHeight}
+                                                    />
+                                                </Box>)
                                         }
                                     </Grid>
                                 </Grid>
@@ -353,4 +371,4 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
     )
 }
 
-export default memo(ChatTextLine)
+export default React.memo(ChatTextLine)

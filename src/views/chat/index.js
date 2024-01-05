@@ -14,6 +14,7 @@ import 'animate.css';
 const Chat = (props) => {
   const soundPlayers = useContext(SocketContext).soundPlayers
   const selectedRoom = useSelector((state) => state.room.selectedRoom);
+  const rooms = useSelector((state) => state.room.rooms);
   const [roomTab, setRoomTab] = useState(false)
   const [isChatClick, setIsChatClick] = useState(false);
   const [isSettingClick, setIsSettingClick] = useState(false);
@@ -26,6 +27,10 @@ const Chat = (props) => {
       setRoomTab(false)
     }
   }, [roomTab, selectedRoom])
+
+  // useEffect(() => {
+  //   console.log(rooms)
+  // }, [])
 
   return (
     <>

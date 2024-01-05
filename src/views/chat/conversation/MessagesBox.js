@@ -4,18 +4,44 @@ import {
 } from "@mui/material";
 import useJwt from "utils/jwt/useJwt";
 import { useSelector } from "react-redux";
+import { useTheme } from "@mui/material/styles";
 
 import ChatTextLine from './ChatTextLine';
 
 let firstDate = ""
-function MessagesBox({ roomMessages, ReplyClick, EditClick, CopyClick, DeleteClick, TimeSeperator, formatChatTime, replyScroll, setIsForward, setForwardMessage, DateSeperator }) {
+function MessagesBox({ roomMessages, ReplyClick, EditClick, CopyClick, DeleteClick, replyScroll, setIsForward, setForwardMessage }) {
 
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
 
+    //Date seperator
+    const DateSeperator = ({ value }) => {
+        const theme = useTheme();
+        return (
+            <Box sx={{ display: "flex", alignItems: "center", py: 2 }}>
+                <Box
+                    sx={{ background: theme.palette.common.silverBar, flexGrow: 1, height: "1px" }}
+                />
+                <Box
+                    variant="span"
+                    sx={{
+                        borderRadius: "15px",
+                        padding: "3px 16px",
+                        color: theme.palette.text.icon
+                    }}
+                >
+                    {value}
+                </Box>
+                <Box
+                    sx={{ background: theme.palette.common.silverBar, flexGrow: 1, height: "1px" }}
+                />
+            </Box>
+        );
+    };
+    
     return (
         <>
             {
-                roomMessages.map((item, index) => {
+                roomMessages.length ? roomMessages.map((item, index) => {
                     const showDateDivider = firstDate != item.sentDate;
                     firstDate = item.sentDate;
                     const right = item.senderId == useJwt.getUserID()
@@ -36,9 +62,7 @@ function MessagesBox({ roomMessages, ReplyClick, EditClick, CopyClick, DeleteCli
                                     EditClick={EditClick}
                                     CopyClick={CopyClick}
                                     DeleteClick={DeleteClick}
-                                    formatChatTime={formatChatTime}
                                     isGroup={selectedRoom.group}
-                                    TimeSeperator={TimeSeperator}
                                     replyScroll={replyScroll}
                                     setIsForward={setIsForward}
                                     setForwardMessage={setForwardMessage}
@@ -46,10 +70,10 @@ function MessagesBox({ roomMessages, ReplyClick, EditClick, CopyClick, DeleteCli
                             ))}
                         </Box>
                     )
-                })
+                }) : ""
             }
         </>
     )
 }
 
-export default memo(MessagesBox)
+export default React.memo(MessagesBox)

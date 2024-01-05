@@ -55,6 +55,7 @@ export default function SearchUser({ setIsChatClick }) {
     const theme = useTheme();
     const user = useSelector((state) => state.auth);
     const allUser = useSelector((state) => state.users.connected_users);
+    const users = useSelector((state) => state.users);
 
     const goBackButton = () => {
         setIsChatClick(false);
@@ -158,6 +159,7 @@ export default function SearchUser({ setIsChatClick }) {
         }
     };
 
+
     const onSubmit = () => {
         if (groupFiles) {
             useJwt
@@ -190,9 +192,16 @@ export default function SearchUser({ setIsChatClick }) {
 
     useEffect(() => {
         const map = new Map();
-        const newArr = allUser.filter(item => !map.has(item.id) && map.set(item.id, item));
-        setConnectedUsers(newArr.filter(item => item.id != user.userData.id))
-    }, [])
+        if (searchUser.users) {
+            console.log(searchUser.users)
+
+            const newArr = searchUser.users.filter(item => !map.has(item.id) && map.set(item.id, item));
+            setConnectedUsers(newArr.filter(item => item.id != user.userData.id))
+        }
+
+    }, [searchUser])
+
+
 
     const selectUserClick = (id) => {
         let user = selectUser.filter(item => item == id);

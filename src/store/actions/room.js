@@ -1,4 +1,5 @@
 import useJwt from "utils/jwt/useJwt";
+import { getMessages } from "store/actions/messages";
 
 // ** Get all Data
 export const getRoomList = () => {
@@ -24,6 +25,9 @@ export const getRoomList = () => {
             type: "GET_ROOM_LIST",
             data,
           });
+          data.forEach((item, index) => {
+            dispatch(getMessages({ id: item.id }))
+          })
         } else {
           console.log(res.data.ResponseCode);
         }
