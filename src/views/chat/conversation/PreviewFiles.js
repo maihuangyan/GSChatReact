@@ -82,9 +82,10 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
             })
             .catch((err) => console.error(err))
 
-        setTimeout(() => {
-            actionScrollToBottom(true)
-        }, 3000)
+        // setTimeout(() => {
+        //     console.log("444")
+        //     actionScrollToBottom(true)
+        // }, 3000)
         setMsg("")
         setIsPreviewFiles(false)
     }

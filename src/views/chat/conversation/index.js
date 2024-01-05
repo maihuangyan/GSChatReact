@@ -126,7 +126,7 @@ const Conversation = () => {
                             behavior: "smooth"
                         })
                     }, 200)
-                    console.log("6666")
+                    // console.log("6666")
                 } else {
                     if (chatContainer.scrollTop + chatContainer.offsetHeight + 500 >= chatContainer.scrollHeight) {
                         setTimeout(() => {
@@ -135,7 +135,7 @@ const Conversation = () => {
                                 behavior: "smooth"
                             })
                         }, 50)
-                        console.log("8888")
+                        // console.log("8888")
                     }
                 }
             } else {
@@ -165,7 +165,7 @@ const Conversation = () => {
                 }
                 if (chatContainer.scrollTop == 0 && chatContainer.scrollHeight > chatContainer.clientHeight) {
 
-                    let LastScrollTop = chatContainer.scrollHeight - chatContainer.scrollTop 
+                    let LastScrollTop = chatContainer.scrollHeight - chatContainer.scrollTop
 
                     let options = {
                         top: chatContainer.scrollHeight - LastScrollTop,
@@ -311,6 +311,7 @@ const Conversation = () => {
                 setIsTyping(false);
                 setIsReply(false)
                 actisToBottom({ send: true, isOneself: true })
+                setNewMessageCount(newMessageCount + 1)
             }
         }
     };
@@ -489,7 +490,7 @@ const Conversation = () => {
             // if (!reachedTop) {
             //     actisToBottom(true);
             // }
-            setNewMessageCount(newMessageCount + 1)
+            // setNewMessageCount(newMessageCount + 1)
         }
     }, [roomChange, scrollToBottom])
     // console.log(selectedRoom, "6666 ")
@@ -513,6 +514,7 @@ const Conversation = () => {
         setSearchCount(0)
         setSearchMessages([])
         actisToTop()
+        actisToBottom({ send: true, isOneself: true });
     }, [roomChange, roomMessage])
 
     const handleSearch = (e) => {
