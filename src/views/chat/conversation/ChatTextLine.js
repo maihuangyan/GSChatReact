@@ -15,16 +15,18 @@ import ClientAvatar from "ui-component/ClientAvatar";
 
 import { Image } from 'antd';
 import { getUserDisplayName, getSeenStatus, formatChatTime } from 'utils/common';
+import { LoaderContext } from "utils/context/ProgressLoader";
+import axios from "axios";
 
 import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
 import { useSelector } from 'react-redux';
 
-function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, i, replyScroll, setIsForward, setForwardMessage }) {
+function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, i, replyScroll, setIsForward, setForwardMessage, chatArea }) {
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const theme = useTheme();
     const [isForwardModal, setIsForwardModal] = useState(false);
-    const [imgHeight, setImgHeight] = useState(0);
+    const [imgHeight, setImgHeight] = useState("auto");
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -58,14 +60,24 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
     const downloadFile = (e) => {
 
     }
-    useEffect(() => {
-        // setImgHeight("auto")
-        setTimeout(() => {
-            setImgHeight("100%")
-        }, 50)
-    }, [message])
+    // useEffect(() => {
+    //     // setImgHeight("auto")
+    //     setTimeout(() => {
+    //         setImgHeight("auto")
+    //     }, 50)
+    // }, [message])
 
     // console.log(message)
+
+    const imgLoad = () => {
+        // const chatContainer = chatArea.current;
+        // if (chatContainer) {
+        //     chatContainer.scrollTo({
+        //         top: chatContainer.scrollHeight,
+        //         behavior: "smooth"
+        //     })
+        // }
+    }
 
     //Time seperator
     const TimeSeperator = ({ content }) => {
@@ -122,7 +134,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                 </Grid>
                             ) : ((message.files && message.files.length > 0) ? (
                                 (message.type == 1) ?
-                                    (<Box sx={{ cursor: "pointer"}} >
+                                    (<Box sx={{ cursor: "pointer" }} >
                                         <Image
                                             id={message.files[0].id}
                                             alt={message.files[0].thumbnail}
@@ -130,6 +142,8 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                             placeholder={true}
                                             loading='lazy'
                                             height={imgHeight}
+                                            onError={() => console.log("eeee")}
+                                            onLoad={imgLoad}
                                         />
                                     </Box>) : (
                                         <Box>
@@ -173,6 +187,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                                         placeholder={true}
                                                         loading='lazy'
                                                         height={imgHeight}
+                                                        onLoad={imgLoad}
                                                     />
                                                 </Box>)
                                         }
@@ -270,6 +285,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                             placeholder={true}
                                             loading='lazy'
                                             height={imgHeight}
+                                            onLoad={imgLoad}
                                         />
                                     </Box>) : (
                                         <Box>
@@ -313,6 +329,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                                         placeholder={true}
                                                         loading='lazy'
                                                         height={imgHeight}
+                                                        onLoad={imgLoad}
                                                     />
                                                 </Box>)
                                         }

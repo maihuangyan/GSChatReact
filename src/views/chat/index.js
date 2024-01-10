@@ -8,6 +8,7 @@ import SearchUser from "./contacts/SearchUser";
 import Settings from "./contacts/Settings";
 import 'animate.css';
 import Loadable from "ui-component/Loadable";
+import { Outlet } from "react-router-dom";
 
 const Contacts = Loadable(lazy(() => import('./contacts')));
 const Conversation = Loadable(lazy(() => import('./conversation')));
@@ -78,6 +79,7 @@ const Chat = (props) => {
             }
           }}
         >
+          <Outlet />
           <Conversation />
         </Grid>
         {

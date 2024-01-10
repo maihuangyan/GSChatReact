@@ -66,6 +66,7 @@ function MessagesBox({ roomMessages, ReplyClick, EditClick, CopyClick, DeleteCli
                                     replyScroll={replyScroll}
                                     setIsForward={setIsForward}
                                     setForwardMessage={setForwardMessage}
+                                    chatArea={chatArea}
                                 />
                             ))}
                         </Box>
