@@ -95,7 +95,8 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                 display: isPreviewFiles ? "flex" : "none",
                 flexDirection: "column",
                 width: "100%",
-                height: { xs: "auto", sm: "auto", md: "100%" },
+                // height: { xs: "auto", sm: "auto", md: "100%" },
+                height: "100%",
                 position: "absolute",
                 top: 0,
                 left: 0,
@@ -122,7 +123,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                 </Typography>
             </Box>
 
-            <Typography component="div"
+            <Box
                 sx={{
                     display: "flex",
                     justifyContent: "space-around",
@@ -142,7 +143,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                     /> : (isVideo ? <IconMovie size={80} stroke={2} /> : <IconFile size={80} stroke={2} />)
                 }
 
-            </Typography>
+            </Box>
 
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <FormControl fullWidth variant="outlined" sx={{ mr: 1 }}>

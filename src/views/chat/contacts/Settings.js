@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import {
     Box,
     Paper,
@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import Block from "ui-component/Block";
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons";
+import { Upload } from 'antd';
 import { useSelector } from "react-redux"
 import { styled } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
@@ -24,6 +25,7 @@ import ClientAvatar from "ui-component/ClientAvatar";
 import { useForm, Controller } from "react-hook-form"
 import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlined from "@mui/icons-material/VisibilityOffOutlined";
+import { LoaderContext } from "utils/context/ProgressLoader";
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50px",
@@ -70,6 +72,7 @@ export default function Settings({ setIsSettingClick }) {
     const goBackButton = () => {
         setIsSettingClick(false);
     }
+    const showToast = useContext(LoaderContext).showToast
 
     const [rePass, setRePass] = useState(false)
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -107,6 +110,54 @@ export default function Settings({ setIsSettingClick }) {
     const onSubmit = (data) => {
         console.log('data', data)
     };
+
+    const [profileAvatar, setProfileAvatar] = useState("")
+    const [profileFiles, setProfileFiles] = useState(null)
+
+    const props = {
+        name: 'file',
+        headers: {
+            authorization: 'authorization-text',
+        },
+        beforeUpload: {
+            function() {
+                return false;
+            }
+        },
+        showUploadList: false,
+        maxCount: 1,
+        style: { border: "none" },
+        onChange(file) {
+            const fileReader = new FileReader();
+            fileReader.onload = () => {
+                if (file.file.type.split("/")[0] !== "image") {
+                    showToast("error", "This file is not supported")
+                    return
+                } else {
+                    setProfileFiles(file.file)
+                    setProfileAvatar(fileReader.result)
+                }
+            }
+            fileReader.readAsDataURL(file.file);
+        },
+    };
+
+    useEffect(() => {
+        console.log(profileFiles)
+        // if(profileFiles){
+        //     useJwt
+        //         .createRoomWithImg()
+        //         .then((res) => {
+        //             if (res.data.ResponseCode == 0) {
+        //                 console.log(res.data, "7777")
+        //             }
+        //             else {
+        //                 console.log(res.data.ResponseMessage)
+        //             }
+        //         })
+        //         .catch((err) => console.log(err));
+        // }
+    }, [profileFiles])
 
     // console.log(userData)
     return (
@@ -366,15 +417,17 @@ export default function Settings({ setIsSettingClick }) {
                                     <Typography component="div"
                                         sx={{ display: "flex", justifyContent: "center" }}
                                     >
-                                        <ClientAvatar
-                                            avatar={
-                                                userData.photo_url
-                                                    ? userData.photo_url
-                                                    : ""
-                                            }
-                                            name={userData.full_name ? userData.full_name : userData.username}
-                                            size={80}
-                                        />
+                                        <Upload {...props}>
+                                            <ClientAvatar
+                                                avatar={
+                                                    userData.photo_url
+                                                        ? userData.photo_url
+                                                        : ""
+                                                }
+                                                name={userData.full_name ? userData.full_name : userData.username}
+                                                size={80}
+                                            />
+                                        </Upload>
                                     </Typography>
 
                                     <Grid container>
@@ -415,9 +468,9 @@ export default function Settings({ setIsSettingClick }) {
                                 </Box>
                                 <Box sx={{ mt: 4, width: { xs: "50%", sm: "30%", md: "20%" }, display: "flex", justifyContent: "center" }}>
                                     <CircleButton onClick={() => {
-                                            socket.emit("logout", useJwt.getToken());
-                                            messageService.sendMessage("Logout");
-                                        }} >
+                                        socket.emit("logout", useJwt.getToken());
+                                        messageService.sendMessage("Logout");
+                                    }} >
                                         Log Out
                                     </CircleButton>
                                 </Box>

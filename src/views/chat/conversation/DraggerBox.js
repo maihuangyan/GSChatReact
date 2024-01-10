@@ -1,14 +1,18 @@
-import React, { useEffect } from 'react'
+import React, { useEffect ,useContext} from 'react'
 import {
     Box,
 } from "@mui/material";
 
 import { Upload } from 'antd';
+import { LoaderContext } from "utils/context/ProgressLoader";
+
 
 const { Dragger } = Upload;
 
 export default function DraggerBox({ draggerFile, setUploadFiles, setImg, setIsPreviewFiles, setDraggerFile }) {
 
+
+    const showToast = useContext(LoaderContext).showToast
     useEffect(() => {
         const draggerStyle = document.querySelector(".ant-upload-wrapper")
         draggerStyle.style.height = "100%"
@@ -30,9 +34,15 @@ export default function DraggerBox({ draggerFile, setUploadFiles, setImg, setIsP
         onChange(file) {
             const fileReader = new FileReader();
             fileReader.onload = () => {
-                setUploadFiles(file.file)
-                setImg(fileReader.result)
-                setIsPreviewFiles(true)
+                console.log(file.file.type.split("/"))
+                if (file.file.type.split("/")[1] == "x-msdownload") {
+                    showToast("error", "This file is not supported")
+                    return
+                } else {
+                    setUploadFiles(file.file)
+                    setImg(fileReader.result)
+                    setIsPreviewFiles(true)
+                }
             }
             fileReader.readAsDataURL(file.file);
             setDraggerFile(false)

@@ -40,6 +40,7 @@ import { Upload } from 'antd';
 import { selectRoomClear } from "store/actions/room";
 import { clearRoomMessages } from "store/actions/messages";
 import { getMessages } from "store/actions/messages";
+import { LoaderContext } from "utils/context/ProgressLoader";
 
 const CircleButton1 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -81,7 +82,7 @@ const Conversation = () => {
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const userData = useSelector((state) => state.auth.userData);
     const store = useSelector((state) => state.messages);
-
+    const showToast = useContext(LoaderContext).showToast
     const [isTyping, setIsTyping] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [roomMessage, setRoomMessages] = useState([]);
@@ -432,9 +433,16 @@ const Conversation = () => {
             uploadStyle.style.padding = "0"
         }
 
-        document.onmouseleave = function (e) {
+        // document.onmouseleave = function (e) {
+        //     console.log("5555")
+        //     setDraggerFile(false)
+        // };
+
+        document.ondragleave = function (e) {
+            e.preventDefault();
             setDraggerFile(false)
         };
+        
         document.ondragover = function (e) {
             e.preventDefault();
             setDraggerFile(true)
@@ -465,9 +473,14 @@ const Conversation = () => {
         onChange(file) {
             const fileReader = new FileReader();
             fileReader.onload = () => {
-                setUploadFiles(file.file)
-                setImg(fileReader.result)
-                setIsPreviewFiles(true)
+                if (file.file.type.split("/")[1] == "x-msdownload") {
+                    showToast("error", "This file is not supported")
+                    return
+                } else {
+                    setUploadFiles(file.file)
+                    setImg(fileReader.result)
+                    setIsPreviewFiles(true)
+                }
             }
             fileReader.readAsDataURL(file.file);
         },

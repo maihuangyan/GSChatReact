@@ -61,9 +61,9 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
     }
     useEffect(() => {
         // setImgHeight("auto")
-        // setTimeout(() => {
-        //     setImgHeight("auto")
-        // }, 500)
+        setTimeout(() => {
+            setImgHeight("auto")
+        }, 500)
     }, [message])
 
     // console.log(message)
@@ -162,14 +162,14 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                         {
                                             message.forward_message.type == 0 ?
                                                 (<Typography variant="body1" sx={{ p: "0 8px" }}>
-                                                    {message.forward_message.message}
+                                                    {message?.forward_message?.message}
                                                 </Typography>)
                                                 :
                                                 (<Box sx={{ cursor: "pointer" }} >
                                                     <Image
-                                                        id={message.forward_message.files[0].id}
-                                                        alt={message.forward_message.files[0].thumbnail}
-                                                        src={message.forward_message.files[0].thumbnail}
+                                                        id={message?.forward_message?.files[0]?.id}
+                                                        alt={message?.forward_message?.files[0]?.thumbnail}
+                                                        src={message?.forward_message?.files[0]?.thumbnail}
                                                         placeholder={true}
                                                         loading='lazy'
                                                         height={imgHeight}

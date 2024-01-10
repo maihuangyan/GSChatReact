@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState , useContext} from 'react'
 import useJwt from "utils/jwt/useJwt";
 
 import {
@@ -25,6 +25,7 @@ import { styled, useTheme } from "@mui/material/styles";
 
 import { getUserDisplayName } from 'utils/common';
 import { useSelector } from "react-redux"
+import { LoaderContext } from "utils/context/ProgressLoader";
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -56,7 +57,7 @@ export default function SearchUser({ setIsChatClick }) {
     const user = useSelector((state) => state.auth);
     const allUser = useSelector((state) => state.users.connected_users);
     const users = useSelector((state) => state.users);
-
+    const showToast = useContext(LoaderContext).showToast
     const goBackButton = () => {
         setIsChatClick(false);
     }
@@ -228,8 +229,14 @@ export default function SearchUser({ setIsChatClick }) {
         onChange(file) {
             const fileReader = new FileReader();
             fileReader.onload = () => {
-                setGroupFiles(file.file)
-                setGroupAvatar(fileReader.result)
+                
+                if (file.file.type.split("/")[0] !== "image") {
+                    showToast("error", "This file is not supported")
+                    return
+                } else {
+                    setGroupFiles(file.file)
+                    setGroupAvatar(fileReader.result)
+                }
             }
             fileReader.readAsDataURL(file.file);
         },
