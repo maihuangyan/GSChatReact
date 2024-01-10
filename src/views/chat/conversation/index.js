@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext, useCallback } from "react";
+import { useState, useEffect, useRef, useContext, useCallback, lazy } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useJwt from "utils/jwt/useJwt";
 import { formatChatDate, getRoomDisplayName, getUserDisplayName, isMessageSeen } from "utils/common";
@@ -29,18 +29,20 @@ import { IconSend, IconDotsVertical, IconLink, IconPhoto, IconArrowLeft, IconSea
 import { SocketContext } from "utils/context/SocketContext";
 
 import ClientAvatar from "ui-component/ClientAvatar";
-import MessagesBox from "./MessagesBox"
-import PreviewFiles from "./PreviewFiles";
-import DraggerBox from "./DraggerBox";
-import ReplyBox from "./ReplyBox";
-import Information from "./Information";
-import ForwardBox from "./ForwardBox";
+import Loadable from "ui-component/Loadable";
 
 import { Upload } from 'antd';
 import { selectRoomClear } from "store/actions/room";
 import { clearRoomMessages } from "store/actions/messages";
 import { getMessages } from "store/actions/messages";
 import { LoaderContext } from "utils/context/ProgressLoader";
+
+const MessagesBox = Loadable(lazy(() => import('./MessagesBox')));
+const PreviewFiles = Loadable(lazy(() => import('./PreviewFiles')));
+const DraggerBox = Loadable(lazy(() => import('./DraggerBox')));
+const ReplyBox = Loadable(lazy(() => import('./ReplyBox')));
+const Information = Loadable(lazy(() => import('./Information')));
+const ForwardBox = Loadable(lazy(() => import('./ForwardBox')));
 
 const CircleButton1 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -430,7 +432,9 @@ const Conversation = () => {
     const handleFilesMove = useCallback(() => {
         if (selectedRoom.id) {
             const uploadStyle = document.querySelector(".ant-upload-btn")
-            uploadStyle.style.padding = "0"
+            if (uploadStyle) {
+                uploadStyle.style.padding = "0"
+            }
         }
 
         // document.onmouseleave = function (e) {
@@ -442,7 +446,7 @@ const Conversation = () => {
             e.preventDefault();
             setDraggerFile(false)
         };
-        
+
         document.ondragover = function (e) {
             e.preventDefault();
             setDraggerFile(true)
@@ -756,6 +760,7 @@ const Conversation = () => {
                                 replyScroll={replyScroll}
                                 setIsForward={setIsForward}
                                 setForwardMessage={setForwardMessage}
+                                chatArea={chatArea}
                             />
 
                         </Paper>

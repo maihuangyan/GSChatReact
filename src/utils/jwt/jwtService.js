@@ -51,8 +51,15 @@ export default class JwtService {
           response.data.ResponseCode == 1000003 ||
           response.data.ResponseCode == 1000004
         ) {
-          console.log('logout: 42')
-          messageService.sendMessage("Logout");
+          if (response.request.responseURL.endsWith(this.jwtConfig.refreshEndpoint)) {
+            console.log('logout: 55')
+            messageService.sendMessage('Logout');
+          }
+          else {
+            this.refreshToken()
+            messageService.sendMessage('Refresh', response.data.data);
+          }
+
         }
         return response;
       },
@@ -65,7 +72,7 @@ export default class JwtService {
           console.log("response", response);
           if (response.status === 401) {
             console.log('logout: 57')
-            messageService.sendMessage("Logout");
+            messageService.sendMessage('Logout');
           }
           else if (response.status === 403) {
             const data = {
@@ -104,7 +111,7 @@ export default class JwtService {
     }
     catch (e) {
       console.log('logout: 120', e);
-      messageService.sendMessage("Logout");
+      messageService.sendMessage('Logout');
     }
   }
 

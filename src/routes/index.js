@@ -3,7 +3,7 @@ import MinimalLayout from "layout/MinimalLayout";
 import { lazy, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { handleLogout } from "store/actions";
+import { handleLogin, handleLogout } from "store/actions";
 
 // project imports
 import Loadable from "ui-component/Loadable";
@@ -26,6 +26,10 @@ const AppRoutes = () => {
     messageService.getMessage().subscribe(message => {
       if (message.text === 'Logout') {
         dispatch(handleLogout())
+      }
+      else if (message.text === 'Refresh') {
+        console.log('message.data', message.data)
+        dispatch(handleLogin(message.data))
       }
     });
   }, [])

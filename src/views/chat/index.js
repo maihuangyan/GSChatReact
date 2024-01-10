@@ -1,14 +1,17 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext , lazy } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Grid } from "@mui/material";
-import Contacts from "./contacts";
-import Conversation from "./conversation";
 import mp from "../../assets/sound.mp3"
 import ReactPlayer from "react-player";
 import { SocketContext } from "utils/context/SocketContext";
 import SearchUser from "./contacts/SearchUser";
 import Settings from "./contacts/Settings";
 import 'animate.css';
+import Loadable from "ui-component/Loadable";
+
+const Contacts = Loadable(lazy(() => import('./contacts')));
+const Conversation = Loadable(lazy(() => import('./conversation')));
+
 
 //Main Component
 const Chat = (props) => {

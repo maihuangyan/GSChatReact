@@ -9,7 +9,7 @@ import { useTheme } from "@mui/material/styles";
 import ChatTextLine from './ChatTextLine';
 
 let firstDate = ""
-function MessagesBox({ roomMessages, ReplyClick, EditClick, CopyClick, DeleteClick, replyScroll, setIsForward, setForwardMessage }) {
+function MessagesBox({ roomMessages, ReplyClick, EditClick, CopyClick, DeleteClick, replyScroll, setIsForward, setForwardMessage , chatArea}) {
 
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
 

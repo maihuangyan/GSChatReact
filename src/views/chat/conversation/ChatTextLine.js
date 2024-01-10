@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, memo } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import {
     Box,
     Typography,
@@ -20,12 +20,11 @@ import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
 import { useSelector } from 'react-redux';
 
-
 function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, i, replyScroll, setIsForward, setForwardMessage }) {
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const theme = useTheme();
     const [isForwardModal, setIsForwardModal] = useState(false);
-    const [imgHeight, setImgHeight] = useState(500);
+    const [imgHeight, setImgHeight] = useState(0);
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -62,8 +61,8 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
     useEffect(() => {
         // setImgHeight("auto")
         setTimeout(() => {
-            setImgHeight("auto")
-        }, 500)
+            setImgHeight("100%")
+        }, 50)
     }, [message])
 
     // console.log(message)
@@ -123,7 +122,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                 </Grid>
                             ) : ((message.files && message.files.length > 0) ? (
                                 (message.type == 1) ?
-                                    (<Box sx={{ cursor: "pointer" }} >
+                                    (<Box sx={{ cursor: "pointer"}} >
                                         <Image
                                             id={message.files[0].id}
                                             alt={message.files[0].thumbnail}
@@ -131,7 +130,8 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                             placeholder={true}
                                             loading='lazy'
                                             height={imgHeight}
-                                        /></Box>) : (
+                                        />
+                                    </Box>) : (
                                         <Box>
                                             {
                                                 filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "word" ? (
@@ -270,7 +270,8 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                             placeholder={true}
                                             loading='lazy'
                                             height={imgHeight}
-                                        /></Box>) : (
+                                        />
+                                    </Box>) : (
                                         <Box>
                                             {
                                                 filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "word" ? (

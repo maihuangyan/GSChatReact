@@ -250,6 +250,10 @@
     justify-content: center;
     align-items: center;
     width: 450px;
+    height: 450px !important;
+    .ant-image-img{
+       object-fit: cover; 
+    }
 }
 
 .ant-modal {
