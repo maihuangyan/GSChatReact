@@ -288,7 +288,7 @@ const SocketProvider = ({ children }) => {
     });
   };
 
-  const socketSendMessage = (room_id, type, message, reply_on, forward_message) => {
+  const socketSendMessage = (room_id, type, message, reply_on, forward_message, description) => {
     const selectedChat = room;
     if (!selectedChat) return;
 
@@ -299,10 +299,11 @@ const SocketProvider = ({ children }) => {
       user_id: userData.id,
       username: userData.username,
       token: useJwt.getToken(),
-      room_id: room_id,
-      local_id: local_id,
-      type: type, // 0: text, 1: image, 2: file
-      message: message,
+      room_id,
+      local_id,
+      type, // 0: text, 1: image, 2: file
+      message,
+      description,
       created_at: nowSecs(),
       updated_at: nowSecs(),
       reply_on,

@@ -145,6 +145,9 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                             onError={() => console.log("eeee")}
                                             onLoad={imgLoad}
                                         />
+                                        <Typography variant="body1" sx={{ p: "2px 8px" }} style={{ whiteSpace: 'break-spaces', paddingTop: message.description ? '5px': '0px'}}>
+                                            {message.description ? message.description : ''}
+                                        </Typography>
                                     </Box>) : (
                                         <Box>
                                             {
@@ -189,6 +192,9 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                                         height={imgHeight}
                                                         onLoad={imgLoad}
                                                     />
+                                                    <Typography variant="body1" sx={{ p: "2px 8px" }} style={{ whiteSpace: 'break-spaces', paddingTop: message.description ? '5px': '0px'}}>
+                                                        {message.description ? message.description : ''}
+                                                    </Typography>
                                                 </Box>)
                                         }
                                     </Grid>
@@ -287,6 +293,9 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                             height={imgHeight}
                                             onLoad={imgLoad}
                                         />
+                                        <Typography variant="body1" sx={{ p: "2px 8px" }} style={{ whiteSpace: 'break-spaces', paddingTop: message.description ? '5px': '0px'}}>
+                                            {message.description ? message.description : ''}
+                                        </Typography>
                                     </Box>) : (
                                         <Box>
                                             {
@@ -331,6 +340,9 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                                         height={imgHeight}
                                                         onLoad={imgLoad}
                                                     />
+                                                    <Typography variant="body1" sx={{ p: "2px 8px" }} style={{ whiteSpace: 'break-spaces', paddingTop: message.description ? '5px': '0px'}}>
+                                                        {message.description ? message.description : ''}
+                                                    </Typography>
                                                 </Box>)
                                         }
                                     </Grid>

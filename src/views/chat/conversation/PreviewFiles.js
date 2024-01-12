@@ -74,7 +74,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                             fileIds += ',' + fileRes.id
                         }
                     }
-                    socketSendMessage(roomId, (isImage ? 1 : 2), fileIds);
+                    socketSendMessage(roomId, (isImage ? 1 : 2), fileIds, 0, 0, msg);
                 }
                 else {
                     console.log(res.data)
