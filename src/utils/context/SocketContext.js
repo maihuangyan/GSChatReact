@@ -310,6 +310,7 @@ const SocketProvider = ({ children }) => {
       forward_message,
     };
     // console.log(newMessage)
+    // console.log(newMessage)
     socket.emit("sendMessage", newMessage);
   };
 
