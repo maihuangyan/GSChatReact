@@ -156,6 +156,11 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                         onChange={(e) => {
                             setMsg(e.target.value)
                         }}
+                        onKeyDown={(e) => {
+                            if (e.key == "Enter") {
+                                handleSendFiles()
+                            }
+                        }}
                         sx={{ color: "white" }}
                         label="Type your title"
                     />
