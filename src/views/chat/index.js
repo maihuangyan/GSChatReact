@@ -1,7 +1,7 @@
-import { useEffect, useState, useContext , lazy } from "react";
+import { useEffect, useState, useContext, lazy, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Grid } from "@mui/material";
-import mp from "../../assets/sound.mp3"
+import mp from "../../assets/sound1.mp3"
 import ReactPlayer from "react-player";
 import { SocketContext } from "utils/context/SocketContext";
 import SearchUser from "./contacts/SearchUser";
@@ -9,10 +9,10 @@ import Settings from "./contacts/Settings";
 import 'animate.css';
 import Loadable from "ui-component/Loadable";
 import { Outlet } from "react-router-dom";
+import AdaptiveImage from "ui-component/AdaptiveImage";
 
 const Contacts = Loadable(lazy(() => import('./contacts')));
 const Conversation = Loadable(lazy(() => import('./conversation')));
-
 
 //Main Component
 const Chat = (props) => {
@@ -23,7 +23,6 @@ const Chat = (props) => {
   const [isChatClick, setIsChatClick] = useState(false);
   const [isSettingClick, setIsSettingClick] = useState(false);
 
-
   useEffect(() => {
     if (selectedRoom.id) {
       setRoomTab(true)
@@ -32,18 +31,31 @@ const Chat = (props) => {
     }
   }, [roomTab, selectedRoom])
 
-  // useEffect(() => {
-  //   console.log(rooms)
-  // }, [])
+  useEffect(() => {
+    if (soundPlayers) {
+      chatAudio()
+    }
+  }, [soundPlayers])
+
+  function chatAudio() {
+    (function (argument) {
+      let src = mp;
+      let audio = new Audio();
+      let playPromise;
+      audio.src = src;
+      playPromise = audio.play();
+      if (playPromise) {
+        playPromise.then(() => {
+          setTimeout(() => {
+            // console.log("done.") 
+          }, audio.duration * 1000);
+        }).catch((e) => { });
+      }
+    })();
+  }
 
   return (
     <>
-      <ReactPlayer
-        playing={soundPlayers}
-        url={mp}
-        controls
-        className="sound"
-      />
       <Grid container
         sx={{
           height: "calc( 100vh )", p: 2, overflowY: "hidden", margin: "0 auto", width: "auto", position: "relative",

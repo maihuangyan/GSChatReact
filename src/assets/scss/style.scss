@@ -245,11 +245,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 450px;
-  max-height: 80vh !important;
+  max-width: 450px;
   .ant-image-img {
     object-fit: cover;
-    max-height: 80vh !important;
   }
 }
 
@@ -269,14 +267,6 @@
 
 .ant-modal-mask {
   background-color: rgba(0, 0, 0, 0.85) !important;
-}
-
-.sound {
-  position: fixed;
-  opacity: 0;
-  width: 10px !important;
-  height: 10px !important;
-  z-index: -10;
 }
 
 .player-mp3 {

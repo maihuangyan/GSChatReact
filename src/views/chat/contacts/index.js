@@ -16,7 +16,7 @@ import { getLastMessages, getMessages } from "store/actions/messages";
 
 import { styled, useTheme } from "@mui/material/styles";
 
-import { formatDateToMonthShort, formatChatTime, getRoomDisplayName, getUserDisplayName } from "utils/common";
+import { formatChatDate, formatChatTime, getRoomDisplayName, getUserDisplayName } from "utils/common";
 import ClientAvatar from "ui-component/ClientAvatar";
 
 import UserAvatar from "./UserAvatar";
@@ -94,14 +94,19 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
             })
             return rooms.map((item) => {
                 let time = "";
+                // let times = "";
                 if (item.last_message) {
                     time = formatChatTime(
                         item.last_message
                             ? +item.last_message.created_at * 1000
                             : new Date().getTime()
                     );
+                    // times = formatChatDate(
+                    //     item.last_message
+                    //         ? +item.last_message.created_at  * 1000
+                    //         : new Date().getTime()
+                    // );
                 }
-
                 return (
                     <Box
                         key={item.id}
@@ -124,7 +129,7 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
                     >
                         <Box sx={{
                             display: "flex",
-                            alignItems: "flex-start",
+                            alignItems: "center",
                             width: "60%",
                         }}>
                             <ClientAvatar
@@ -161,6 +166,8 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
                             <Box sx={{
                                 display: "flex",
                                 flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
                             }}>
 
                                 {time !== "" && (

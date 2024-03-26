@@ -20,10 +20,12 @@ export default class JwtService {
 
   // ** For Refreshing Token
   subscribers = [];
+  
 
   constructor(jwtOverrideConfig) {
     this.jwtConfig = { ...this.jwtConfig, ...jwtOverrideConfig };
 
+    
     // ** Request Interceptor
     axios.interceptors.request.use(
       (config) => {
@@ -46,6 +48,7 @@ export default class JwtService {
     // ** Add request/response interceptor
     axios.interceptors.response.use(
       (response) => {
+
         if (
           response.data.ResponseCode == 1000002 ||
           response.data.ResponseCode == 1000003 ||
@@ -61,6 +64,8 @@ export default class JwtService {
           }
 
         }
+        // console.log(response.data)
+        
         return response;
       },
       (error) => {
@@ -153,7 +158,7 @@ export default class JwtService {
 
   refreshToken() {
     return axios.post(this.jwtConfig.refreshEndpoint, {
-      ...headers, Authorization: "Bearer" + this.getRefreshToken(),
+      ...headers.headers, Authorization: "Bearer " + this.getRefreshToken(),
     });
   }
 

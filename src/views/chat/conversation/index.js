@@ -32,7 +32,7 @@ import ClientAvatar from "ui-component/ClientAvatar";
 import Loadable from "ui-component/Loadable";
 
 import { Upload } from 'antd';
-import { selectRoomClear } from "store/actions/room";
+import { selectRoomClear, selectRoom } from "store/actions/room";
 import { clearRoomMessages } from "store/actions/messages";
 import { getMessages } from "store/actions/messages";
 import { LoaderContext } from "utils/context/ProgressLoader";
@@ -149,7 +149,6 @@ const Conversation = () => {
     };
 
     const actisToTop = () => {
-
         const chatContainer = chatArea.current;
         if (chatContainer) {
             if (chatContainer.scrollTop + chatContainer.offsetHeight + 1 >= chatContainer.scrollHeight) {
@@ -196,8 +195,6 @@ const Conversation = () => {
             }
         }
     };
-
-
 
 
     // ** If user chat is not empty scrollToBottom
@@ -299,6 +296,7 @@ const Conversation = () => {
     const handleSendMsg = (e) => {
         e.preventDefault();
         if (editingMessage) {
+            console.log(editingMessage, "6666")
             socketUpdateMessage(editingMessage, msg)
             setEditingMessage(null);
 
@@ -482,7 +480,8 @@ const Conversation = () => {
                     return
                 } else {
                     setUploadFiles(file.file)
-                    setImg(fileReader.result)
+                    // setImg(fileReader.result)
+                    setImg(URL.createObjectURL(file.file))
                     setIsPreviewFiles(true)
                 }
             }
@@ -743,12 +742,13 @@ const Conversation = () => {
                             </Menu>
                         </Grid>
                     </Grid>
-                    <Box>
+                    <Box id="chat-area">
                         <Paper
                             ref={chatArea}
+
                             sx={{
                                 height: `calc( 100vh - ${isReply ? "209px" : "163px"})`
-                                , p: 2, pt: 3, pb: 9, borderRadius: 0, overflowY: "auto", position: "relative", mb: { xs: 9, md: 0 }
+                                , p: 2, pt: 3, pb: 9, borderRadius: 0, overflowY: "scroll", overflowX: "hidden", position: "relative", mb: { xs: 9, md: 0 }
                             }}
                         >
                             <MessagesBox
@@ -785,7 +785,7 @@ const Conversation = () => {
                                 {
                                     typingText != "" &&
                                     <Box sx={{ position: "absolute", left: "30px", top: "-30px", color: theme.palette.text.disabled, fontWeight: "600" }}>
-                                        {typingText}<img src={typingAnim} style={{ width: "15px", height: "5px", marginLeft: 5 }} />
+                                        {typingText}<img src={typingAnim} style={{ width: "15px", height: "5px", marginLeft: 5 }} alt="typing" />
                                     </Box>
                                 }
                                 <Grid>

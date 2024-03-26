@@ -1,4 +1,4 @@
-import React, { useEffect, useState , useContext} from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import useJwt from "utils/jwt/useJwt";
 
 import {
@@ -24,8 +24,9 @@ import defaultAvatar from "../../../assets/images/defaultImg.jpg";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { getUserDisplayName } from 'utils/common';
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import { LoaderContext } from "utils/context/ProgressLoader";
+import { getRoomList, selectRoom } from "store/actions/room"
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -55,9 +56,13 @@ export default function SearchUser({ setIsChatClick }) {
 
     const theme = useTheme();
     const user = useSelector((state) => state.auth);
+    const rooms = useSelector((state) => state.room.rooms);
     const allUser = useSelector((state) => state.users.connected_users);
     const users = useSelector((state) => state.users);
     const showToast = useContext(LoaderContext).showToast
+    const userData = useSelector((state) => state.auth.userData);
+    const dispatch = useDispatch();
+
     const goBackButton = () => {
         setIsChatClick(false);
     }
@@ -76,7 +81,10 @@ export default function SearchUser({ setIsChatClick }) {
             .searchUsers({ search_key: query, status: 1, page: 0, limit: 0 })
             .then((res) => {
                 if (res.data.ResponseCode == 0) {
-                    setSearchUser(res.data.ResponseResult)
+                    const data = res.data.ResponseResult
+
+                    const handleFilter = data.users?.filter(item => item.id !== userData.id)
+                    setSearchUser({ ...data, users: handleFilter })
                 }
                 else {
                     console.log(res.data.ResponseCode)
@@ -97,17 +105,28 @@ export default function SearchUser({ setIsChatClick }) {
     };
 
     const createPrivate = (item) => {
-        useJwt
-            .createRoom({ name: item.id, opponent_ids: item.id, group: 0 })
-            .then((res) => {
-                if (res.data.ResponseCode == 0) {
-                    setIsChatClick(false)
-                }
-                else {
-                    console.log(res.data.ResponseMessage)
-                }
-            })
-            .catch((err) => console.log(err));
+        let isCreate = rooms.filter(room => !room.group && room.opponents[0].id === item.id)
+
+        if (isCreate.length) {
+            setIsChatClick(false)
+            dispatch(selectRoom(isCreate[0]));
+        } else {
+            useJwt
+                .createRoom({ name: item.id, opponent_ids: item.id, group: 0 })
+                .then((res) => {
+                    if (res.data.ResponseCode == 0) {
+                        dispatch(getRoomList())
+                        dispatch(selectRoom(res.data.ResponseResult));
+                        setIsChatClick(false)
+                    }
+                    else {
+                        console.log(res.data.ResponseMessage)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
+        }
     }
 
     // ** Renders Chat
@@ -194,8 +213,6 @@ export default function SearchUser({ setIsChatClick }) {
     useEffect(() => {
         const map = new Map();
         if (searchUser.users) {
-            console.log(searchUser.users)
-
             const newArr = searchUser.users.filter(item => !map.has(item.id) && map.set(item.id, item));
             setConnectedUsers(newArr.filter(item => item.id != user.userData.id))
         }
@@ -229,7 +246,7 @@ export default function SearchUser({ setIsChatClick }) {
         onChange(file) {
             const fileReader = new FileReader();
             fileReader.onload = () => {
-                
+
                 if (file.file.type.split("/")[0] !== "image") {
                     showToast("error", "This file is not supported")
                     return

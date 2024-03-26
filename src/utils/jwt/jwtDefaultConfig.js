@@ -5,7 +5,7 @@ export const jwtDefaultConfig = {
   forgotPasswordEndpoint: `${process.env.REACT_APP_BASE_API_URL}/auth/forgot_password`,
   resetForgotPasswordEndpoint: `${process.env.REACT_APP_BASE_API_URL}/auth/reset_forgot_password`,
   registerEndpoint: `${process.env.REACT_APP_BASE_API_URL}/auth/register`,
-  refreshEndpoint: "/auth/refresh_token",
+  refreshEndpoint: `${process.env.REACT_APP_BASE_API_URL}/auth/refresh_token`,
   logoutEndpoint: `${process.env.REACT_APP_BASE_API_URL}/auth/logout`,
   resetPasswordEndpoint: `${process.env.REACT_APP_BASE_API_URL}/auth/reset_password`,
   getAllUsersEndpoint: `${process.env.REACT_APP_BASE_API_URL}/user`,

@@ -26,6 +26,7 @@ import { useForm, Controller } from "react-hook-form"
 import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlined from "@mui/icons-material/VisibilityOffOutlined";
 import { LoaderContext } from "utils/context/ProgressLoader";
+import { useNavigate } from 'react-router-dom';
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50px",
@@ -78,6 +79,8 @@ export default function Settings({ setIsSettingClick }) {
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    const navigate = useNavigate()
 
     const { control, handleSubmit } = useForm({
         reValidateMode: "onBlur",
@@ -143,7 +146,7 @@ export default function Settings({ setIsSettingClick }) {
     };
 
     useEffect(() => {
-        console.log(profileFiles)
+        // console.log(profileFiles)
         // if(profileFiles){
         //     useJwt
         //         .createRoomWithImg()
@@ -435,7 +438,7 @@ export default function Settings({ setIsSettingClick }) {
                                             <Typography component="p" variant="settingsInfo">Name</Typography>
                                         </Grid>
                                         <Grid item xs={6} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                            <Typography component="p" variant="settingsInfo1">{userData.full_name ? userData.full_name : userData.username}</Typography>
+                                            <Typography component="p" variant="settingsInfo1">{userData.full_name!== " " ? userData.full_name : userData.username}</Typography>
                                         </Grid>
                                     </Grid>
 
@@ -457,7 +460,7 @@ export default function Settings({ setIsSettingClick }) {
                                         </Grid>
                                     </Grid>
 
-                                    <Grid container sx={{ cursor: "pointer", borderTop: "1px solid #6e6e6e", mt: 1 }} onClick={() => setRePass(true)}>
+                                    <Grid container sx={{ cursor: "pointer", borderTop: "1px solid #6e6e6e", mt: 1 }} onClick={() => navigate(`/reset-password/${userData.id}`)}>
                                         <Grid item xs={6} sm={6} md={6} elevation={6}>
                                             <Typography component="p" variant="settingsInfo">Reset Password</Typography>
                                         </Grid>

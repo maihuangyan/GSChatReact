@@ -9,14 +9,12 @@ import {
     Grid,
     Button
 } from "@mui/material";
+import { Image as Images } from "antd"
 import { useTheme } from "@mui/material/styles";
 import { IconChevronDown, IconArrowForwardUp, IconDownload } from "@tabler/icons";
 import ClientAvatar from "ui-component/ClientAvatar";
 
-import { Image } from 'antd';
 import { getUserDisplayName, getSeenStatus, formatChatTime } from 'utils/common';
-import { LoaderContext } from "utils/context/ProgressLoader";
-import axios from "axios";
 
 import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
@@ -26,7 +24,6 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const theme = useTheme();
     const [isForwardModal, setIsForwardModal] = useState(false);
-    const [imgHeight, setImgHeight] = useState("auto");
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -60,24 +57,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
     const downloadFile = (e) => {
 
     }
-    // useEffect(() => {
-    //     // setImgHeight("auto")
-    //     setTimeout(() => {
-    //         setImgHeight("auto")
-    //     }, 50)
-    // }, [message])
-
     // console.log(message)
-
-    const imgLoad = () => {
-        // const chatContainer = chatArea.current;
-        // if (chatContainer) {
-        //     chatContainer.scrollTo({
-        //         top: chatContainer.scrollHeight,
-        //         behavior: "smooth"
-        //     })
-        // }
-    }
 
     //Time seperator
     const TimeSeperator = ({ content }) => {
@@ -134,21 +114,19 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                 </Grid>
                             ) : ((message.files && message.files.length > 0) ? (
                                 (message.type == 1) ?
-                                    (<Box sx={{ cursor: "pointer" }} >
-                                        <Image
-                                            id={message.files[0].id}
-                                            alt={message.files[0].thumbnail}
-                                            src={message.files[0].thumbnail}
-                                            placeholder={true}
-                                            loading='lazy'
-                                            height={imgHeight}
-                                            onError={() => console.log("eeee")}
-                                            onLoad={imgLoad}
-                                        />
-                                        <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', width: "450px" }}>
-                                            {message.description ? message.description : ''}
-                                        </Typography>
-                                    </Box>) : (
+                                    (
+                                        // <Box sx={{ cursor: "pointer",height:message.files[0].message_id+"px",}} >
+                                        <Box sx={{ cursor: "pointer"}} >
+                                            <Images
+                                                alt={message.files[0].thumbnail}
+                                                src={message.files[0].thumbnail}
+                                                // placeholder={<Box sx={{minHeight:"500px"}}></Box>}
+                                                loading='lazy'
+                                            />
+                                            <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', maxWidth: "450px" }}>
+                                                {message.description ? message.description : ''}
+                                            </Typography>
+                                        </Box>) : (
                                         <Box>
                                             {
                                                 filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "word" ? (
@@ -183,16 +161,13 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                                 </Typography>)
                                                 :
                                                 (<Box sx={{ cursor: "pointer" }} >
-                                                    <Image
-                                                        id={message?.forward_message?.files[0]?.id}
-                                                        alt={message?.forward_message?.files[0]?.thumbnail}
-                                                        src={message?.forward_message?.files[0]?.thumbnail}
+                                                    <Images
+                                                        alt={message?.forward_message.files[0].thumbnail}
+                                                        src={message?.forward_message.files[0].thumbnail}
                                                         placeholder={true}
                                                         loading='lazy'
-                                                        height={imgHeight}
-                                                        onLoad={imgLoad}
                                                     />
-                                                    <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', width: "450px"}} >
+                                                    <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', maxWidth: "450px" }} >
                                                         {message.description ? message.description : ''}
                                                     </Typography>
                                                 </Box>)
@@ -283,17 +258,15 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                 </Grid>
                             ) : ((message.files && message.files.length > 0) ? (
                                 (message.type == 1) ?
-                                    (<Box sx={{ cursor: "pointer" }} >
-                                        <Image
-                                            id={message.files[0].id}
-                                            src={message.files[0].thumbnail}
+                                    (
+                                    // <Box sx={{ cursor: "pointer", minHeight: message.files[0].message_id + "px" }} >
+                                        <Box sx={{ cursor: "pointer"}} >
+                                        <Images
                                             alt={message.files[0].thumbnail}
-                                            placeholder={true}
+                                            src={message.files[0].thumbnail}
                                             loading='lazy'
-                                            height={imgHeight}
-                                            onLoad={imgLoad}
                                         />
-                                        <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', width: "450px" }}>
+                                        <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', maxWidth: "450px" }}>
                                             {message.description ? message.description : ''}
                                         </Typography>
                                     </Box>) : (
@@ -331,16 +304,13 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                                 </Typography>)
                                                 :
                                                 (<Box sx={{ cursor: "pointer" }} >
-                                                    <Image
-                                                        id={message.forward_message.files[0].id}
+                                                    <Images
                                                         alt={message.forward_message.files[0].thumbnail}
                                                         src={message.forward_message.files[0].thumbnail}
                                                         placeholder={true}
                                                         loading='lazy'
-                                                        height={imgHeight}
-                                                        onLoad={imgLoad}
                                                     />
-                                                    <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', width: "450px" }} >
+                                                    <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', maxWidth: "450px" }} >
                                                         {message.description ? message.description : ''}
                                                     </Typography>
                                                 </Box>)

@@ -82,7 +82,7 @@ const SocketProvider = ({ children }) => {
       for (let roomUser of room.room_users) {
         for (let onlineUser of onlineUsers) {
           if (roomUser.user_id != useJwt.getUserID() && roomUser.user_id == onlineUser.user_id) return true;
-        }        
+        }
       }
     }
     return false;
@@ -170,8 +170,8 @@ const SocketProvider = ({ children }) => {
   const handleSocketUpdateMessage = useCallback(
     (messages) => {
       // updated message
-      // console.log('updated messages', messages)
-      // updateMessages(messages);
+      console.log('updated messages', messages)
+      updateMessages(messages);
     }, []
   );
 
@@ -358,10 +358,10 @@ const SocketProvider = ({ children }) => {
     dispatch(updateRoomLastMessage(messages))
     dispatch(reduxInsertMessages(messages))
 
-  } 
+  }
 
   const updateMessages = (messages) => {
-    // console.log('updateMessages', messages)
+    console.log('updateMessages', messages)
     if (messages.length == 0) return;
 
     dispatch(updateRoomLastMessage(messages))

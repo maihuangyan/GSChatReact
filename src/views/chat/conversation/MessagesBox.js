@@ -12,7 +12,7 @@ let firstDate = ""
 function MessagesBox({ roomMessages, ReplyClick, EditClick, CopyClick, DeleteClick, replyScroll, setIsForward, setForwardMessage , chatArea}) {
 
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
-
+    // console.log(roomMessages)
     //Date seperator
     const DateSeperator = ({ value }) => {
         const theme = useTheme();

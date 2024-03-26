@@ -192,7 +192,7 @@ export const isEmpty = (value) => {
     return false
   }
   return true
-} 
+}
 
 export const getUserDisplayName = (user) => {
   if (!user) {
@@ -216,7 +216,7 @@ export const getUserDisplayName = (user) => {
       return user.username
     }
   }
-  
+
   return "Unkown User";
 }
 
@@ -240,6 +240,11 @@ export const getRoomDisplayName = (room) => {
       }
     }
   }
-  
+
   return "Unkown Room";
+}
+
+export const dowImage = () => {
+      let imgs = new Image();
+      console.log(imgs)
 }
