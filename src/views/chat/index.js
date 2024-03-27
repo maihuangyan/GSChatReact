@@ -22,6 +22,7 @@ const Chat = (props) => {
   const [roomTab, setRoomTab] = useState(false)
   const [isChatClick, setIsChatClick] = useState(false);
   const [isSettingClick, setIsSettingClick] = useState(false);
+  const [aaa, setAaa] = useState(0);
 
   useEffect(() => {
     if (selectedRoom.id) {
@@ -34,11 +35,13 @@ const Chat = (props) => {
   useEffect(() => {
     if (soundPlayers) {
       chatAudio()
+      // console.log(aaa,"6666")
     }
   }, [soundPlayers])
 
   function chatAudio() {
-    (function (argument) {
+
+    return (function (argument) {
       let src = mp;
       let audio = new Audio();
       let playPromise;
@@ -47,7 +50,8 @@ const Chat = (props) => {
       if (playPromise) {
         playPromise.then(() => {
           setTimeout(() => {
-            // console.log("done.") 
+            // console.log("done.")
+            setAaa(aaa + 1)
           }, audio.duration * 1000);
         }).catch((e) => { });
       }

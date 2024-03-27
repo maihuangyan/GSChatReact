@@ -64,7 +64,7 @@ export default class JwtService {
           }
 
         }
-        // console.log(response.data)
+        // console.log(response.data,"566666")
         
         return response;
       },

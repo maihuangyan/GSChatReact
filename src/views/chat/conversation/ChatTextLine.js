@@ -14,7 +14,7 @@ import { useTheme } from "@mui/material/styles";
 import { IconChevronDown, IconArrowForwardUp, IconDownload } from "@tabler/icons";
 import ClientAvatar from "ui-component/ClientAvatar";
 
-import { getUserDisplayName, getSeenStatus, formatChatTime } from 'utils/common';
+import { getUserDisplayName, getSeenStatus, formatChatTime, AdaptiveImage } from 'utils/common';
 
 import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
@@ -57,7 +57,6 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
     const downloadFile = (e) => {
 
     }
-    // console.log(message)
 
     //Time seperator
     const TimeSeperator = ({ content }) => {
@@ -113,15 +112,26 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     </Grid>
                                 </Grid>
                             ) : ((message.files && message.files.length > 0) ? (
-                                (message.type == 1) ?
+                                (message.type === 1) ?
                                     (
-                                        // <Box sx={{ cursor: "pointer",height:message.files[0].message_id+"px",}} >
-                                        <Box sx={{ cursor: "pointer"}} >
+                                        <Box sx={{
+                                            cursor: "pointer", maxWidth: {
+                                                xs:"200px",
+                                                sm:"300px",
+                                                md:"450px",
+                                            }, height: {
+                                                xs: `${message.files[0].height * (200 / message.files[0].width).toFixed(4)}px`,
+                                                sm: `${message.files[0].height * (300 / message.files[0].width).toFixed(4)}px`,
+                                                md: `${message.files[0].height * (450 / message.files[0].width).toFixed(3) }px`,
+                                            }
+                                        }} >
                                             <Images
                                                 alt={message.files[0].thumbnail}
                                                 src={message.files[0].thumbnail}
                                                 // placeholder={<Box sx={{minHeight:"500px"}}></Box>}
                                                 loading='lazy'
+                                                width={message.files[0].width + "px"}
+                                                height="100%"
                                             />
                                             <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', maxWidth: "450px" }}>
                                                 {message.description ? message.description : ''}
@@ -257,19 +267,30 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     </Grid>
                                 </Grid>
                             ) : ((message.files && message.files.length > 0) ? (
-                                (message.type == 1) ?
+                                (message.type === 1) ?
                                     (
-                                    // <Box sx={{ cursor: "pointer", minHeight: message.files[0].message_id + "px" }} >
-                                        <Box sx={{ cursor: "pointer"}} >
-                                        <Images
-                                            alt={message.files[0].thumbnail}
-                                            src={message.files[0].thumbnail}
-                                            loading='lazy'
-                                        />
-                                        <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', maxWidth: "450px" }}>
-                                            {message.description ? message.description : ''}
-                                        </Typography>
-                                    </Box>) : (
+                                        <Box sx={{
+                                            cursor: "pointer", maxWidth: {
+                                                xs:"200px",
+                                                sm:"300px",
+                                                md:"450px",
+                                            }, height: {
+                                                xs: `${message.files[0].height * (200 / message.files[0].width).toFixed(4)}px`,
+                                                sm: `${message.files[0].height * (300 / message.files[0].width).toFixed(4)}px`,
+                                                md: `${message.files[0].height * (450 / message.files[0].width).toFixed(3) }px`,
+                                            }
+                                        }} >
+                                            <Images
+                                                alt={message.files[0].thumbnail}
+                                                src={message.files[0].thumbnail}
+                                                loading='lazy'
+                                                width={message.files[0].width + "px"}
+                                                height="100%"
+                                            />
+                                            <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', maxWidth: {xs:"200px",sm:"300px",md:"450px"} }}>
+                                                {message.description ? message.description : ''}
+                                            </Typography>
+                                        </Box>) : (
                                         <Box>
                                             {
                                                 filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "word" ? (

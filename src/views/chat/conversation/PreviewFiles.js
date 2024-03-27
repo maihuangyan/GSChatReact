@@ -56,53 +56,60 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
         }
     };
 
-    const handleSendFiles = () => {
-
-        const formData = new FormData();
-
-        const imgInfo = (url) => {
-            return new Promise((resolve, reject) => {
-                let img = new Image()
-                img.src = url
-                img.onload = () => {
-                    resolve({ width: img.naturalWidth, height: img.naturalHeight })
+    const handleUseJwe = (formData) => {
+        useJwt
+            .uploadFiles(formData)
+            .then((res) => {
+                if (res.data.ResponseCode == 0) {
+                    let fileIds = ''
+                    for (let fileRes of res.data.ResponseResult) {
+                        if (!fileIds) {
+                            fileIds += fileRes.id
+                        }
+                        else {
+                            fileIds += ',' + fileRes.id
+                        }
+                    }
+                    socketSendMessage(roomId, (isImage ? 1 : 2), fileIds, 0, 0, msg);
+                }
+                else {
+                    console.log(res.data)
                 }
             })
-        }
+            .catch((err) => console.error(err))
+        setTimeout(() => {
+            console.log("444")
+            actionScrollToBottom(true)
+        }, 3000)
+        setMsg("")
+        setIsPreviewFiles(false)
+    }
 
-        imgInfo(img).then(res => {
-            if (isImage) formData.append('imgInfo', JSON.stringify(res));
-            formData.append('type', isImage ? 1 : 2);
-            formData.append("files", uploadFiles);
-            useJwt
-                .uploadFiles(formData)
-                .then((res) => {
-                    if (res.data.ResponseCode == 0) {
-                        let fileIds = ''
-                        for (let fileRes of res.data.ResponseResult) {
-                            if (!fileIds) {
-                                fileIds += fileRes.id
-                            }
-                            else {
-                                fileIds += ',' + fileRes.id
-                            }
-                        }
-                        socketSendMessage(roomId, (isImage ? 1 : 2), fileIds, 0, 0, msg);
-                    }
-                    else {
-                        console.log(res.data)
+    const handleSendFiles = () => {
+        const formData = new FormData();
+        if (isImage) {
+            const imgInfo = (url) => {
+                return new Promise((resolve, reject) => {
+                    let img = new Image()
+                    img.src = url
+                    img.onload = () => {
+                        return resolve({ width: img.naturalWidth, height: img.naturalHeight })
                     }
                 })
-                .catch((err) => console.error(err))
+            }
+            imgInfo(img).then(res => {
+                formData.append('imgInfo', JSON.stringify(res));
+                formData.append('type', 1);
+                formData.append("files", uploadFiles);
+                handleUseJwe(formData)
+            })
+        } else {
+            formData.append('type', 2);
+            formData.append("files", uploadFiles);
+            handleUseJwe(formData)
+        }
 
-            setTimeout(() => {
-                console.log("444")
-                actionScrollToBottom(true)
-            }, 3000)
-            setMsg("")
-            setIsPreviewFiles(false)
 
-        })
     }
     return <>
         <Box

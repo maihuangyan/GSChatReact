@@ -244,7 +244,27 @@ export const getRoomDisplayName = (room) => {
   return "Unkown Room";
 }
 
-export const dowImage = () => {
-      let imgs = new Image();
-      console.log(imgs)
+export const AdaptiveImage = (imgInfo) => {
+  let { imgW, imgH } = imgInfo;
+  console.log(imgW,imgH)
+
+  let maxW;
+  document.onresize = (e) => {
+    // console.log(e.target.innerWidth)
+    e.target.innerWidth < 750 ? maxW = 200 : maxW = 450
+  }
+
+  if (imgW < maxW) {
+    return {
+      viewWidth: imgW,
+      viewHeight: imgH,
+    }
+  } else if (imgW > maxW) {
+    let ratio = Number((maxW / imgW).toFixed(2));
+    return {
+      viewWidth: maxW,
+      viewHeight: imgH * ratio,
+    }
+  }
 }
+

@@ -293,9 +293,14 @@
   border-color: #fbc34a;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .ant-image {
-    width: 200px;
-    // height: 250px !important;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 600px) {
+  .ant-image {
+    max-width: 200px;
   }
 }
