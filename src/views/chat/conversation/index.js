@@ -119,7 +119,7 @@ const Conversation = () => {
 
     // ** Scroll to chat bottom
     const actisToBottom = (send) => {
-        // console.log('called');
+        console.log('called');
         const chatContainer = chatArea.current;
         if (chatContainer) {
             if (send.send) {
@@ -435,11 +435,6 @@ const Conversation = () => {
             }
         }
 
-        // document.onmouseleave = function (e) {
-        //     console.log("5555")
-        //     setDraggerFile(false)
-        // };
-
         document.ondragleave = function (e) {
             e.preventDefault();
             setDraggerFile(false)
@@ -473,6 +468,7 @@ const Conversation = () => {
         maxCount: 1,
         style: { border: "none" },
         onChange(file) {
+            console.log(file)
             const fileReader = new FileReader();
             fileReader.onload = () => {
                 if (file.file.type.split("/")[1] == "x-msdownload") {
@@ -480,8 +476,8 @@ const Conversation = () => {
                     return
                 } else {
                     setUploadFiles(file.file)
-                    // setImg(fileReader.result)
-                    setImg(URL.createObjectURL(file.file))
+                    setImg(fileReader.result)
+                    // setImg(URL.createObjectURL(file.file))
                     setIsPreviewFiles(true)
                 }
             }
@@ -816,13 +812,19 @@ const Conversation = () => {
                                                     value={msg}
                                                     multiline={isMultiline}
                                                     onPaste={async (e) => {
-                                                        for (const clipboardItem of e.clipboardData.files) {
-                                                            if (clipboardItem.type.startsWith('image/')) {
+                                                        const clipboardItem = e.clipboardData.files[0]
+                                                        const fileReader = new FileReader();
+                                                        fileReader.onload = () => {
+                                                            if (clipboardItem.type.startsWith("x-msdownload")) {
+                                                                showToast("error", "This file is not supported")
+                                                                return
+                                                            } else {
                                                                 setUploadFiles(clipboardItem)
-                                                                setImg(URL.createObjectURL(clipboardItem))
+                                                                setImg(fileReader.result)
                                                                 setIsPreviewFiles(true)
                                                             }
                                                         }
+                                                        fileReader.readAsDataURL(clipboardItem);
                                                     }}
                                                     onChange={(e) => {
                                                         setMsg(e.target.value);

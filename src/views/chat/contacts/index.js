@@ -48,7 +48,6 @@ const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
 
     const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
-
     useEffect(() => {
         setRooms([...store.rooms])
     }, [store]);
