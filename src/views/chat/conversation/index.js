@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext, useCallback, lazy } from "react";
+import { useState, useEffect, useRef, useContext, useCallback, lazy, useLayoutEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import useJwt from "utils/jwt/useJwt";
 import { formatChatDate, getRoomDisplayName, getUserDisplayName, isMessageSeen } from "utils/common";
@@ -119,7 +119,6 @@ const Conversation = () => {
 
     // ** Scroll to chat bottom
     const actisToBottom = (send) => {
-        console.log('called');
         const chatContainer = chatArea.current;
         if (chatContainer) {
             if (send.send) {
@@ -296,7 +295,6 @@ const Conversation = () => {
     const handleSendMsg = (e) => {
         e.preventDefault();
         if (editingMessage) {
-            console.log(editingMessage, "6666")
             socketUpdateMessage(editingMessage, msg)
             setEditingMessage(null);
 
@@ -490,30 +488,14 @@ const Conversation = () => {
 
     useEffect(() => {
         actisToBottom({ send: false, isOneself: false });
-        // console.log('reachedTop', reachedTop);
-        // if (!reachedTop) {
-        //     actisToBottom(false);
-        // }
-    }, [showInformation, roomChange])
+        console.log(chatArea.current.scrollHeight,"roomChange")
+    }, [showInformation, roomChange,chatArea.current?.scrollHeight])
 
-    useEffect(() => {
-        if (scrollToBottom) {
-            actisToBottom({ send: true, isOneself: false });
-            // console.log('reachedTop', reachedTop);
-            // if (!reachedTop) {
-            //     actisToBottom(true);
-            // }
-            // setNewMessageCount(newMessageCount + 1)
-        }
-    }, [roomChange, scrollToBottom])
-
-
-    useEffect(() => {
-        if (soundPlayers) {
-            actisToBottom({ send: true, isOneself: true });
-        }
-    }, [soundPlayers])
-    // console.log(selectedRoom, "6666 ")
+    // useEffect(() => {
+    //     if (scrollToBottom) {
+    //         actisToBottom({ send: true, isOneself: false });
+    //     }
+    // }, [roomChange, scrollToBottom])
 
     const [navSearch, setNavSearch] = useState(false)
     const [query, setQuery] = useState("");

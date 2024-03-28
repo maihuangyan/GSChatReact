@@ -46,7 +46,7 @@ const App = () => {
 
   return (
     <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={themes()}>
+      <ThemeProvider theme={themes(customization)}>
         <ProgressLoader>
           <SocketProvider>
           <CssBaseline />
