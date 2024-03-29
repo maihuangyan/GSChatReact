@@ -226,6 +226,7 @@ const Conversation = () => {
             } else {
                 chatLogs = roomMessages.filter((item, index) => index >= roomMessages.length - 30 - newMessageCount)
                 setRoomMessages(formatChatData(chatLogs))
+                setRoomChange(!roomChange)
             }
 
             if (roomMessages.length == chatLogs.length + 10) {
@@ -486,7 +487,7 @@ const Conversation = () => {
 
     useEffect(() => {
         actisToBottom({ send: false, isOneself: false });
-    }, [showInformation, roomChange,chatArea.current?.scrollHeight])
+    }, [showInformation, roomChange])
 
     useEffect(() => {
         if (scrollToBottom) {
