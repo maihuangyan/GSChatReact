@@ -466,7 +466,6 @@ const Conversation = () => {
         maxCount: 1,
         style: { border: "none" },
         onChange(file) {
-            console.log(file)
             const fileReader = new FileReader();
             fileReader.onload = () => {
                 if (file.file.type.split("/")[1] == "x-msdownload") {
@@ -475,7 +474,6 @@ const Conversation = () => {
                 } else {
                     setUploadFiles(file.file)
                     setImg(fileReader.result)
-                    // setImg(URL.createObjectURL(file.file))
                     setIsPreviewFiles(true)
                 }
             }
@@ -488,14 +486,13 @@ const Conversation = () => {
 
     useEffect(() => {
         actisToBottom({ send: false, isOneself: false });
-        console.log(chatArea.current.scrollHeight,"roomChange")
     }, [showInformation, roomChange,chatArea.current?.scrollHeight])
 
-    // useEffect(() => {
-    //     if (scrollToBottom) {
-    //         actisToBottom({ send: true, isOneself: false });
-    //     }
-    // }, [roomChange, scrollToBottom])
+    useEffect(() => {
+        if (scrollToBottom) {
+            actisToBottom({ send: true, isOneself: false });
+        }
+    }, [roomChange, scrollToBottom])
 
     const [navSearch, setNavSearch] = useState(false)
     const [query, setQuery] = useState("");
