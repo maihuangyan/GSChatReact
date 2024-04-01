@@ -15,7 +15,7 @@ import NavigationScroll from "layout/NavigationScroll";
 import { SocketProvider } from "./utils/context/SocketContext";
 import { ProgressLoader } from "./utils/context/ProgressLoader";
 import 'animate.css';
-import { useEffect } from "react";
+import { useEffect} from "react";
 import OneSignal from 'react-onesignal';
 
 // ==============================|| APP ||============================== //
@@ -37,7 +37,7 @@ const App = () => {
           OneSignal.Slidedown.promptPush();
         }
         if (OneSignal.Notifications) {
-          OneSignal.Notifications.requestPermission();          
+          OneSignal.Notifications.requestPermission();
         }
       })
       initedOneSignal = true;
@@ -49,10 +49,10 @@ const App = () => {
       <ThemeProvider theme={themes(customization)}>
         <ProgressLoader>
           <SocketProvider>
-          <CssBaseline />
-          <NavigationScroll>
-            <Routes />
-          </NavigationScroll>
+            <CssBaseline />
+            <NavigationScroll>
+              <Routes />
+            </NavigationScroll>
           </SocketProvider>
         </ProgressLoader>
       </ThemeProvider>

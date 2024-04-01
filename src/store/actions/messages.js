@@ -1,4 +1,5 @@
 import useJwt from "utils/jwt/useJwt";
+import mp from "assets/sound.mp3"
 
 // ** Get messages
 export const getMessages = (payload) => {
@@ -73,6 +74,22 @@ export const clearRoomMessages = (room_id) => {
         dispatch({
             type: "CLEAR_ROOM_MESSAGES",
             data: room_id
+        });
+    };
+}
+
+export const receiveMessages = () => {
+    return (dispatch) => {
+        dispatch({
+            type: "RECEIVE_MESSAGES",
+        });
+    };
+}
+
+export const audioMessages = () => {
+    return (dispatch) => {
+        dispatch({
+            type: "AUDIO_MESSAGES",
         });
     };
 }

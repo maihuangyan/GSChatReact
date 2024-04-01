@@ -3,13 +3,14 @@ import storage from "redux-persist/lib/storage";
 
 const initialState = {
     messages: {},
-    change: false
+    change: false,
+    receiveMessage: [],
 };
 
 const persistConfig = {
     key: "messages",
     storage,
-    whitelist: ["messages", "change"], // place to select which state you want to persist
+    whitelist: ["messages", "change", "receiveMessage"], // place to select which state you want to persist
 };
 
 const messagesReducer = (state = initialState, action) => {
@@ -29,6 +30,16 @@ const messagesReducer = (state = initialState, action) => {
             console.log('CLEAR_ROOM_MESSAGES', state, action);
             stateMessages[room_id] = [];
             return { ...state, messages: stateMessages }
+
+        case "RECEIVE_MESSAGES":
+            const receiveMessage = state.receiveMessage
+            receiveMessage.push(1)
+            return { ...state, receiveMessage };
+        case "AUDIO_MESSAGES":
+            const audioMessage = state.receiveMessage
+            audioMessage.pop()
+            return { ...state, receiveMessage: audioMessage };
+
         default:
             return state;
     }

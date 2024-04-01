@@ -3,7 +3,7 @@ import { createContext, useCallback, useEffect, useState, useContext } from "rea
 import useJwt from "utils/jwt/useJwt"
 import { useDispatch, useSelector } from "react-redux"
 import { getRoomList, insertRoomUser, selectRoom, updateRoomLastMessage } from "store/actions/room"
-import { reduxDeleteMessages, reduxInsertMessages, reduxUpdateMessages } from "store/actions/messages"
+import { reduxDeleteMessages, reduxInsertMessages, reduxUpdateMessages , receiveMessages } from "store/actions/messages"
 import OneSignal from 'react-onesignal';
 import { isMessageSeen, nowSecs, randomString } from "utils/common"
 
@@ -161,7 +161,7 @@ const SocketProvider = ({ children }) => {
       else {
         addMessages([message]);
         setScrollToBottom(true);
-        setSoundPlayers(true)
+        dispatch(receiveMessages())
       }
     },
     []

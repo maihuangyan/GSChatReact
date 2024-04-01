@@ -1,28 +1,31 @@
 import { useEffect, useState, useContext, lazy, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Grid } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import mp from "../../assets/sound1.mp3"
-import ReactPlayer from "react-player";
 import { SocketContext } from "utils/context/SocketContext";
 import SearchUser from "./contacts/SearchUser";
 import Settings from "./contacts/Settings";
 import 'animate.css';
 import Loadable from "ui-component/Loadable";
 import { Outlet } from "react-router-dom";
-import AdaptiveImage from "ui-component/AdaptiveImage";
+
+import { Drawer } from "antd";
+import { audioMessages } from "store/actions/messages"
 
 const Contacts = Loadable(lazy(() => import('./contacts')));
 const Conversation = Loadable(lazy(() => import('./conversation')));
 
 //Main Component
 const Chat = (props) => {
-  const soundPlayers = useContext(SocketContext).soundPlayers
+  const soundPlayers = useSelector((state) => state.messages.receiveMessage);
   const selectedRoom = useSelector((state) => state.room.selectedRoom);
   const rooms = useSelector((state) => state.room.rooms);
   const [roomTab, setRoomTab] = useState(false)
   const [isChatClick, setIsChatClick] = useState(false);
   const [isSettingClick, setIsSettingClick] = useState(false);
-  const [aaa, setAaa] = useState(0);
+  const [showDrawer, setShowDrawer] = useState(false);
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     if (selectedRoom.id) {
@@ -33,30 +36,28 @@ const Chat = (props) => {
   }, [roomTab, selectedRoom])
 
   useEffect(() => {
-    if (soundPlayers) {
-      chatAudio()
-      // console.log(aaa,"6666")
-    }
-  }, [soundPlayers])
+    setShowDrawer(true)
+  }, [])
 
-  function chatAudio() {
-
-    return (function (argument) {
-      let src = mp;
-      let audio = new Audio();
-      let playPromise;
-      audio.src = src;
-      playPromise = audio.play();
-      if (playPromise) {
-        playPromise.then(() => {
-          setTimeout(() => {
-            // console.log("done.")
-            setAaa(aaa + 1)
-          }, audio.duration * 1000);
-        }).catch((e) => { });
+  useEffect(() => {
+    setInterval(() => {
+      if (soundPlayers.length > 0) {
+        playMusic()
       }
-    })();
-  }
+    },500)
+  }, [])
+
+  const handleAudioEnded = () => {
+    dispatch(audioMessages())
+  };
+
+  const playMusic = () => {
+    const audioElement = document.getElementById('chatAudio');
+
+    audioElement.play();
+    audioElement.addEventListener('ended', handleAudioEnded);
+  };
+
 
   return (
     <>
@@ -105,6 +106,16 @@ const Chat = (props) => {
           isSettingClick && <Settings setIsSettingClick={setIsSettingClick} />
         }
       </Grid >
+
+      <div hidden>
+        <audio id='chatAudio' src={mp} />
+      </div>
+
+      <Drawer placement="bottom" open={showDrawer} closable={false}>
+        Is it allowed to turn on sound?
+        <Button onClick={() => (setShowDrawer(false))}>confirm</Button>
+        <Button onClick={() => (setShowDrawer(false))}>cancel</Button>
+      </Drawer>
     </>
   );
 };

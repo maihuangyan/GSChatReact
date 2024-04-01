@@ -250,23 +250,49 @@
     object-fit: cover;
   }
 }
-
-.ant-modal {
-  .ant-modal-content {
-    background: #101010;
-
-    .ant-modal-header {
+.ant-modal-root {
+  .ant-modal-mask {
+    background-color: rgba(0, 0, 0, 0.85);
+  }
+  .ant-modal-chat {
+  }
+  .ant-modal {
+    .ant-modal-content {
       background: #101010;
 
-      .ant-modal-title {
-        color: #fbc34a;
+      .ant-modal-header {
+        background: #101010;
+
+        .ant-modal-title {
+          color: #fbc34a;
+        }
       }
     }
   }
 }
 
-.ant-modal-mask {
-  background-color: rgba(0, 0, 0, 0.85) !important;
+.ant-drawer {
+  .ant-drawer-content-wrapper {
+    height: 200px !important;
+    .ant-drawer-content {
+      width: 30%;
+      margin: 0 auto;
+      border-radius: 8px 8px 0 0;
+      height: 200px;
+      .ant-drawer-body {
+        color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        button {
+          margin-top: 20px;
+          border: 1px solid #fbc34a;
+          padding: 8px 40px;
+        }
+      }
+    }
+  }
 }
 
 .player-mp3 {
@@ -297,10 +323,24 @@
   .ant-image {
     max-width: 300px;
   }
+  .ant-drawer {
+    .ant-drawer-content-wrapper {
+      .ant-drawer-content {
+        width: 45%;
+      }
+    }
+  }
 }
 
 @media (max-width: 600px) {
   .ant-image {
     max-width: 200px;
+  }
+  .ant-drawer {
+    .ant-drawer-content-wrapper {
+      .ant-drawer-content {
+        width: 60%;
+      }
+    }
   }
 }
