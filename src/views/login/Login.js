@@ -93,6 +93,7 @@ const Login = (props) => {
           
           if (OneSignal.Notifications) {
             const isSupported = OneSignal.Notifications.isPushSupported();
+
             if (isSupported) {
               let permission = await OneSignal.Notifications.permission;
               if (permission && OneSignal.User && OneSignal.User.PushSubscription) {

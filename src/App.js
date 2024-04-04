@@ -15,7 +15,7 @@ import NavigationScroll from "layout/NavigationScroll";
 import { SocketProvider } from "./utils/context/SocketContext";
 import { ProgressLoader } from "./utils/context/ProgressLoader";
 import 'animate.css';
-import { useEffect} from "react";
+import { useEffect } from "react";
 import OneSignal from 'react-onesignal';
 
 // ==============================|| APP ||============================== //
@@ -29,10 +29,9 @@ if (process.env.NODE_ENV !== 'development') {
 var initedOneSignal = false
 const App = () => {
   const customization = useSelector((state) => state.customization);
-
   useEffect(() => {
     if (!initedOneSignal) {
-      OneSignal.init({ appId: `${process.env.REACT_APP_ONE_SIGNAL_APP_ID}` }).then(async () => {
+      OneSignal.init({ appId: `${process.env.REACT_APP_ONE_SIGNAL_APP_ID}`,allowLocalhostAsSecureOrigin:true}).then(async () => {
         if (OneSignal.Slidedown) {
           OneSignal.Slidedown.promptPush();
         }
@@ -42,7 +41,7 @@ const App = () => {
       })
       initedOneSignal = true;
     }
-  })
+  }, [])
 
   return (
     <StyledEngineProvider injectFirst>

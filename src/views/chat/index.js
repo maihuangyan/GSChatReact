@@ -2,14 +2,12 @@ import { useEffect, useState, useContext, lazy, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Grid } from "@mui/material";
 import mp from "../../assets/sound1.mp3"
-import { SocketContext } from "utils/context/SocketContext";
 import SearchUser from "./contacts/SearchUser";
 import Settings from "./contacts/Settings";
 import 'animate.css';
 import Loadable from "ui-component/Loadable";
 import { Outlet } from "react-router-dom";
 
-import { Drawer } from "antd";
 import { audioMessages } from "store/actions/messages"
 
 const Contacts = Loadable(lazy(() => import('./contacts')));
@@ -19,11 +17,9 @@ const Conversation = Loadable(lazy(() => import('./conversation')));
 const Chat = (props) => {
   const soundPlayers = useSelector((state) => state.messages.receiveMessage);
   const selectedRoom = useSelector((state) => state.room.selectedRoom);
-  const rooms = useSelector((state) => state.room.rooms);
   const [roomTab, setRoomTab] = useState(false)
   const [isChatClick, setIsChatClick] = useState(false);
   const [isSettingClick, setIsSettingClick] = useState(false);
-  const [showDrawer, setShowDrawer] = useState(false);
 
   const dispatch = useDispatch()
 
@@ -35,16 +31,13 @@ const Chat = (props) => {
     }
   }, [roomTab, selectedRoom])
 
-  useEffect(() => {
-    setShowDrawer(true)
-  }, [])
 
   useEffect(() => {
     setInterval(() => {
       if (soundPlayers.length > 0) {
         playMusic()
       }
-    },500)
+    }, 100)
   }, [])
 
   const handleAudioEnded = () => {
@@ -52,12 +45,16 @@ const Chat = (props) => {
   };
 
   const playMusic = () => {
-    const audioElement = document.getElementById('chatAudio');
-
-    audioElement.play();
-    audioElement.addEventListener('ended', handleAudioEnded);
+    const audioElement = document.querySelector('#chatAudio');
+    if (audioElement) {
+      let promise = audioElement.play()
+      if (promise) {
+        promise.then(res => {
+          audioElement.addEventListener('ended', handleAudioEnded);
+        }).catch((e) => { })
+      }
+    }
   };
-
 
   return (
     <>
@@ -111,11 +108,6 @@ const Chat = (props) => {
         <audio id='chatAudio' src={mp} />
       </div>
 
-      <Drawer placement="bottom" open={showDrawer} closable={false}>
-        Is it allowed to turn on sound?
-        <Button onClick={() => (setShowDrawer(false))}>confirm</Button>
-        <Button onClick={() => (setShowDrawer(false))}>cancel</Button>
-      </Drawer>
     </>
   );
 };
