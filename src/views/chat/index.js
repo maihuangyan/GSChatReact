@@ -7,6 +7,7 @@ import Settings from "./contacts/Settings";
 import 'animate.css';
 import Loadable from "ui-component/Loadable";
 import { Outlet } from "react-router-dom";
+import useJwt from "utils/jwt/useJwt"
 
 import { audioMessages } from "store/actions/messages"
 
@@ -33,11 +34,17 @@ const Chat = (props) => {
 
 
   useEffect(() => {
-    setInterval(() => {
+    let time = setInterval(() => {
       if (soundPlayers.length > 0) {
         playMusic()
       }
     }, 100)
+
+    return () => {
+      if (time) {
+        clearInterval(time)
+      }
+    }
   }, [])
 
   const handleAudioEnded = () => {
@@ -56,6 +63,28 @@ const Chat = (props) => {
     }
   };
 
+  const refreshToken = async () => {
+    await useJwt
+      .refreshToken({})
+  }
+
+  useEffect(() => {
+    let times = setInterval(() => {
+      let refreshTokens = localStorage.getItem("tokenExpires")
+      let time = new Date().getTime()
+      if (Math.floor(refreshTokens / 1000) === Math.floor(time / 1000)) {
+        refreshToken()
+      }
+    }, 1000)
+
+    return () => {
+      if (times) {
+        clearInterval(times)
+      }
+      console.log('out')
+    }
+
+  }, [])
   return (
     <>
       <Grid container

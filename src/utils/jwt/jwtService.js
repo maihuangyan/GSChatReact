@@ -20,12 +20,12 @@ export default class JwtService {
 
   // ** For Refreshing Token
   subscribers = [];
-  
+
 
   constructor(jwtOverrideConfig) {
     this.jwtConfig = { ...this.jwtConfig, ...jwtOverrideConfig };
 
-    
+
     // ** Request Interceptor
     axios.interceptors.request.use(
       (config) => {
@@ -48,35 +48,36 @@ export default class JwtService {
     // ** Add request/response interceptor
     axios.interceptors.response.use(
       (response) => {
-
         if (
-          response.data.ResponseCode == 1000002 ||
-          response.data.ResponseCode == 1000003 ||
-          response.data.ResponseCode == 1000004
+          response.request.responseURL.endsWith(this.jwtConfig.refreshEndpoint)
         ) {
-          if (response.request.responseURL.endsWith(this.jwtConfig.refreshEndpoint)) {
-            console.log('logout: 55')
+          if (response.data.ResponseCode === 1000002 ||
+            response.data.ResponseCode === 1000003 ||
+            response.data.ResponseCode === 1000004) {
+            console.log(response.data.ResponseCode, 'logout: 55')
             messageService.sendMessage('Logout');
           }
           else {
-            this.refreshToken()
-            messageService.sendMessage('Refresh', response.data.data);
+            if (response.data.ResponseCode === 0) {
+              messageService.sendMessage('Refresh', response.data.ResponseResult);
+            }
           }
 
         }
-        // console.log(response.data,"566666")
-        
+        // console.log(response, "566666")
+
         return response;
       },
       (error) => {
         const { config, response } = error;
         const originalRequest = config;
-        console.log("error", error);
+        // console.log("error", error);
 
         if (response) {
           console.log("response", response);
-          if (response.status === 401) {
-            console.log('logout: 57')
+          if (response.status === 401 && !response.request.responseURL.endsWith(this.jwtConfig.refreshEndpoint)) {
+            console.log("error", error);
+            // this.refreshToken({})
             messageService.sendMessage('Logout');
           }
           else if (response.status === 403) {
@@ -156,18 +157,16 @@ export default class JwtService {
     return axios.post(this.jwtConfig.resetPasswordEndpoint, ...args, headers);
   }
 
-  refreshToken() {
-    return axios.post(this.jwtConfig.refreshEndpoint, {
-      ...headers.headers, Authorization: "Bearer " + this.getRefreshToken(),
-    });
+  refreshToken(...args) {
+    return axios.post(this.jwtConfig.refreshEndpoint, ...args, headers);
   }
 
   getAllUsers() {
-    return axios.get(this.jwtConfig.getAllUsersEndpoint,headers);
+    return axios.get(this.jwtConfig.getAllUsersEndpoint, headers);
   }
 
   getOnlineList() {
-    return axios.get(this.jwtConfig.getOnlineListEndpoint,headers);
+    return axios.get(this.jwtConfig.getOnlineListEndpoint, headers);
   }
 
 
@@ -177,10 +176,10 @@ export default class JwtService {
 
   clearRoomMessages(room_id) {
     console.log({
-      headers: {...headers.headers, Authorization: "Bearer " + this.getRefreshToken()},
+      headers: { ...headers.headers, Authorization: "Bearer " + this.getRefreshToken() },
     })
     return axios.post(`${this.jwtConfig.clearRoomMessagesEndpoint}${room_id}`, {}, {
-      headers: {...headers.headers, Authorization: "Bearer " + this.getRefreshToken()},
+      headers: { ...headers.headers, Authorization: "Bearer " + this.getRefreshToken() },
     });
   }
   updateSettingsInfo(...args) {
@@ -193,10 +192,10 @@ export default class JwtService {
 
   createRoom(...args) {
     console.log(args, {
-      headers: {...headers.headers, Authorization: "Bearer " + this.getRefreshToken()},
+      headers: { ...headers.headers, Authorization: "Bearer " + this.getRefreshToken() },
     });
     return axios.post(this.jwtConfig.createRoomEndpoint, ...args, {
-      headers: {...headers.headers, Authorization: "Bearer " + this.getRefreshToken()},
+      headers: { ...headers.headers, Authorization: "Bearer " + this.getRefreshToken() },
     });
   }
 

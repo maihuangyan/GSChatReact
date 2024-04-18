@@ -15,11 +15,13 @@ const config = useJwt.jwtConfig;
 // ** Handle User Login
 export const handleLogin = (data) => {
   return (dispatch) => {
+    let times = new Date().getTime() + 1000 * 60 * 9;
     // ** Add to user, accessToken & refreshToken to localStorage
     localStorage.setItem("userData", JSON.stringify(data.user));
     localStorage.setItem(config.storageUserIDKeyName, data.user.id);
     localStorage.setItem(config.storageTokenKeyName, data.access_token);
     localStorage.setItem(config.storageRefreshTokenKeyName, data.access_token);
+    localStorage.setItem("tokenExpires",times );
 
     setTimeout(function () {
       dispatch({
@@ -41,7 +43,7 @@ export const handleLogout = () => {
     localStorage.removeItem(config.storageUserIDKeyName);
     localStorage.removeItem(config.storageTokenKeyName);
     localStorage.removeItem(config.storageRefreshTokenKeyName);
-
+    localStorage.removeItem("tokenExpires");
     dispatch({ type: "GET_MESSAGES", data: [] });
     dispatch({ type: "GET_LAST_MESSAGES", data: [] });
     dispatch({ type: "GET_ROOM_LIST", data: [] });

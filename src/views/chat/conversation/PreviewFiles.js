@@ -28,7 +28,9 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
     useEffect(() => {
         if (uploadFiles) {
             const isImg = uploadFiles.type.split("/")[0]
-            if (isImg === 'image') {
+            const imgType = ["jpeg","png","webp","gif"].includes(uploadFiles.type.split("/")[1].toLowerCase())
+            const imgNameType = ["jpeg","png","webp","gif"].includes(uploadFiles.name.split(".")[1].toLowerCase())
+            if (isImg === 'image' || imgType || imgNameType) {
                 setIsImage(true)
                 setIsVideo(false)
             } else if (isImg === 'video') {
@@ -55,7 +57,6 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
             }
         }
     };
-
     const handleUseJwe = (formData) => {
         useJwt
             .uploadFiles(formData)
