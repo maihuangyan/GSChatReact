@@ -174,7 +174,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                         Type your title
                     </InputLabel>
                     <OutlinedInput
-                        // id="message-box"
+                        id="message-box"
                         value={msg}
                         onChange={(e) => {
                             setMsg(e.target.value)

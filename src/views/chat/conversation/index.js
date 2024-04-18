@@ -621,6 +621,7 @@ const Conversation = () => {
                             <Box sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
                                 <FormControl fullWidth variant="outlined" sx={{ p: "0 10px" }}>
                                     <OutlinedInput
+                                        id="search-box"
                                         placeholder="Search Messages"
                                         sx={{ color: "white" }}
                                         value={query}
@@ -787,6 +788,7 @@ const Conversation = () => {
                                             </Upload>
                                             <FormControl fullWidth variant="outlined" sx={{ mr: 1 }}>
                                                 <OutlinedInput
+                                                    id="message-box"
                                                     placeholder="New message"
                                                     readOnly={false}
                                                     value={msg}

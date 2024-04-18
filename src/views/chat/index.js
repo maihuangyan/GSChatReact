@@ -75,6 +75,8 @@ const Chat = (props) => {
       if (Math.floor(refreshTokens / 1000) === Math.floor(time / 1000)) {
         refreshToken()
       }
+      console.log(Math.floor(refreshTokens / 1000))
+      console.log(Math.floor(time / 1000))
     }, 1000)
 
     return () => {
