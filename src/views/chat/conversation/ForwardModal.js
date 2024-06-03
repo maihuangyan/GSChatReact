@@ -18,13 +18,13 @@ import ClientAvatar from "ui-component/ClientAvatar";
 import { useSelector, useDispatch } from "react-redux"
 import { selectRoom } from "store/actions/room";
 import { getMessages } from "store/actions/messages";
-import { getRoomDisplayName, getUserDisplayName } from 'utils/common';
+import { getRoomDisplayName } from 'utils/common';
 
 export default function ForwardModal({ isForwardModal, setIsForward, setIsForwardModal }) {
 
     const theme = useTheme();
-    const room = useSelector((state) => state.room);
-    const { selectedRoom, rooms } = room
+    const selectedRoom = useSelector((state) => state.room.selectedRoom);
+    const rooms = useSelector((state) => state.room.rooms);
     const dispatch = useDispatch();
 
     const [query, setQuery] = useState("");
@@ -62,7 +62,7 @@ export default function ForwardModal({ isForwardModal, setIsForward, setIsForwar
 
     // ** Renders Chat
     const renderChats = () => {
-        if (filteredChat.length == 0) {
+        if (filteredChat.length === 0) {
             return <Typography sx={{ minHeight: "50vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>No Results Found</Typography>;
         }
         else {
@@ -116,6 +116,7 @@ export default function ForwardModal({ isForwardModal, setIsForward, setIsForwar
                             Search
                         </InputLabel>
                         <OutlinedInput
+                            id="search-box"
                             sx={{ color: "white" }}
                             value={query}
                             onChange={handleFilter}

@@ -1,6 +1,6 @@
 import useJwt from "utils/jwt/useJwt";
 import { getMessages } from "store/actions/messages";
-
+import {store} from "store"
 // ** Get all Data
 export const getRoomList = () => {
 
@@ -63,6 +63,15 @@ export const resetUnreadCount = (payload) => {
   return (dispatch) => {
     dispatch({
       type: "RESET_UNREAD_MESSAGE_COUNT",
+      data: payload
+    });
+  };
+}
+
+export const calculateUnSeenCount = (payload) => {
+  return (dispatch) => {
+    dispatch({
+      type: "CALCULATE_UNSEEN_MESSAGE_COUNT",
       data: payload
     });
   };

@@ -1,8 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import axios from "axios";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { LoaderContext } from "utils/context/ProgressLoader";
-import { useTheme } from "@mui/material/styles";
 import { isEmpty } from "utils/common";
 
 const { Badge, Avatar } = require("@mui/material");
@@ -21,33 +20,36 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
   const [avatarData, setAvatarData] = useState("");
   const getImage = useContext(LoaderContext).getImage;
   const addImage = useContext(LoaderContext).addImage;
-  useEffect(() => {
-    if (avatar) {
-      if (avatar.includes('chat.swissnonbank')) {
-
-        const image = getImage(avatar)
-        if (image) {
-          setAvatarData(image);
-        }
-        else {
-          axios.get(avatar)
-            .then((res) => {
-              let data = res.data;
-
-              if (data) {
-                addImage(avatar, data)
-                setAvatarData(data);
-              }
-            })
-            .catch((err) => console.log(err));
-        }
-      }
-      else {
-        setAvatarData(avatar);
-      }
-    }
-  }, [avatar]);
-
+  // useEffect(() => {
+  //   if (avatar) {
+  //     if (avatar.includes('profile_photo')) {
+  //       const image = getImage(avatar)
+  //       if (image) {
+  //         setAvatarData(image);
+  //       }
+  //       else {
+  //         axios.get(avatar, { responseType: 'arraybuffer' })
+  //           .then((res) => {
+  //             let data = res.data;
+  //             const file = new File([data], avatar.split('/').pop(), { type: 'image/' + avatar.split('.').pop() })
+  //             const fileReader = new FileReader()
+  //             fileReader.onload = () => {
+  //               addImage(avatar, fileReader.result)
+  //               setAvatarData(fileReader.result);
+  //             }
+  //             fileReader.readAsDataURL(file);
+  //           })
+  //           .catch((err) => console.log(err));
+  //       }
+  //     }
+  //     else {
+  //       setAvatarData(avatar);
+  //     }
+  //   }
+  // }, [avatar]);
+  useLayoutEffect(()=>{
+    setAvatarData(avatar)
+  },[])
   function stringToColor(string) {
     let hash = 0;
     let i;
@@ -80,7 +82,7 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
         displayName = `${nameArray[1][0].toUpperCase()}`
       }
     }
-    
+
     return {
       sx: {
         ...msx,
@@ -93,10 +95,10 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
   return (
     status === undefined ? (
       number === undefined ? (
-        <Avatar {...stringAvatar(name)} alt={name} src={avatar} />
+        <Avatar {...stringAvatar(name)} alt={name} src={avatarData} />
       ) : (
         <Badge color="primary" badgeContent={number} overlap="circular">
-          <Avatar {...stringAvatar(name)} alt={name} src={avatar} />
+          <Avatar {...stringAvatar(name)} alt={name} src={avatarData} />
         </Badge>
       )
     ) : (
@@ -115,8 +117,8 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
               borderRadius: '5px'
             },
           }}
-      >
-          <Avatar {...stringAvatar(name)} alt={name} src={avatar} />
+        >
+          <Avatar {...stringAvatar(name)} alt={name} src={avatarData} />
         </Badge>
       ) : (
         <Badge color="primary" badgeContent={number} overlap="circular">
@@ -135,7 +137,7 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
               },
             }}
           >
-            <Avatar {...stringAvatar(name)} alt={name} src={avatar} />
+            <Avatar {...stringAvatar(name)} alt={name} src={avatarData} />
           </Badge>
         </Badge>
       )

@@ -4,14 +4,15 @@ import storage from "redux-persist/lib/storage";
 // ** Initial State
 const initialState = {
   connected_users: [],
-  online_users: [],
+  onlineUsers: [],
+  all_users: [],
   selectedUser: null,
 };
 
 const persistConfig = {
   key: "users",
   storage,
-  whitelist: ["connected_users", "online_users"], // place to select which state you want to persist
+  whitelist: ["connected_users", "onlineUsers", "all_users"], // place to select which state you want to persist
 };
 
 const users = (state = initialState, action) => {
@@ -25,7 +26,7 @@ const users = (state = initialState, action) => {
       let selectedUser = null;
       if (Array.isArray(state.connected_users) && state.connected_users.length > 0) {
         for (let user of state.connected_users) {
-          if (user.id == userID) {
+          if (user.id === userID) {
             selectedUser = user;
           }
         }
@@ -36,11 +37,14 @@ const users = (state = initialState, action) => {
       selectedUser = action.data;
       return { ...state, selectedUser: selectedUser };
 
+    case "SET_ALL_USERS":
+      return { ...state, all_users: action.data };
+
     case "UPDATE_USER":
       connected_users = [...state.connected_users];
       for (let i = 0; i < connected_users.length; i++) {
         const user = connected_users[i];
-        if (user.id == action.data.id) {
+        if (user.id === action.data.id) {
           connected_users[i] = action.data;
           break;
         }
@@ -52,7 +56,7 @@ const users = (state = initialState, action) => {
       let exist = false;
       for (let i = 0; i < connected_users.length; i++) {
         const user = connected_users[i];
-        if (user.id == action.data.id) {
+        if (user.id === action.data.id) {
           connected_users[i] = action.data;
           break;
         }
@@ -67,12 +71,21 @@ const users = (state = initialState, action) => {
       connected_users = [...state.connected_users];
       for (let i = 0; i < connected_users.length; i++) {
         const user = connected_users[i];
-        if (user.id == user_id) {
+        if (user.id === user_id) {
           connected_users.splice(i, 1);
           break;
         }
       }
       return { ...state, connected_users };
+    case "SET_ON_LINE_USERS":
+      return { ...state, onlineUsers: action.data };
+    case "CLEAR_USER":
+      return {
+        connected_users: [],
+        onlineUsers: [],
+        all_users: [],
+        selectedUser: null,
+      };
 
     default:
       return { ...state };

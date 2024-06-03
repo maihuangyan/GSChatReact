@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef, useContext, useCallback, lazy, useLayoutEffect } from "react";
+import { useState, useEffect, useRef, useContext, useCallback, lazy, useLayoutEffect, memo, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import useJwt from "utils/jwt/useJwt";
-import { formatChatDate, getRoomDisplayName, getUserDisplayName, isMessageSeen } from "utils/common";
+import { formatChatDate, getUserDisplayName, } from "utils/common";
 import typingAnim from 'assets/images/anim/typing.gif'
 
 import {
@@ -11,29 +10,17 @@ import {
     Button,
     FormControl,
     Typography,
-    Menu,
-    MenuItem,
     OutlinedInput,
-    Dialog,
-    DialogActions,
-    DialogTitle,
-    ListItemText,
-    Divider,
-    InputAdornment,
-    IconButton
 } from "@mui/material";
 
 import { styled, useTheme } from "@mui/material/styles";
-import { IconSend, IconDotsVertical, IconLink, IconPhoto, IconArrowLeft, IconSearch, IconX, IconArrowDown, IconArrowUp, IconArrowNarrowDown } from "@tabler/icons";
+import { IconSend, IconLink, IconPhoto, IconArrowNarrowDown } from "@tabler/icons";
 
 import { SocketContext } from "utils/context/SocketContext";
 
-import ClientAvatar from "ui-component/ClientAvatar";
 import Loadable from "ui-component/Loadable";
 
 import { Upload } from 'antd';
-import { selectRoomClear, selectRoom } from "store/actions/room";
-import { clearRoomMessages } from "store/actions/messages";
 import { getMessages } from "store/actions/messages";
 import { LoaderContext } from "utils/context/ProgressLoader";
 
@@ -41,8 +28,8 @@ const MessagesBox = Loadable(lazy(() => import('./MessagesBox')));
 const PreviewFiles = Loadable(lazy(() => import('./PreviewFiles')));
 const DraggerBox = Loadable(lazy(() => import('./DraggerBox')));
 const ReplyBox = Loadable(lazy(() => import('./ReplyBox')));
-const Information = Loadable(lazy(() => import('./Information')));
 const ForwardBox = Loadable(lazy(() => import('./ForwardBox')));
+const HeaderBox = Loadable(lazy(() => import('./component/HeaderBox')));
 
 const CircleButton1 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -56,17 +43,6 @@ const CircleButton1 = styled(Button)(({ theme }) => ({
     },
 }));
 
-const CircleButton2 = styled(Button)(({ theme }) => ({
-    borderRadius: "50%",
-    minWidth: "35px",
-    height: "35px",
-    color: theme.palette.primary.light,
-    backgroundColor: theme.palette.dark[900],
-    "&:hover": {
-        backgroundColor: "#FBC34A",
-        color: theme.palette.common.black,
-    },
-}));
 
 const CircleButton3 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -83,12 +59,10 @@ const CircleButton3 = styled(Button)(({ theme }) => ({
 const Conversation = () => {
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const userData = useSelector((state) => state.auth.userData);
-    const store = useSelector((state) => state.messages);
+    const storeMessages = useSelector((state) => state.messages.messages);
     const showToast = useContext(LoaderContext).showToast
     const [isTyping, setIsTyping] = useState(false);
-    const [dialogOpen, setDialogOpen] = useState(false);
     const [roomMessage, setRoomMessages] = useState([]);
-
     const opponentTyping = useContext(SocketContext).opponentTyping
 
     const socketSendTyping = useContext(SocketContext).socketSendTyping
@@ -96,26 +70,17 @@ const Conversation = () => {
     const socketOpenMessage = useContext(SocketContext).socketOpenMessage
     const socketUpdateMessage = useContext(SocketContext).socketUpdateMessage
     const socketDeleteMessage = useContext(SocketContext).socketDeleteMessage
-    const scrollToBottom = useContext(SocketContext).scrollToBottom
-    const soundPlayers = useContext(SocketContext).soundPlayers
-    const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
-    const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
-    let reachedTop = false;
-
-    useEffect(() => {
-        // console.log(updateOnlineStatus)
-    }, [updateOnlineStatus])
-
     // ** Refs & Dispatch
+    const theme = useTheme();
     const chatArea = useRef(null);
     const dispatch = useDispatch();
 
     const [msg, setMsg] = useState("");
     const [newMessageCount, setNewMessageCount] = useState(0);
     const [scrollTop, setScrollTop] = useState(0);
-    const [roomChange, setRoomChange] = useState(false);
     const [typingText, setTypingText] = useState('');
     const [isToTop, setIsToTop] = useState(false);
+    const [roomChange, setRoomChange] = useState(false);
 
     // ** Scroll to chat bottom
     const actisToBottom = (send) => {
@@ -149,23 +114,15 @@ const Conversation = () => {
 
     const actisToTop = () => {
         const chatContainer = chatArea.current;
+        let roomMessages = storeMessages[selectedRoom.id] ? storeMessages[selectedRoom.id] : [];
         if (chatContainer) {
-            if (chatContainer.scrollTop + chatContainer.offsetHeight + 1 >= chatContainer.scrollHeight) {
-                setShowToButton(false)
-            } else {
-                setShowToButton(true)
-            }
-
-            let roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
-
             chatContainer.onscroll = () => {
-
                 if (chatContainer.scrollTop + chatContainer.offsetHeight + 1 >= chatContainer.scrollHeight) {
                     setShowToButton(false)
                 } else {
                     setShowToButton(true)
                 }
-                if (chatContainer.scrollTop == 0 && chatContainer.scrollHeight > chatContainer.clientHeight) {
+                if (chatContainer.scrollTop === 0 && chatContainer.scrollHeight > chatContainer.clientHeight) {
 
                     let LastScrollTop = chatContainer.scrollHeight - chatContainer.scrollTop
 
@@ -175,16 +132,13 @@ const Conversation = () => {
                     }
                     if (!isToTop) {
                         setScrollTop(scrollTop + 1)
-
                         setTimeout(() => {
                             chatContainer.scrollTo(0, chatContainer.scrollHeight - LastScrollTop);
                         }, 10);
 
                     } else {
-                        reachedTop = true;
                         console.log("9999")
                         setIsToTop(false)
-
                         dispatch(getMessages({ id: selectedRoom.id, last_message_id: roomMessages[0].id }))
                         setTimeout(() => {
                             chatContainer.scrollTo(options)
@@ -195,20 +149,18 @@ const Conversation = () => {
         }
     };
 
-
     // ** If user chat is not empty scrollToBottom
-    useEffect(() => {
+    useLayoutEffect(() => {
         // console.log('room changed', selectedRoom);
         if (selectedRoom) {
-            let roomMessages = store.messages[selectedRoom.id] ? store.messages[selectedRoom.id] : [];
-
+            let roomMessages = storeMessages[selectedRoom.id] ? storeMessages[selectedRoom.id] : [];
             if (roomMessages.length > 0) {
                 roomMessages = roomMessages.sort((a, b) => (a.created_at > b.created_at ? 1 : a.created_at < b.created_at ? -1 : 0));
                 const roomUsers = selectedRoom.room_users;
                 let roomUser = null;
                 if (roomUsers && roomUsers.length > 0) {
                     roomUsers.forEach(user => {
-                        if (user.user_id == userData.id) {
+                        if (user.user_id === userData.id) {
                             roomUser = user;
                         }
                     })
@@ -217,41 +169,41 @@ const Conversation = () => {
                     socketOpenMessage(roomMessages[roomMessages.length - 1].id);
                 }
             }
-
             let chatLogs = []
             if (scrollTop) {
                 chatLogs = roomMessages.filter((item, index) => index >= roomMessages.length - (30 + (10 * scrollTop)) - newMessageCount)
                 setRoomMessages(formatChatData(chatLogs))
-
             } else {
                 chatLogs = roomMessages.filter((item, index) => index >= roomMessages.length - 30 - newMessageCount)
                 setRoomMessages(formatChatData(chatLogs))
                 setRoomChange(!roomChange)
             }
 
-            if (roomMessages.length == chatLogs.length + 10) {
+            if (roomMessages.length === chatLogs.length + 10) {
                 setIsToTop(true)
             }
         }
         setIsReply(false);
         setImg(null)
         setIsPreviewFiles(false)
-    }, [store, selectedRoom, scrollTop]);
+    }, [storeMessages, selectedRoom, scrollTop]);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         actisToTop()
     }, [scrollTop]);
 
     useEffect(() => {
+        actisToBottom({ send: false, isOneself: false });
+    }, [roomChange]);
+
+    useLayoutEffect(() => {
         setScrollTop(0)
         setNewMessageCount(0)
-        setRoomChange(!roomChange)
-        actisToTop()
         setIsToTop(false)
     }, [selectedRoom])
 
     const formatChatData = (message) => {
-        if (!selectedRoom || message.length == 0) return setRoomMessages([]);
+        if (!selectedRoom || message.length === 0) return setRoomMessages([]);
         let formattedChatLog = [];
         let chatLogs = [...message]
         chatLogs = chatLogs.sort((a, b) => (a.created_at > b.created_at ? 1 : a.created_at < b.created_at ? -1 : 0));
@@ -261,7 +213,7 @@ const Conversation = () => {
             sentTime: chatLogs[0].created_at * 1000, // for checking 1 mins delay = diff: 60 * 1000,
             messages: [chatLogs[0]],
         };
-        if (chatLogs.length == 1) {
+        if (chatLogs.length === 1) {
             formattedChatLog.push(msgGroup);
         }
 
@@ -269,7 +221,7 @@ const Conversation = () => {
             let msgs = chatLogs[i];
 
             if (
-                formatChatDate(+msgs.created_at * 1000) == msgGroup.sentDate &&
+                formatChatDate(+msgs.created_at * 1000) === msgGroup.sentDate &&
                 msgGroup.senderId === msgs.user_id &&
                 parseInt(msgs.created_at * 1000) - parseInt(msgGroup.sentTime) < 60 * 1000
             ) {
@@ -285,7 +237,7 @@ const Conversation = () => {
                 };
             }
 
-            if (i == chatLogs.length - 1) {
+            if (i === chatLogs.length - 1) {
                 formattedChatLog.push(msgGroup);
             }
         }
@@ -317,40 +269,6 @@ const Conversation = () => {
         }
     };
 
-    const handleDialogClickOpen = () => {
-        setDialogOpen(true);
-    };
-
-    const handleDialogClose = () => {
-        setDialogOpen(false);
-    };
-
-    const handleConfirmClear = () => {
-        setDialogOpen(false);
-        // console.log("clearing room id", selectedRoom);
-
-        useJwt
-            .clearRoomMessages(selectedRoom.id)
-            .then((res) => {
-                // console.log('api result', res.data);
-                if (res.data.ResponseCode == 0) {
-                    dispatch(clearRoomMessages(selectedRoom.id));
-                } else {
-                    console.log(res.data)
-                }
-            }).catch((err) => console.log(err));
-    };
-
-    const theme = useTheme();
-    const [anchorEl, setAnchorEl] = useState(null);
-    const open = Boolean(anchorEl);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
     const [isReply, setIsReply] = useState(false);
     const [replyMessage, setReplyMessage] = useState(null);
 
@@ -360,7 +278,7 @@ const Conversation = () => {
     const [isMultiline, setIsMultiline] = useState(false)
 
     const ReplyClick = useCallback((content) => {
-        console.log(content)
+        // console.log(content)
         setEditingMessage(null)
         setMsg('')
         setIsForward(false)
@@ -379,8 +297,8 @@ const Conversation = () => {
         setEditingMessage(content.message)
         setMsg(content.message.message);
         socketSendTyping(selectedRoom.id, 1);
-        setIsTyping(selectedRoom.id == content.message.room_id);
-    }, [selectedRoom.id, socketSendTyping])
+        setIsTyping(selectedRoom.id === content.message.room_id);
+    }, [selectedRoom, socketSendTyping])
 
     const CopyClick = useCallback(async (content) => {
         try {
@@ -469,7 +387,7 @@ const Conversation = () => {
         onChange(file) {
             const fileReader = new FileReader();
             fileReader.onload = () => {
-                if (file.file.type.split("/")[1] == "x-msdownload") {
+                if (file.file.type.split("/")[1] === "x-msdownload") {
                     showToast("error", "This file is not supported")
                     return
                 } else {
@@ -483,75 +401,26 @@ const Conversation = () => {
     };
 
     const [draggerFile, setDraggerFile] = useState(false)
-    const [showInformation, setShowInformation] = useState(false)
-
-    useEffect(() => {
-        actisToBottom({ send: false, isOneself: false });
-    }, [showInformation, roomChange])
-
-    useEffect(() => {
-        if (scrollToBottom) {
-            actisToBottom({ send: true, isOneself: false });
-        }
-    }, [roomChange, scrollToBottom])
-
-    const [navSearch, setNavSearch] = useState(false)
-    const [query, setQuery] = useState("");
-    const [searchMessages, setSearchMessages] = useState([]);
-    const [allSearchMessages, setAllSearchMessages] = useState([]);
-    const [searchCount, setSearchCount] = useState(0);
 
     const [showToButton, setShowToButton] = useState(true)
 
-    useEffect(() => {
+    const searchTotal = useMemo(() => {
         let handleMessages = []
         if (roomMessage) {
             roomMessage.map(item => handleMessages.push(item.messages))
         }
-        setAllSearchMessages(handleMessages.flat(Infinity))
-        setNavSearch(false)
-        setQuery("")
-        setSearchCount(0)
-        setSearchMessages([])
-        actisToTop()
-    }, [roomChange, roomMessage])
-
-    const handleSearch = (e) => {
-        let newSearchMessages = allSearchMessages.filter(item => item.message.toLowerCase().includes(e.target.value.toLowerCase()))
-        setSearchMessages(allSearchMessages.filter(item => item.message.toLowerCase().includes(e.target.value.toLowerCase())))
-        setSearchCount(newSearchMessages.length)
-        setQuery(e.target.value);
-        if (newSearchMessages.length) {
-            searchScroll(newSearchMessages.pop())
-        }
-    };
-
-    const searchScroll = (message) => {
-        const chatContainer = chatArea.current;
-        let btn = document.getElementById(message.id)
-        let options = {
-            top: 0,
-            behavior: 'smooth'
-        }
-        options.top = btn.parentNode.parentNode.parentNode.offsetTop + btn.offsetTop - 70
-        chatContainer.scrollTo(options)
-    }
-
-    useEffect(() => {
-        if (searchCount > 0) {
-            searchScroll(searchMessages[searchCount - 1])
-        }
-    }, [searchCount])
+        return handleMessages
+    }, [roomMessage])
 
     useEffect(() => {
         const typingUsers = opponentTyping ? opponentTyping[selectedRoom.id] : null
         console.log('typingUsers', typingUsers);
 
-        if (!typingUsers || typingUsers.length == 0 || !selectedRoom) {
+        if (!typingUsers || typingUsers.length === 0 || !selectedRoom) {
             setTypingText('');
             return;
         }
-        if (selectedRoom.group == 0) {
+        if (selectedRoom.group === 0) {
             setTypingText('Typing');
             return;
         }
@@ -560,18 +429,18 @@ const Conversation = () => {
         let opponents = selectedRoom.opponents;
         for (let i = 0; i < typingUsers.length; i++) {
             for (let j = 0; j < opponents.length; j++) {
-                if (opponents[j].id == typingUsers[i]) {
+                if (opponents[j].id === typingUsers[i]) {
                     usernames.push(getUserDisplayName(opponents[j]));
                     break;
                 }
             }
         }
-        if (usernames.length == 1) {
+        if (usernames.length === 1) {
             setTypingText(usernames[0] + " is typing");
         } else {
             let result = "";
             for (let i = 0; i < usernames.length; i++) {
-                if (i == usernames.length - 1) {
+                if (i === usernames.length - 1) {
                     result += " and " + usernames[i] + " are typing";
                 } else {
                     if (i) result += ", ";
@@ -582,11 +451,21 @@ const Conversation = () => {
         }
     }, [opponentTyping, selectedRoom])
 
-
-    return Object.keys(selectedRoom).length ? (
-        showInformation ? <Information CircleButton1={CircleButton1} setShowInformation={setShowInformation} /> :
-            <>
-                <Box
+    return (<Grid item xs={12} sm={12} md={9}
+        sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            backgroundColor: "#101010",
+            "@media (max-width: 900px)": {
+                display: Object.keys(selectedRoom).length ? "flex" : "none",
+            }
+        }}
+    >
+        {
+            Object.keys(selectedRoom).length ? (
+                <><Box
                     sx={{
                         display: "flex",
                         flexDirection: "column",
@@ -595,8 +474,7 @@ const Conversation = () => {
                         height: { xs: "auto", sm: "auto", md: "100%" },
                         position: "relative",
                         overflow: "hidden",
-                    }}
-                >
+                    }}>
                     <DraggerBox
                         draggerFile={draggerFile}
                         setDraggerFile={setDraggerFile}
@@ -613,112 +491,10 @@ const Conversation = () => {
                         msg={msg}
                         setMsg={setMsg}
                         chatArea={chatArea} />
-                    <Grid container sx={{ borderBottom: "1px solid #997017", p: 1, position: "relative" }}>
-                        <Box sx={{ background: "#101010", position: "absolute", top: 0, left: navSearch ? 0 : "100%", zIndex: 100, width: "100%", height: "90%", marginTop: '5px', transition: "0.5s" }}>
-                            <Box sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                <FormControl fullWidth variant="outlined" sx={{ p: "0 10px" }}>
-                                    <OutlinedInput
-                                        placeholder="Search Messages"
-                                        sx={{ color: "white" }}
-                                        value={query}
-                                        onChange={handleSearch}
-                                        endAdornment={
-                                            <InputAdornment position="end">
-                                                <IconButton aria-label="search icon" edge="end">
-                                                    <IconSearch size={25} stroke={1} />
-                                                </IconButton>
-                                            </InputAdornment>
-                                        }
-                                    />
-                                </FormControl>
-                                <Box sx={{ width: "66px" }}>
-                                    {searchCount} / {searchMessages.length}
-                                </Box>
-                                <Grid container sx={{ width: "auto", mr: 2 }}>
-                                    <Grid item xs={6} md={6} sm={6}>
-                                        <CircleButton2 onClick={() => searchMessages.length > searchCount && setSearchCount(searchCount + 1)
-                                        }>
-                                            <IconArrowDown size={20} stroke={2} />
-                                        </CircleButton2>
-                                    </Grid>
-                                    <Grid item xs={6} md={6} sm={6} sx={{ pl: 1 }}>
-                                        <CircleButton2 onClick={() => searchCount > 1 && setSearchCount(searchCount - 1)
-                                        }>
-                                            <IconArrowUp size={20} stroke={2} />
-                                        </CircleButton2>
-                                    </Grid>
-                                </Grid>
-                                <CircleButton2 onClick={() => (setNavSearch(false), setQuery(""), setSearchCount(0), setSearchMessages([]))}>
-                                    <IconX size={25} stroke={2} />
-                                </CircleButton2>
-                            </Box>
-                        </Box>
-                        <Grid item xs={6} container>
-                            <Box sx={{ display: "flex", alignItems: "center", pb: 0 }}>
-                                <Box sx={{
-                                    mr: 1, display: "none",
-                                    "@media (max-width: 900px)": {
-                                        display: "block",
-                                    },
-                                }}
-                                    onClick={() => dispatch(selectRoomClear())}
-                                >
-                                    <CircleButton2>
-                                        <IconArrowLeft size={20} stroke={3} />
-                                    </CircleButton2>
-                                </Box>
-                                <ClientAvatar
-                                    avatar={selectedRoom.photo_url ? selectedRoom.photo_url : ""}
-                                    status={getRoomOnlineStatus(selectedRoom)}
-                                    size={40}
-                                    name={getRoomDisplayName(selectedRoom)}
-                                />
-                                <Box sx={{ ml: 2 }}>
-                                    <Typography variant={selectedRoom.group ? "h2" : "h4"}>
-                                        {getRoomDisplayName(selectedRoom)}
-                                    </Typography>
-                                    <Typography color={"#d5d5d5"}>{selectedRoom.group ? "" : (getRoomOnlineStatus(selectedRoom) ? "Online" : "Leave")}</Typography>
-                                </Box>
-                            </Box>
-                        </Grid>
-                        <Grid item xs={6} >
-                            <Paper
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "end",
-                                }}
-                            >
-                                <CircleButton1 sx={{ mr: 1 }} onClick={() => setNavSearch(true)}>
-                                    <IconSearch size={25} stroke={1} />
-                                </CircleButton1>
-                                <CircleButton1 type="button" onClick={handleClick}>
-                                    <IconDotsVertical size={25} stroke={1} />
-                                </CircleButton1>
-
-                            </Paper>
-                            <Menu
-                                id="basic-menu"
-                                anchorEl={anchorEl}
-                                open={open}
-                                onClose={handleClose}
-                                MenuListProps={{
-                                    "aria-labelledby": "basic-button",
-                                }}
-                            >
-                                <MenuItem sx={{ minWidth: "150px" }} onClick={() => (setShowInformation(true), setAnchorEl(null))}>
-                                    <ListItemText>Information</ListItemText>
-                                </MenuItem>
-                                <Divider />
-                                <MenuItem onClick={() => { setDialogOpen(true); handleClose(); }}>
-                                    <ListItemText>Clear</ListItemText>
-                                </MenuItem>
-                            </Menu>
-                        </Grid>
-                    </Grid>
+                    <HeaderBox searchTotal={searchTotal} />
                     <Box id="chat-area">
                         <Paper
                             ref={chatArea}
-
                             sx={{
                                 height: `calc( 100vh - ${isReply ? "209px" : "163px"})`
                                 , p: 2, pt: 3, pb: 9, borderRadius: 0, overflowY: "scroll", overflowX: "hidden", position: "relative", mb: { xs: 9, md: 0 }
@@ -735,7 +511,6 @@ const Conversation = () => {
                                 setForwardMessage={setForwardMessage}
                                 chatArea={chatArea}
                             />
-
                         </Paper>
                     </Box>
 
@@ -784,6 +559,7 @@ const Conversation = () => {
                                             </Upload>
                                             <FormControl fullWidth variant="outlined" sx={{ mr: 1 }}>
                                                 <OutlinedInput
+                                                    id="messages-box"
                                                     placeholder="New message"
                                                     readOnly={false}
                                                     value={msg}
@@ -810,16 +586,16 @@ const Conversation = () => {
                                                         if (e.target.value.length > 0 && !isTyping) {
                                                             setIsTyping(true);
                                                             socketSendTyping(selectedRoom.id, 1);
-                                                        } else if (e.target.value.length == 0 && isTyping) {
+                                                        } else if (e.target.value.length === 0 && isTyping) {
                                                             setEditingMessage(null)
                                                             setIsTyping(false);
                                                             socketSendTyping(selectedRoom.id, 0);
                                                         }
                                                     }}
                                                     onKeyDown={(e) => {
-                                                        if (e.shiftKey && e.key == "Enter") {
+                                                        if (e.shiftKey && e.key === "Enter") {
                                                             setIsMultiline(true)
-                                                        } else if (e.key == "Enter") {
+                                                        } else if (e.key === "Enter") {
                                                             handleSendMsg(e)
                                                         }
                                                     }}
@@ -836,33 +612,13 @@ const Conversation = () => {
                         </form >
                     </Box>
                 </Box >
-                <Dialog
-                    open={dialogOpen}
-                    onClose={handleDialogClose}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title">
-                        {"Are you sure want to clear all the chat history?"}
-                    </DialogTitle>
-                    <DialogActions>
-                        <Button onClick={handleDialogClose}>Cancel</Button>
-                        <Button
-                            onClick={() => {
-                                handleConfirmClear();
-                            }}
-                            autoFocus
-                        >
-                            OK
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </>
-    ) : (
-        <Typography variant="body2">
-            Select a conversation or Create a New one
-        </Typography>
-    );
+                </>) : (
+                <Typography variant="body2">
+                    Select a conversation or Create a New one
+                </Typography>)
+        }
+    </Grid>)
 };
 
-export default Conversation;
+
+export default memo(Conversation);

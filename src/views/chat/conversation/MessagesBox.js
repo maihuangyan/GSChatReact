@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React from 'react'
 import {
     Box,
 } from "@mui/material";
@@ -12,7 +12,6 @@ let firstDate = ""
 function MessagesBox({ roomMessages, ReplyClick, EditClick, CopyClick, DeleteClick, replyScroll, setIsForward, setForwardMessage , chatArea}) {
 
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
-    // console.log(roomMessages)
     //Date seperator
     const DateSeperator = ({ value }) => {
         const theme = useTheme();
@@ -42,9 +41,10 @@ function MessagesBox({ roomMessages, ReplyClick, EditClick, CopyClick, DeleteCli
         <>
             {
                 roomMessages.length ? roomMessages.map((item, index) => {
-                    const showDateDivider = firstDate != item.sentDate;
+                    const showDateDivider = firstDate !== item.sentDate;
                     firstDate = item.sentDate;
-                    const right = item.senderId == useJwt.getUserID()
+                    const right = item.senderId === Number(useJwt.getUserID())
+
                     return (
                         <Box key={index}
                             sx={{

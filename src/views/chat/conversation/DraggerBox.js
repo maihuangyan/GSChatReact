@@ -32,10 +32,11 @@ export default function DraggerBox({ draggerFile, setUploadFiles, setImg, setIsP
         maxCount: 1,
         style: { border: "none" },
         onChange(file) {
+            // console.log(file.file)
             const fileReader = new FileReader();
             fileReader.onload = () => {
                 console.log(file.file.type.split("/"))
-                if (file.file.type.split("/")[1] == "x-msdownload") {
+                if (file.file.type.split("/")[1] === "x-msdownload") {
                     showToast("error", "This file is not supported")
                     return
                 } else {

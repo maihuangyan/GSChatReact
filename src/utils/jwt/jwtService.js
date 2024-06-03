@@ -2,8 +2,8 @@ import axios from "axios";
 import { jwtDefaultConfig } from "./jwtDefaultConfig";
 import { messageService } from "./messageService";
 import OneSignal from 'react-onesignal';
-import { handleLogin } from "store/actions";
-
+// import { isRefreshToken } from "utils/refreshToken";
+import { store } from "store"
 const headers = {
   headers: {
     "x-api-key": process.env.REACT_APP_X_API_KEY,
@@ -23,14 +23,13 @@ export default class JwtService {
   // ** For Refreshing Token
   subscribers = [];
 
-
   constructor(jwtOverrideConfig) {
     this.jwtConfig = { ...this.jwtConfig, ...jwtOverrideConfig };
-
 
     // ** Request Interceptor
     axios.interceptors.request.use(
       (config) => {
+
         // ** Get token from localStorage
         const accessToken = this.getToken();
 
@@ -41,7 +40,11 @@ export default class JwtService {
         if (accessToken) {
           // ** eslint-disable-next-line no-param-reassign
           config.headers.Authorization = `${this.jwtConfig.tokenType} ${accessToken}`;
+          // config.timeout = 5000
         }
+        // let flag = isRefreshToken(this.jwtConfig, config, store, accessToken)
+
+        // return flag ? flag : config;
         return config;
       },
       (error) => Promise.reject(error)
@@ -69,7 +72,7 @@ export default class JwtService {
             }
           }
         }
-        
+
         return response;
       },
       (error) => {
@@ -83,6 +86,7 @@ export default class JwtService {
             console.log("error", error);
             // this.refreshToken({})
             messageService.sendMessage('Logout');
+
           }
           else if (response.status === 403) {
             const data = {
@@ -122,6 +126,7 @@ export default class JwtService {
     catch (e) {
       console.log('logout: 120', e);
       messageService.sendMessage('Logout');
+
     }
   }
 
@@ -209,6 +214,14 @@ export default class JwtService {
     return axios.post(this.jwtConfig.createRoomWithImgEndpoint, ...args, headers);
   }
 
+  updateRoomWithImg(...args) {
+    return axios.post(this.jwtConfig.updateRoomWithImgEndpoint, ...args, headers);
+  }
+
+  updateRoom(...args) {
+    return axios.post(this.jwtConfig.updateRoomEndpoint, ...args, headers);
+  }
+
   searchUsers(...args) {
     return axios.get(`${this.jwtConfig.searchUsersEndpoint}?search_key=${args[0].search_key}&status=${args[0].status}&page=${args[0].page}&limit=${args[0].limit}`, headers);
   }
@@ -223,6 +236,14 @@ export default class JwtService {
 
   uploadFiles(...args) {
     return axios.post(this.jwtConfig.uploadFilesEndpoint, ...args, headers);
+  }
+
+  updateAdvisorInfo(...args) {
+    return axios.post(this.jwtConfig.updateAdvisorInfoEndpoint, ...args, headers);
+  }
+
+  updateAdvisorPhoto(...args) {
+    return axios.post(this.jwtConfig.updateAdvisorPhotoEndpoint, ...args, headers);
   }
 
 }
