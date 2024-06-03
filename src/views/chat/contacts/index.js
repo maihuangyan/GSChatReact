@@ -11,7 +11,7 @@ import {
 
 // ** Store & Actions
 import { useDispatch, useSelector } from "react-redux";
-import { resetUnreadCount, selectRoom, calculateUnSeenCount } from "store/actions/room";
+import { resetUnreadCount, selectRoom , calculateUnSeenCount} from "store/actions/room";
 import { getMessages } from "store/actions/messages";
 import { useTheme } from "@mui/material/styles";
 import { formatChatTime, getRoomDisplayName, getUserDisplayName } from "utils/common";
@@ -65,24 +65,16 @@ const Contacts = () => {
 
     useEffect(() => {
         if (active) {
-            console.log(unreadCount)
-            if (unreadCount) {
-                console.log(active)
-                dispatch(resetUnreadCount({ room_id: active.id, unread_count: 0 }));
-                dispatch(calculateUnSeenCount());
-            }
+            if (unreadCount) dispatch(resetUnreadCount({ room_id: active.id, unread_count: 0 }));
+            dispatch(calculateUnSeenCount());
         }
-    }, [unreadCount])
+    }, [onlineUsers])
 
     // ** Handles User Chat Click
     const handleUserClick = (type, room) => {
         dispatch(selectRoom(room));
         setActive({ type, id: room.id, room });
-        if (unreadCount) {
-            console.log(active)
-            dispatch(resetUnreadCount({ room_id: active.id, unread_count: 0 }));
-            dispatch(calculateUnSeenCount());
-        }
+        if (unreadCount) dispatch(resetUnreadCount({ room_id: room.id, unread_count: 0 })); dispatch(calculateUnSeenCount())
         // dispatch(getMessages({ id: room.id }))
         if (!messages[room.id]) {
             dispatch(getMessages({ id: room.id }))
@@ -149,7 +141,7 @@ const Contacts = () => {
                                 status={getRoomOnlineStatus(item)}
                                 name={getRoomDisplayName(item)}
                             />
-                            {console.log(item)}
+
                             <Box sx={{ ml: 2, width: "100%" }}>
                                 <Typography variant="h4" color={
                                     active.type === "chat" && active.id === item.id

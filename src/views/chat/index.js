@@ -15,13 +15,12 @@ const Chat = () => {
   useEffect(() => {
     loadOnlineList()
     loadRoomData()
-    setInterval(() => {
-      loadOnlineList()
-      let tokenOverdueTime = localStorage.getItem('tokenOverdueTime')
-      console.log(tokenOverdueTime, 'loadOnlineList')
-    }, 5 * 60 * 1000)
+    // setInterval(() => {
+    //   loadOnlineList()
+    //   let tokenOverdueTime = localStorage.getItem('tokenOverdueTime')
+    //   console.log(tokenOverdueTime, 'loadOnlineList')
+    // }, 5 * 60 * 1000)
   }, [])
-  
   // console.log("Chat")
   return (
     <>

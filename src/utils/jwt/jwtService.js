@@ -2,7 +2,7 @@ import axios from "axios";
 import { jwtDefaultConfig } from "./jwtDefaultConfig";
 import { messageService } from "./messageService";
 import OneSignal from 'react-onesignal';
-import { isRefreshToken } from "utils/refreshToken";
+// import { isRefreshToken } from "utils/refreshToken";
 import { store } from "store"
 const headers = {
   headers: {
@@ -42,9 +42,10 @@ export default class JwtService {
           config.headers.Authorization = `${this.jwtConfig.tokenType} ${accessToken}`;
           // config.timeout = 5000
         }
-        let flag = isRefreshToken(this.jwtConfig, config, store, accessToken )
+        // let flag = isRefreshToken(this.jwtConfig, config, store, accessToken)
 
-        return flag ? flag : config;
+        // return flag ? flag : config;
+        return config;
       },
       (error) => Promise.reject(error)
     );
@@ -61,16 +62,15 @@ export default class JwtService {
             console.log(response.data.ResponseCode, 'logout: 55')
             messageService.sendMessage('Logout');
           }
-          //   else {
-          //     if (response.data.ResponseCode === 0) {
-          //       messageService.sendMessage('Refresh', response.data.ResponseResult);
-          //     }
+          else {
+            if (response.data.ResponseCode === 0) {
+              messageService.sendMessage('Refresh', response.data.ResponseResult);
+            }
 
-          //     if (response.data.ResponseResult.access_token) {
-          //       messageService.sendMessage('Login', response.data.ResponseResult);
-
-          //     }
-          //   }
+            if (response.data.ResponseResult.access_token) {
+              messageService.sendMessage('Login', response.data.ResponseResult);
+            }
+          }
         }
 
         return response;
