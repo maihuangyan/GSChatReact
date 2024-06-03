@@ -50,7 +50,7 @@ export default function ForwardBox({ isForward, isForwardClose, ForwardMessage, 
                         {ForwardMessage?.username}
                     </Typography>
                     <Typography component="p" variant="body2">
-                        {ForwardMessage?.type === 0 ? ForwardMessage.message : (ForwardMessage?.type === 1 ? "image" : (ForwardMessage?.type === 3 ? ForwardMessage.forward_message.message : ""))}
+                        {ForwardMessage?.type == 0 ? ForwardMessage.message : (ForwardMessage?.type == 1 ? "image" : (ForwardMessage?.type == 3 ? ForwardMessage.forward_message.message : ""))}
                     </Typography>
                 </Typography>
             </Box>

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import {
     Box,
     Paper,
@@ -14,17 +14,18 @@ import {
 } from "@mui/material";
 import Block from "ui-component/Block";
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons";
+import { Upload } from 'antd';
+import { useSelector } from "react-redux"
 import { styled } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
 import { messageService } from "utils/jwt/messageService";
+import { SocketContext } from "utils/context/SocketContext";
 import useJwt from "utils/jwt/useJwt";
 import ClientAvatar from "ui-component/ClientAvatar";
 import { useForm, Controller } from "react-hook-form"
 import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlined from "@mui/icons-material/VisibilityOffOutlined";
 import { LoaderContext } from "utils/context/ProgressLoader";
-import EditProfile from './EditProfile';
-import { store } from 'store';
 import { useNavigate } from 'react-router-dom';
 
 const CircleButton = styled(Button)(({ theme }) => ({
@@ -66,22 +67,20 @@ const loginHelper = {
     },
 };
 
-export default function Settings() {
-
-
-    const { userData } = store.getState().auth
-    const navigate = useNavigate()
+export default function Settings({ setIsSettingClick }) {
+    const socket = useContext(SocketContext).socket;
+    const userData = useSelector((state) => state.auth.userData);
     const goBackButton = () => {
-      navigate("/chat");
+        setIsSettingClick(false);
     }
     const showToast = useContext(LoaderContext).showToast
 
     const [rePass, setRePass] = useState(false)
-    const [editProfile, setEditProfile] = useState(false)
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    const navigate = useNavigate()
 
     const { control, handleSubmit } = useForm({
         reValidateMode: "onBlur",
@@ -113,28 +112,71 @@ export default function Settings() {
 
     const onSubmit = (data) => {
         console.log('data', data)
-        if (data.new_password !== data.confirm_password) {
-            showToast("error", "Passwords don't match")
-            return;
-        }
-        useJwt
-            .resetPassword({ old_password: data.current_password, new_password: data.new_password }).then(res => {
-                console.log(res.data, 'reset password')
-                if (res.data.ResponseCode === 0) {
-                    showToast("success", "Reset Password Successfully Please Login Again")
-                    messageService.sendMessage("Logout");
-                } else {
-                    showToast("error", res.data.ResponseMessage)
-                }
-            }).catch(err => console.log(err))
     };
 
+    const [profileAvatar, setProfileAvatar] = useState("")
+    const [profileFiles, setProfileFiles] = useState(null)
+
+    const props = {
+        name: 'file',
+        headers: {
+            authorization: 'authorization-text',
+        },
+        beforeUpload: {
+            function() {
+                return false;
+            }
+        },
+        showUploadList: false,
+        maxCount: 1,
+        style: { border: "none" },
+        onChange(file) {
+            const fileReader = new FileReader();
+            fileReader.onload = () => {
+                if (file.file.type.split("/")[0] !== "image") {
+                    showToast("error", "This file is not supported")
+                    return
+                } else {
+                    setProfileFiles(file.file)
+                    setProfileAvatar(fileReader.result)
+                }
+            }
+            fileReader.readAsDataURL(file.file);
+        },
+    };
+
+    useEffect(() => {
+        // console.log(profileFiles)
+        // if(profileFiles){
+        //     useJwt
+        //         .createRoomWithImg()
+        //         .then((res) => {
+        //             if (res.data.ResponseCode == 0) {
+        //                 console.log(res.data, "7777")
+        //             }
+        //             else {
+        //                 console.log(res.data.ResponseMessage)
+        //             }
+        //         })
+        //         .catch((err) => console.log(err));
+        // }
+    }, [profileFiles])
+
+    // console.log(userData)
     return (
         <>
             {
                 rePass ?
                     (<Block
-                        sx={{p: 2,background: "#101010"}}>
+                        sx={{
+                            p: 2,
+                            position: "absolute",
+                            left: 0,
+                            top: 0,
+                            width: "100%",
+                            zIndex: 100,
+                            background: "#101010"
+                        }}>
                         <Box
                             sx={{
                                 borderBottom: "solid 1px #202020",
@@ -342,7 +384,7 @@ export default function Settings() {
                             </Box>
                         </form>
                     </Block >) :
-                    (editProfile ? <EditProfile setEditProfile={setEditProfile} /> : <Block
+                    (<Block
                         sx={{
                             p: 2,
                             position: "absolute",
@@ -363,28 +405,32 @@ export default function Settings() {
                             <CircleButton1 onClick={() => goBackButton()} >
                                 <IconArrowLeft size={20} stroke={3} />
                             </CircleButton1>
-                            <Typography component="p" variant="h3" sx={{ ml: 1, lineHeight: "50px" }}>{userData?.username}</Typography>
+                            <Typography component="p" variant="h3" sx={{ ml: 1, lineHeight: "50px" }}>{userData.username}</Typography>
                         </Box>
                         <Box>
                             <Typography sx={{ pl: 2, pb: 3, pt: 1 }} variant="h1">
                                 Profile
                             </Typography>
                         </Box>
-                        <Box sx={{ pl: 2 }}>
+                        <Box sx={{ mt: 3, pl: 2 }}>
                             <Paper
                                 sx={{ height: "calc( 100vh - 235px)", overflowY: "auto", display: "flex", flexDirection: "column", justifyContent: "start", alignItems: "center" }}
                             >
                                 <Box sx={{ width: { xs: "100%", sm: "100%", md: "80%" } }}>
                                     <Typography component="div"
-                                        sx={{ display: "flex", justifyContent: "center", flexDirection: "column", alignItems: "center" }}
+                                        sx={{ display: "flex", justifyContent: "center" }}
                                     >
-                                        <ClientAvatar
-                                            avatar={
-                                                userData.photo_url ? userData.photo_url : ""
-                                            }
-                                            name={userData.full_name !== " " ? userData.full_name : userData.username}
-                                            size={80}
-                                        />
+                                        <Upload {...props}>
+                                            <ClientAvatar
+                                                avatar={
+                                                    userData.photo_url
+                                                        ? userData.photo_url
+                                                        : ""
+                                                }
+                                                name={userData.full_name ? userData.full_name : userData.username}
+                                                size={80}
+                                            />
+                                        </Upload>
                                     </Typography>
 
                                     <Grid container>
@@ -392,7 +438,7 @@ export default function Settings() {
                                             <Typography component="p" variant="settingsInfo">Name</Typography>
                                         </Grid>
                                         <Grid item xs={6} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                            <Typography component="p" variant="settingsInfo1">{userData.full_name !== " " ? userData.full_name : userData.username}</Typography>
+                                            <Typography component="p" variant="settingsInfo1">{userData.full_name!== " " ? userData.full_name : userData.username}</Typography>
                                         </Grid>
                                     </Grid>
 
@@ -413,57 +459,8 @@ export default function Settings() {
                                             <Typography component="p" variant="settingsInfo1">{userData.email}</Typography>
                                         </Grid>
                                     </Grid>
-                                    <Grid container>
-                                        <Grid item xs={6} sm={6} md={6} elevation={6}>
-                                            <Typography component="p" variant="settingsInfo">Phone</Typography>
-                                        </Grid>
-                                        <Grid item xs={6} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                            <Typography component="p" variant="settingsInfo1">{userData.phone}</Typography>
-                                        </Grid>
-                                    </Grid>
-                                    <Grid container>
-                                        <Grid item xs={6} sm={6} md={6} elevation={6}>
-                                            <Typography component="p" variant="settingsInfo">Gender</Typography>
-                                        </Grid>
-                                        <Grid item xs={6} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                            <Typography component="p" variant="settingsInfo1">{userData.gender}</Typography>
-                                        </Grid>
-                                    </Grid>
-                                    <Grid container>
-                                        <Grid item xs={6} sm={6} md={6} elevation={6}>
-                                            <Typography component="p" variant="settingsInfo">First Name</Typography>
-                                        </Grid>
-                                        <Grid item xs={6} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                            <Typography component="p" variant="settingsInfo1">{userData.first_name}</Typography>
-                                        </Grid>
-                                    </Grid>
-                                    <Grid container>
-                                        <Grid item xs={6} sm={6} md={6} elevation={6}>
-                                            <Typography component="p" variant="settingsInfo">Last Name</Typography>
-                                        </Grid>
-                                        <Grid item xs={6} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                            <Typography component="p" variant="settingsInfo1">{userData.last_name}</Typography>
-                                        </Grid>
-                                    </Grid>
-                                    <Grid container>
-                                        <Grid item xs={6} sm={6} md={6} elevation={6}>
-                                            <Typography component="p" variant="settingsInfo">Date Of Birth</Typography>
-                                        </Grid>
-                                        <Grid item xs={6} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                            <Typography component="p" variant="settingsInfo1">{userData.date_of_birth}</Typography>
-                                        </Grid>
-                                    </Grid>
 
-                                    <Grid container sx={{ cursor: "pointer", borderTop: "1px solid #6e6e6e", mt: 8 }} onClick={() => setEditProfile(true)}>
-                                        <Grid item xs={6} sm={6} md={6} elevation={6}>
-                                            <Typography component="p" variant="settingsInfo">Edit Profile</Typography>
-                                        </Grid>
-                                        <Grid item xs={6} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center", pr: 1 }}>
-                                            <IconArrowRight size={20} stroke={2} />
-                                        </Grid>
-                                    </Grid>
-
-                                    <Grid container sx={{ cursor: "pointer", borderTop: "1px solid #6e6e6e", mt: 1 }} onClick={() => setRePass(true)}>
+                                    <Grid container sx={{ cursor: "pointer", borderTop: "1px solid #6e6e6e", mt: 1 }} onClick={() => navigate(`/reset-password/${userData.id}`)}>
                                         <Grid item xs={6} sm={6} md={6} elevation={6}>
                                             <Typography component="p" variant="settingsInfo">Reset Password</Typography>
                                         </Grid>
@@ -474,7 +471,7 @@ export default function Settings() {
                                 </Box>
                                 <Box sx={{ mt: 4, width: { xs: "50%", sm: "30%", md: "20%" }, display: "flex", justifyContent: "center" }}>
                                     <CircleButton onClick={() => {
-                                        // socket.emit("logout", useJwt.getToken());
+                                        socket.emit("logout", useJwt.getToken());
                                         messageService.sendMessage("Logout");
                                     }} >
                                         Log Out

@@ -1,5 +1,8 @@
+import { useSelector } from "react-redux";
+
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline, StyledEngineProvider } from "@mui/material";
+
 // routing
 import Routes from "routes";
 
@@ -7,6 +10,8 @@ import Routes from "routes";
 import themes from "themes";
 
 // project imports
+import NavigationScroll from "layout/NavigationScroll";
+
 import { SocketProvider } from "./utils/context/SocketContext";
 import { ProgressLoader } from "./utils/context/ProgressLoader";
 import 'animate.css';
@@ -21,11 +26,12 @@ if (process.env.NODE_ENV !== 'development') {
   console.warn = () => { };
 }
 
-let initedOneSignal = false
+var initedOneSignal = false
 const App = () => {
+  const customization = useSelector((state) => state.customization);
   useEffect(() => {
     if (!initedOneSignal) {
-      OneSignal.init({ appId: `${process.env.REACT_APP_ONE_SIGNAL_APP_ID}`, allowLocalhostAsSecureOrigin: true }).then(async () => {
+      OneSignal.init({ appId: `${process.env.REACT_APP_ONE_SIGNAL_APP_ID}`,allowLocalhostAsSecureOrigin:true}).then(async () => {
         if (OneSignal.Slidedown) {
           OneSignal.Slidedown.promptPush();
         }
@@ -39,11 +45,13 @@ const App = () => {
 
   return (
     <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={themes()}>
+      <ThemeProvider theme={themes(customization)}>
         <ProgressLoader>
           <SocketProvider>
             <CssBaseline />
-            <Routes />
+            <NavigationScroll>
+              <Routes />
+            </NavigationScroll>
           </SocketProvider>
         </ProgressLoader>
       </ThemeProvider>

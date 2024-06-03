@@ -17,7 +17,7 @@ export default function ReplyBox({ isReply, isReplyClose, theme, replyMessage })
                 <Typography component="p" variant="h5" sx={{ color: theme.palette.primary.main, mb: "4px" }}>
                     {replyMessage?.user ? getUserDisplayName(replyMessage.user) : replyMessage?.username}
                 </Typography>
-                <Typography component="p" color="#b5b5b5">{replyMessage?.type === 0 ? replyMessage.message : (replyMessage?.type === 1 ? "image" : (replyMessage?.type === 2 ? "file" : replyMessage?.forward_message?.message))}</Typography>
+                <Typography component="p" color="#b5b5b5">{replyMessage?.type == 0 ? replyMessage.message : (replyMessage?.type == 1 ? "image" : (replyMessage?.type == 2 ? "file" : replyMessage?.forward_message?.message))}</Typography>
             </Typography>
         </Box>
     )

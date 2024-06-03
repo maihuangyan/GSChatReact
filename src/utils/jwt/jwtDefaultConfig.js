@@ -10,7 +10,7 @@ export const jwtDefaultConfig = {
   resetPasswordEndpoint: `${process.env.REACT_APP_BASE_API_URL}/auth/reset_password`,
   getAllUsersEndpoint: `${process.env.REACT_APP_BASE_API_URL}/user`,
   updateAdvisorInfoEndpoint: `${process.env.REACT_APP_BASE_API_URL}/user/update_profile`,
-  updateAdvisorPhotoEndpoint: `${process.env.REACT_APP_BASE_API_URL}/user/update_with_image`,
+  updateAdvisorPhotoEndpoint: `${process.env.REACT_APP_BASE_API_URL}/user/update_photo`,
 
   clearRoomMessagesEndpoint: `${process.env.REACT_APP_BASE_API_URL}/message/clear_messages/`,
   getOnlineListEndpoint: `${process.env.REACT_APP_BASE_API_URL}/online/list`,
@@ -18,8 +18,6 @@ export const jwtDefaultConfig = {
   getRoomListEndpoint: `${process.env.REACT_APP_BASE_API_URL}/room`,
   createRoomEndpoint: `${process.env.REACT_APP_BASE_API_URL}/room`,
   createRoomWithImgEndpoint: `${process.env.REACT_APP_BASE_API_URL}/room/create_room_with_image`,
-  updateRoomWithImgEndpoint: `${process.env.REACT_APP_BASE_API_URL}/room/update_room_with_image`,
-  updateRoomEndpoint: `${process.env.REACT_APP_BASE_API_URL}/room/update`,
   searchUsersEndpoint:`${process.env.REACT_APP_BASE_API_URL}/user/search`,
 
   getMessagesEndpoint:`${process.env.REACT_APP_BASE_API_URL}/message/room`,

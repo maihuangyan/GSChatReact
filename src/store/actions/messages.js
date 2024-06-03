@@ -1,4 +1,5 @@
 import useJwt from "utils/jwt/useJwt";
+import mp from "assets/sound.mp3"
 
 // ** Get messages
 export const getMessages = (payload) => {
@@ -6,7 +7,7 @@ export const getMessages = (payload) => {
         useJwt
             .getMessages(payload)
             .then((res) => {
-                if (res.data.ResponseCode === 0) {
+                if (res.data.ResponseCode == 0) {
                     let data = res.data.ResponseResult
                     dispatch({
                         type: "UPDATE_MESSAGES",
@@ -26,7 +27,7 @@ export const getLastMessages = (payload) => {
         useJwt
             .getLastMessages(payload)
             .then((res) => {
-                if (res.data.ResponseCode === 0) {
+                if (res.data.ResponseCode == 0) {
                     let data = res.data.ResponseResult
                     dispatch({
                         type: "UPDATE_MESSAGES",
@@ -89,23 +90,6 @@ export const audioMessages = () => {
     return (dispatch) => {
         dispatch({
             type: "AUDIO_MESSAGES",
-        });
-    };
-}
-
-export const notifyMessage = (data) => {
-    return (dispatch) => {
-        dispatch({
-            type: "NOTIFY_MESSAGES",
-            data
-        });
-    };
-}
-
-export const closeNotifyMessage = () => {
-    return (dispatch) => {
-        dispatch({
-            type: "CLOSE_NOTIFY_MESSAGES",
         });
     };
 }

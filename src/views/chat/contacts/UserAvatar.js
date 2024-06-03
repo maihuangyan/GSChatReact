@@ -1,33 +1,21 @@
-import React, { memo } from 'react'
-import { Typography, } from "@mui/material";
+import React, { useState } from 'react'
+import { Typography, Avatar, } from "@mui/material";
+import { useSelector } from "react-redux"
 import { EditIcon } from "themes/icons"
-import { styled } from "@mui/material/styles";
-import {
-    Button,
-} from "@mui/material";
-import {  IconDotsVertical } from "@tabler/icons";
-import { useNavigate } from 'react-router-dom';
 
-const CircleButton1 = styled(Button)(({ theme }) => ({
-    borderRadius: "50%",
-    minWidth: "40px",
-    height: "40px",
-    color: theme.palette.primary.light,
-    backgroundColor: theme.palette.dark[900],
-    "&:hover": {
-        backgroundColor: "#FBC34A",
-        color: theme.palette.common.black,
-    },
-}));
+import { IconEdit, IconDotsVertical } from "@tabler/icons";
 
-function UserAvatar() {
-    const navigate = useNavigate()
-    const toSearchUser = () => {
-        navigate("/searchUser")
+export default function UserAvatar({ CircleButton1, setIsChatClick, setIsSettingClick }) {
+
+    const userData = useSelector((state) => state.auth.userData);
+
+    const chatClick = () => {
+        setIsChatClick(true)
     }
-    const toSettings = () => {
-        navigate("/settings")
+    const settingsClick = () => {
+        setIsSettingClick(true)
     }
+
     return (
         <>
             <Typography component="div" sx={{
@@ -42,14 +30,13 @@ function UserAvatar() {
                 justifyContent: "space-between",
                 alignItems: "center",
             }}>
-                <CircleButton1 onClick={toSearchUser}>
+                <CircleButton1 onClick={() => chatClick()}>
                     <EditIcon size={25} stroke={1} />
                 </CircleButton1>
-                <CircleButton1 onClick={toSettings} sx={{ ml: 1 }}>
+                <CircleButton1 onClick={() => settingsClick()} sx={{ ml: 1 }}>
                     <IconDotsVertical size={25} stroke={1} />
                 </CircleButton1>
             </Typography>
         </>
     )
 }
-export default memo(UserAvatar)

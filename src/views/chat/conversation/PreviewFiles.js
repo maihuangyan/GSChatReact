@@ -60,7 +60,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
         useJwt
             .uploadFiles(formData)
             .then((res) => {
-                if (res.data.ResponseCode === 0) {
+                if (res.data.ResponseCode == 0) {
                     let fileIds = ''
                     for (let fileRes of res.data.ResponseResult) {
                         if (!fileIds) {
@@ -173,13 +173,13 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                         Type your title
                     </InputLabel>
                     <OutlinedInput
-                        id="message-box"
+                        // id="message-box"
                         value={msg}
                         onChange={(e) => {
                             setMsg(e.target.value)
                         }}
                         onKeyDown={(e) => {
-                            if (e.key === "Enter") {
+                            if (e.key == "Enter") {
                                 handleSendFiles()
                             }
                         }}

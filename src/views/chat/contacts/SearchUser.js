@@ -20,15 +20,13 @@ import Block from "ui-component/Block";
 import ClientAvatar from "ui-component/ClientAvatar";
 
 import { IconSearch, IconArrowLeft, IconPlus, IconCheck } from "@tabler/icons";
-import defaultAvatar from "assets/images/defaultImg.jpg";
+import defaultAvatar from "../../../assets/images/defaultImg.jpg";
 import { styled, useTheme } from "@mui/material/styles";
 
 import { getUserDisplayName } from 'utils/common';
 import { useSelector, useDispatch } from "react-redux"
 import { LoaderContext } from "utils/context/ProgressLoader";
 import { getRoomList, selectRoom } from "store/actions/room"
-import { useNavigate } from 'react-router-dom';
-import { getAllUsers as getAllUser } from "store/actions/user"
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -54,81 +52,72 @@ const CircleButton1 = styled(Button)(({ theme }) => ({
     },
 }));
 
-export default function SearchUser() {
+export default function SearchUser({ setIsChatClick }) {
 
     const theme = useTheme();
     const user = useSelector((state) => state.auth);
     const rooms = useSelector((state) => state.room.rooms);
-    const allUser = useSelector((state) => state.users.all_users);
+    const allUser = useSelector((state) => state.users.connected_users);
+    const users = useSelector((state) => state.users);
     const showToast = useContext(LoaderContext).showToast
     const userData = useSelector((state) => state.auth.userData);
     const dispatch = useDispatch();
-    const navigate = useNavigate()
 
     const goBackButton = () => {
-        navigate("/chat");
+        setIsChatClick(false);
     }
+    const [searchUser, setSearchUser] = useState([])
     const [query, setQuery] = useState("");
     const [filteredChat, setFilteredChat] = useState([]);
     const [addGroup, setAddGroup] = useState(false);
-    const [connectedUsers, setConnectedUsers] = useState([])
+    const [connectedUsers, setConnectedUsers] = useState("")
     const [selectUser, setSelectUser] = useState([])
     const [groupName, setGroupName] = useState("")
     const [groupAvatar, setGroupAvatar] = useState("")
     const [groupFiles, setGroupFiles] = useState(null)
 
     useEffect(() => {
-        dispatch(getAllUser())
-    }, [])
-    const getAllUsers = async (value) => {
-        await useJwt
-            .searchUsers({ search_key: value, status: 1, page: 0, limit: 0 })
+        useJwt
+            .searchUsers({ search_key: query, status: 1, page: 0, limit: 0 })
             .then((res) => {
-                if (res.data.ResponseCode === 0) {
+                if (res.data.ResponseCode == 0) {
                     const data = res.data.ResponseResult
-                    const handleFilter = data.users?.filter(item => item.id !== userData.id)
-                    const searchUsers = { ...data, users: handleFilter }
-                    const filteredChatsArr = searchUsers.users.filter((item) =>
-                        item.username
-                            .toLowerCase()
-                            .includes(value.toLowerCase()));
 
-                    setFilteredChat([...filteredChatsArr]);
+                    const handleFilter = data.users?.filter(item => item.id !== userData.id)
+                    setSearchUser({ ...data, users: handleFilter })
                 }
                 else {
                     console.log(res.data.ResponseCode)
                 }
             })
             .catch((err) => console.log(err));
-    }
-
-    useEffect(() => {
-        const map = new Map();
-        const newArr = allUser.filter(item => !map.has(item.id) && map.set(item.id, item));
-        setConnectedUsers(newArr.filter(item => item.id !== user.userData.id))
-    }, [allUser])
+    }, [query])
 
     // ** Handles Filter
     const handleFilter = (e) => {
-        setFilteredChat([])
-        getAllUsers(e.target.value)
         setQuery(e.target.value);
+        const searchFilterFunction = (users) =>
+            users.username
+                .toLowerCase()
+                .includes(e.target.value.toLowerCase());
+        const filteredChatsArr = searchUser.users.filter(searchFilterFunction);
+        setFilteredChat([...filteredChatsArr]);
     };
 
     const createPrivate = (item) => {
         let isCreate = rooms.filter(room => !room.group && room.opponents[0].id === item.id)
 
         if (isCreate.length) {
-            navigate("/chat");
+            setIsChatClick(false)
             dispatch(selectRoom(isCreate[0]));
         } else {
             useJwt
                 .createRoom({ name: item.id, opponent_ids: item.id, group: 0 })
                 .then((res) => {
-                    if (res.data.ResponseCode === 0) {
+                    if (res.data.ResponseCode == 0) {
                         dispatch(getRoomList())
                         dispatch(selectRoom(res.data.ResponseResult));
-                        navigate("/chat");
+                        setIsChatClick(false)
                     }
                     else {
                         console.log(res.data.ResponseMessage)
@@ -139,10 +128,11 @@ export default function SearchUser() {
                 })
         }
     }
+
     // ** Renders Chat
     const renderChats = () => {
         if (query.length) {
-            if (!Object.keys(filteredChat).length) {
+            if (searchUser.total == 0) {
                 return <Typography sx={{ minHeight: "50vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>No Results Found</Typography>;
             }
             else {
@@ -166,8 +156,8 @@ export default function SearchUser() {
                         >
                             <ClientAvatar
                                 avatar={
-                                    item.photo_url
-                                        ? item.photo_url
+                                    item.photo
+                                        ? item.photo
                                         : defaultAvatar
                                 }
                                 number={0}
@@ -189,19 +179,15 @@ export default function SearchUser() {
         }
     };
 
+
     const onSubmit = () => {
         if (groupFiles) {
-            console.log(groupFiles)
-            const formData = new FormData();
-            formData.append("name", groupName);
-            formData.append("opponent_ids", selectUser.join(","));
-            formData.append("photo", groupFiles);
             useJwt
-                .createRoomWithImg(formData)
+                .createRoomWithImg({ name: groupName, opponent_ids: selectUser, group: 1, photo: groupFiles })
                 .then((res) => {
-                    if (res.data.ResponseCode === 0) {
+                    if (res.data.ResponseCode == 0) {
                         console.log(res.data, "7777")
-                        navigate(0)
+                        setIsChatClick(false)
                     }
                     else {
                         console.log(res.data.ResponseMessage)
@@ -210,11 +196,11 @@ export default function SearchUser() {
                 .catch((err) => console.log(err));
         } else {
             useJwt
-                .createRoom({ name: groupName, opponent_ids: selectUser.join(","), group: 1 })
+                .createRoom({ name: groupName, opponent_ids: selectUser, group: 1 })
                 .then((res) => {
-                    if (res.data.ResponseCode === 0) {
+                    if (res.data.ResponseCode == 0) {
                         console.log(res.data, "66666")
-                        navigate(0)
+                        setIsChatClick(false)
                     }
                     else {
                         console.log(res.data.ResponseMessage)
@@ -224,10 +210,21 @@ export default function SearchUser() {
         }
     }
 
+    useEffect(() => {
+        const map = new Map();
+        if (searchUser.users) {
+            const newArr = searchUser.users.filter(item => !map.has(item.id) && map.set(item.id, item));
+            setConnectedUsers(newArr.filter(item => item.id != user.userData.id))
+        }
+
+    }, [searchUser])
+
+
+
     const selectUserClick = (id) => {
-        let user = selectUser.filter(item => item === id);
+        let user = selectUser.filter(item => item == id);
         if (user.length) {
-            setSelectUser(selectUser.filter(item => item !== id))
+            setSelectUser(selectUser.filter(item => item != id))
         } else {
             setSelectUser([...selectUser, id])
         }
@@ -275,7 +272,6 @@ export default function SearchUser() {
                         zIndex: 100,
                         background: "#101010"
                     }}>
-
                     <Box
                         sx={{
                             borderBottom: "solid 1px #202020",
@@ -337,7 +333,6 @@ export default function SearchUser() {
                                             </Typography>
                                             <Box sx={{ ml: 2, width: "100%" }}>
                                                 <Input
-                                                    placeholder='Group Name'
                                                     value={groupName}
                                                     onChange={(e) => setGroupName(e.target.value)}
                                                 />
@@ -385,7 +380,7 @@ export default function SearchUser() {
                                                             </Typography>
                                                         </Box>
                                                     </Box>
-                                                    {selectUser.filter(ele => ele === item.id).length ? <Box >
+                                                    {selectUser.filter(ele => ele == item.id).length ? <Box >
                                                         <IconCheck size={20} stroke={3} color={theme.palette.primary.main} />
                                                     </Box> : ""}
                                                 </Box>
@@ -406,7 +401,6 @@ export default function SearchUser() {
                         zIndex: 100,
                         background: "#101010"
                     }}>
-
                     <Box
                         sx={{
                             borderBottom: "solid 1px #202020",
@@ -445,7 +439,7 @@ export default function SearchUser() {
                                     Search
                                 </InputLabel>
                                 <OutlinedInput
-                                    id="search-box"
+                                    // id="search-box"
                                     sx={{ color: "white" }}
                                     value={query}
                                     onChange={handleFilter}

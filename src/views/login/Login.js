@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 import logo from "../../assets/images/logo.png";
 import {
@@ -31,11 +32,15 @@ import {
   CheckCircle,
 } from "@mui/icons-material";
 
-import { messageService } from "utils/jwt/messageService";
 import useJwt from "utils/jwt/useJwt";
+import { useDispatch } from "react-redux";
+import { SocketContext } from "utils/context/SocketContext";
+import { handleLogin } from "store/actions";
 import { useForm, Controller } from "react-hook-form";
 import { LoaderContext } from "utils/context/ProgressLoader";
+
 import CopyrightYear from "ui-component/copyrightYear"
+
 
 const CircleButton = styled(Button)(({ theme }) => ({
   borderRadius: "50px",
@@ -61,6 +66,9 @@ const loginHelper = {
   },
 };
 const Login = (props) => {
+  const navigate = useNavigate()
+  const dispatch = useDispatch();
+  const socket = useContext(SocketContext).socket;
   const { control, handleSubmit } = useForm({
     reValidateMode: "onBlur",
   });
@@ -122,13 +130,14 @@ const Login = (props) => {
   };
 
   const afterLogin = (userData) => {
-    messageService.sendMessage('Login', userData);
-    // socket.emit("login", { token: userData.access_token });
+    dispatch(handleLogin(userData));
+    socket.emit("login", { token: userData.access_token });
   }
 
-  // function eventListener(event) {
-  //   console.log(`${event}`);
-  // }
+  function eventListener(event) {
+    console.log(`${event}`);
+  }
+
   return (
     <Grid
       container

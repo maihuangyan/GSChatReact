@@ -1,3 +1,4 @@
+import useJwt from "utils/jwt/useJwt"
 
 export const getOnlineStatuses = (chatStore) => {
   let result = {};
@@ -17,7 +18,7 @@ export const getOnlineStatus = (chatStore, userId) => {
   }
   for (let i = 0; i < chatStore.rooms.length; i++) {
     let item = chatStore.rooms[i];
-    if (item.room.client_id === userId) {
+    if (item.room.client_id == userId) {
       return item.room.status;
     }
   }

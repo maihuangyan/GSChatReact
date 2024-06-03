@@ -1,42 +1,56 @@
-import { useState, useEffect, useContext, memo } from "react";
+import { useState, useEffect, useContext } from "react";
 
 import {
     Box,
     Stack,
     Paper,
+    Button,
     Typography,
     Badge,
-    Grid,
 } from "@mui/material";
 
 // ** Store & Actions
 import { useDispatch, useSelector } from "react-redux";
-import { resetUnreadCount, selectRoom , calculateUnSeenCount} from "store/actions/room";
-import { getMessages } from "store/actions/messages";
-import { useTheme } from "@mui/material/styles";
-import { formatChatTime, getRoomDisplayName, getUserDisplayName } from "utils/common";
+import { resetUnreadCount, selectRoom } from "store/actions/room";
+import { getLastMessages, getMessages } from "store/actions/messages";
+
+import { styled, useTheme } from "@mui/material/styles";
+
+import { formatChatDate, formatChatTime, getRoomDisplayName, getUserDisplayName } from "utils/common";
 import ClientAvatar from "ui-component/ClientAvatar";
 
 import UserAvatar from "./UserAvatar";
+import SearchUser from "./SearchUser";
+import Settings from "./Settings";
 import { SocketContext } from "utils/context/SocketContext";
 
-const Contacts = () => {
+const CircleButton1 = styled(Button)(({ theme }) => ({
+    borderRadius: "50%",
+    minWidth: "40px",
+    height: "40px",
+    color: theme.palette.primary.light,
+    backgroundColor: theme.palette.dark[900],
+    "&:hover": {
+        backgroundColor: "#FBC34A",
+        color: theme.palette.common.black,
+    },
+}));
+
+const Contacts = ({ setIsChatClick, setIsSettingClick }) => {
     const theme = useTheme();
-    const storeRooms = useSelector((state) => state.room.rooms);
-    const selectedRoom = useSelector((state) => state.room.selectedRoom);
-    const unreadCount = useSelector((state) => state.room.unreadCount);
-    const messages = useSelector((state) => state.messages.messages);
-    const userData = useSelector((state) => state.auth.userData);
-    const onlineUsers = useSelector((state) => state.users.onlineUsers);
+    const store = useSelector((state) => state.room);
+    const messages = useSelector((state) => state.messages);
+    const selectedRoom = store.selectedRoom;
     const dispatch = useDispatch();
+    const userData = useSelector((state) => state.auth.userData);
     const [active, setActive] = useState({});
     const [rooms, setRooms] = useState([]);
-    // const [room_lastMessage, setRoom_lastMessage] = useState(null);
-    // const [select_room_lastMessage, setSelect_room_lastMessage] = useState(null);
+
+    const updateOnlineStatus = useContext(SocketContext).updateOnlineStatus;
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
     useEffect(() => {
-        setRooms([...storeRooms])
-    }, [storeRooms]);
+        setRooms([...store.rooms])
+    }, [store]);
 
     useEffect(() => {
         if (selectedRoom && selectedRoom.id) {
@@ -44,41 +58,20 @@ const Contacts = () => {
         } else {
             setActive({});
         }
-    }, []);
-
-    // useEffect(() => {
-    //     if (rooms.length) {
-    //         const activeRoom = rooms.filter(item => item.id === selectedRoom.id)
-    //         if (activeRoom.length) {
-    //             setSelect_room_lastMessage(selectedRoom.last_message?.message)
-    //             setRoom_lastMessage(activeRoom[0].last_message?.message)
-    //         }
-    //     }
-    // }, [rooms])
-
-    // useEffect(() => {
-    //     if (room_lastMessage !== select_room_lastMessage) {
-    //         renderChats()
-    //         console.log("reset renderChats")
-    //     }
-    // }, [room_lastMessage, select_room_lastMessage])
+    }, [selectedRoom]);
 
     useEffect(() => {
         if (active) {
-            if (unreadCount) dispatch(resetUnreadCount({ room_id: active.id, unread_count: 0 }));
-            dispatch(calculateUnSeenCount());
+            dispatch(resetUnreadCount({ room_id: active.id, unread_count: 0 }))
         }
-    }, [onlineUsers])
+    }, [updateOnlineStatus])
 
     // ** Handles User Chat Click
     const handleUserClick = (type, room) => {
         dispatch(selectRoom(room));
         setActive({ type, id: room.id, room });
-        if (unreadCount) dispatch(resetUnreadCount({ room_id: room.id, unread_count: 0 })); dispatch(calculateUnSeenCount())
-        // dispatch(getMessages({ id: room.id }))
-        if (!messages[room.id]) {
-            dispatch(getMessages({ id: room.id }))
-        }
+        dispatch(getMessages({ id: room.id }))
+        dispatch(resetUnreadCount({ room_id: room.id, unread_count: 0 }))
     };
 
     // ** Renders Chat
@@ -100,12 +93,18 @@ const Contacts = () => {
             })
             return rooms.map((item) => {
                 let time = "";
+                // let times = "";
                 if (item.last_message) {
                     time = formatChatTime(
                         item.last_message
                             ? +item.last_message.created_at * 1000
                             : new Date().getTime()
                     );
+                    // times = formatChatDate(
+                    //     item.last_message
+                    //         ? +item.last_message.created_at  * 1000
+                    //         : new Date().getTime()
+                    // );
                 }
                 return (
                     <Box
@@ -141,7 +140,6 @@ const Contacts = () => {
                                 status={getRoomOnlineStatus(item)}
                                 name={getRoomDisplayName(item)}
                             />
-
                             <Box sx={{ ml: 2, width: "100%" }}>
                                 <Typography variant="h4" color={
                                     active.type === "chat" && active.id === item.id
@@ -159,7 +157,7 @@ const Contacts = () => {
                                     }
                                     sx={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}
                                 >
-                                    {item.last_message ? (item.last_message?.type === 0 ? item.last_message?.message : (item.last_message?.type === 1 ? "image" : (item.last_message?.type === 2 ? "file" : "Forwared message"))) : ""}
+                                    {item.last_message ? (item.last_message?.type == 0 ? item.last_message?.message : (item.last_message?.type == 1 ? "image" : (item.last_message?.type == 2 ? "file" : "Forwared message"))) : ""}
                                 </Typography>
                             </Box>
                         </Box>
@@ -200,20 +198,11 @@ const Contacts = () => {
     };
 
     return (
-        <Grid item xs={12} sm={12} md={3} sx={{
-            backgroundColor: "#101010",
-            height: "100%",
-            "@media (max-width: 900px)": {
-                display: Object.keys(selectedRoom).length ? "none" : "block",
-            },
-            "@media (min-width: 900px)": {
-                borderRight: "1px solid #383838 ",
-            }
-        }}>
+        <>
             <Box
                 sx={{
                     pt: 0,
-                    height: "calc(100vh - 67px)",
+                    height: { xs: "auto", sm: "auto", md: "calc(100vh - 67px)" },
                 }}
             >
                 <Box
@@ -224,7 +213,7 @@ const Contacts = () => {
                         pt: 1
                     }}
                 >
-                    <UserAvatar />
+                    <UserAvatar CircleButton1={CircleButton1} theme={theme} setIsChatClick={setIsChatClick} setIsSettingClick={setIsSettingClick} />
                 </Box>
                 <Typography sx={{ pl: 2, pb: 3, pt: 1 }} variant="h1">
                     {getUserDisplayName(userData)}
@@ -239,8 +228,8 @@ const Contacts = () => {
                     </Paper>
                 </Box>
             </Box>
-        </Grid>
+        </>
     );
 };
 
-export default memo(Contacts);
+export default Contacts;

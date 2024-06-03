@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import {
     Box,
     Typography,
@@ -13,9 +13,8 @@ import { Image as Images } from "antd"
 import { useTheme } from "@mui/material/styles";
 import { IconChevronDown, IconArrowForwardUp, IconDownload } from "@tabler/icons";
 import ClientAvatar from "ui-component/ClientAvatar";
-import MessageImage from "ui-component/MessageImage";
 
-import { getUserDisplayName, getSeenStatus, formatChatTime } from 'utils/common';
+import { getUserDisplayName, getSeenStatus, formatChatTime, AdaptiveImage } from 'utils/common';
 
 import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
@@ -44,8 +43,8 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
         const filesType_radio = ["mp3", "wav", "wmv"]
         const filesType_video = ["mp4", "m2v", "mkv", "mov"]
 
-        let radio = filesType_radio.filter(item => item === file)
-        let video = filesType_video.filter(item => item === file)
+        let radio = filesType_radio.filter(item => item == file)
+        let video = filesType_video.filter(item => item == file)
         if (video.length) {
             return "video"
         } else if (radio.length) {
@@ -57,18 +56,6 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
 
     const downloadFile = (e) => {
 
-    }
-    const imageSize = (imgInfo, size) => {
-        switch (size) {
-            case "xs":
-                return imgInfo.height * (200 / imgInfo.width).toFixed(4);
-            case "sm":
-                return imgInfo.height * (300 / imgInfo.width).toFixed(4);
-            case "md":
-                return imgInfo.height * (450 / imgInfo.width).toFixed(3);
-            default:
-                break;
-        }
     }
 
     //Time seperator
@@ -98,7 +85,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                             component="div"
                             color={theme.palette.text.black}
                             sx={{
-                                background: theme.palette.primary.main, p: "5px", borderRadius: item.messages.length === i + 1 ? "6px 6px 0 6px" : "6px", mt: 4, mr: 2, ml: 3, minWidth: "60px",
+                                background: theme.palette.primary.main, p: "5px", borderRadius: item.messages.length == i + 1 ? "6px 6px 0 6px" : "6px", mt: 4, mr: 2, ml: 3, minWidth: "60px",
                                 paddingRight: '15px',
                                 position: "relative",
                                 wordBreak: "break-all",
@@ -106,14 +93,14 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     ml: 20,
                                 },
                             }}>
-                            {message.type === 0 ? (
+                            {message.type == 0 ? (
                                 <Grid>
                                     <Grid item>
                                         {message.reply_on ? <Box sx={{ p: "4px 4px", background: "#b5b5b5", borderRadius: "3px", mb: 1, cursor: "pointer" }}>
                                             <Typography component="div" sx={{ borderLeft: "2px solid #FBC34A", p: "2px 4px" }} onClick={() => replyScroll(message)}>
                                                 <Grid>
                                                     <Grid item>{message.reply_on_message?.username}</Grid>
-                                                    <Grid item><Typography variant='body2'>{message.reply_on_message?.type === 0 ? message.reply_on_message?.message : (message.reply_on_message?.type === 1 ? "image" : (message.reply_on_message?.type === 2 ? "file" : message.reply_on_message?.forward_message.message))}</Typography></Grid>
+                                                    <Grid item><Typography variant='body2'>{message.reply_on_message?.type == 0 ? message.reply_on_message?.message : (message.reply_on_message?.type == 1 ? "image" : (message.reply_on_message?.type == 2 ? "file" : message.reply_on_message?.forward_message.message))}</Typography></Grid>
                                                 </Grid>
                                             </Typography>
                                         </Box> : ""}
@@ -129,23 +116,30 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     (
                                         <Box sx={{
                                             cursor: "pointer", maxWidth: {
-                                                xs: "200px",
-                                                sm: "300px",
-                                                md: "450px",
+                                                xs:"200px",
+                                                sm:"300px",
+                                                md:"450px",
                                             }, height: {
-                                                xs: imageSize(message.files[0], "xs") + "px",
-                                                sm: imageSize(message.files[0], "sm") + "px",
-                                                md: imageSize(message.files[0], "md") + "px",
+                                                xs: `${message.files[0].height * (200 / message.files[0].width).toFixed(4)}px`,
+                                                sm: `${message.files[0].height * (300 / message.files[0].width).toFixed(4)}px`,
+                                                md: `${message.files[0].height * (450 / message.files[0].width).toFixed(3) }px`,
                                             }
                                         }} >
-                                            <MessageImage imageInfo={message.files[0]} />
+                                            <Images
+                                                alt={message.files[0].thumbnail}
+                                                src={message.files[0].thumbnail}
+                                                // placeholder={<Box sx={{minHeight:"500px"}}></Box>}
+                                                loading='lazy'
+                                                width={message.files[0].width + "px"}
+                                                height="100%"
+                                            />
                                             <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', maxWidth: "450px" }}>
                                                 {message.description ? message.description : ''}
                                             </Typography>
                                         </Box>) : (
                                         <Box>
                                             {
-                                                filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) === "word" ? (
+                                                filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "word" ? (
                                                     <Typography component="div" sx={{ p: "2px 4px" }}>
                                                         <form method="get" action={message.files[0].thumbnail} onSubmit={() => downloadFile()}>
                                                             <Button type="submit" sx={{ p: "8px 16px", color: '#000', fontWeight: 400, background: "#b5b5b5", borderRadius: "6px" }}>
@@ -154,12 +148,12 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                                         </form></Typography>) : (<ReactPlayer
                                                             url={message.files[0].thumbnail}
                                                             controls
-                                                            className={filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) === "radio" ? "player-mp3" : "player"}
+                                                            className={filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "radio" ? "player-mp3" : "player"}
                                                         />)
                                             }
                                         </Box>
                                     )
-                            ) : (message.type === 3 ? (
+                            ) : (message.type == 3 ? (
                                 <Grid>
                                     <Grid item>
                                         {message.forward_message ? <Box sx={{ p: "4px 2px", borderRadius: "3px", mb: 1, display: "flex" }}>
@@ -171,23 +165,18 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     </Grid>
                                     <Grid item>
                                         {
-                                            message.forward_message.type === 0 ?
+                                            message.forward_message.type == 0 ?
                                                 (<Typography variant="body1" sx={{ p: "0 8px" }}>
-                                                    {message?.forward_message.message}
+                                                    {message?.forward_message?.message}
                                                 </Typography>)
                                                 :
-                                                (<Box sx={{
-                                                    cursor: "pointer", maxWidth: {
-                                                        xs: "200px",
-                                                        sm: "300px",
-                                                        md: "450px",
-                                                    }, height: {
-                                                        xs: imageSize(message.forward_message.files[0], "xs") + "px",
-                                                        sm: imageSize(message.forward_message.files[0], "sm") + "px",
-                                                        md: imageSize(message.forward_message.files[0], "md") + "px",
-                                                    }
-                                                }} >
-                                                    <MessageImage imageInfo={message.forward_message.files[0]} />
+                                                (<Box sx={{ cursor: "pointer" }} >
+                                                    <Images
+                                                        alt={message?.forward_message.files[0].thumbnail}
+                                                        src={message?.forward_message.files[0].thumbnail}
+                                                        placeholder={true}
+                                                        loading='lazy'
+                                                    />
                                                     <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', maxWidth: "450px" }} >
                                                         {message.description ? message.description : ''}
                                                     </Typography>
@@ -210,7 +199,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     "aria-labelledby": "basic-button",
                                 }}
                             >
-                                {message.type === 0 ? (
+                                {message.type == 0 ? (
                                     <MenuItem onClick={() => {
                                         CopyClick(message); handleClose()
                                     }}>
@@ -218,7 +207,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     </MenuItem>
                                 ) : ''}
                                 <Divider />
-                                {message.type === 0 ? (
+                                {message.type == 0 ? (
                                     <MenuItem onClick={() => {
                                         EditClick({ message, right }); handleClose()
                                     }}>
@@ -230,11 +219,11 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     <ListItemText>reply</ListItemText>
                                 </MenuItem>
                                 <Divider />
-                                <MenuItem onClick={() => { showForward(message); handleClose() }}>
+                                <MenuItem onClick={() => (showForward(message), handleClose())}>
                                     <ListItemText>forward</ListItemText>
                                 </MenuItem>
                                 <Divider />
-                                <MenuItem onClick={() => { DeleteClick(message); handleClose() }}>
+                                <MenuItem onClick={() => (DeleteClick(message), handleClose())}>
                                     <ListItemText>delete</ListItemText>
                                 </MenuItem>
                                 <Divider />
@@ -251,7 +240,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                             component="div"
                             color={theme.palette.text.black}
                             sx={{
-                                background: theme.palette.text.disabled, p: "5px", borderRadius: item.messages.length === i + 1 ? "0 6px 6px 6px" : "6px", mt: 4, mr: 3, ml: isGroup ? 5 : 2, minWidth: "60px",
+                                background: theme.palette.text.disabled, p: "5px", borderRadius: item.messages.length == i + 1 ? "0 6px 6px 6px" : "6px", mt: 4, mr: 3, ml: isGroup ? 5 : 2, minWidth: "60px",
                                 paddingRight: '15px',
                                 position: "relative",
                                 wordBreak: "break-all",
@@ -259,14 +248,14 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     mr: 20,
                                 },
                             }}>
-                            {message.type === 0 ? (
+                            {message.type == 0 ? (
                                 <Grid>
                                     <Grid item>
                                         {message.reply_on ? <Box sx={{ p: "4px 4px", background: theme.palette.primary.main, borderRadius: "3px", mb: 1, cursor: "pointer" }} onClick={() => replyScroll(message)}>
                                             <Typography component="div" sx={{ borderLeft: "2px solid #000", p: "2px 4px" }}>
                                                 <Grid>
                                                     <Grid item>{message.reply_on_message?.username}</Grid>
-                                                    <Grid item><Typography variant='body2'>{message.reply_on_message?.type === 0 ? message.reply_on_message.message : (message.reply_on_message?.type === 1 ? "image" : (message.reply_on_message?.type === 2 ? "file" : message.reply_on_message?.forward_message.message))}</Typography></Grid>
+                                                    <Grid item><Typography variant='body2'>{message.reply_on_message?.type == 0 ? message.reply_on_message.message : (message.reply_on_message?.type == 1 ? "image" : (message.reply_on_message?.type == 2 ? "file" : message.reply_on_message?.forward_message.message))}</Typography></Grid>
                                                 </Grid>
                                             </Typography>
                                         </Box> : ""}
@@ -282,23 +271,29 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     (
                                         <Box sx={{
                                             cursor: "pointer", maxWidth: {
-                                                xs: "200px",
-                                                sm: "300px",
-                                                md: "450px",
+                                                xs:"200px",
+                                                sm:"300px",
+                                                md:"450px",
                                             }, height: {
-                                                xs: imageSize(message.files[0], "xs") + "px",
-                                                sm: imageSize(message.files[0], "sm") + "px",
-                                                md: imageSize(message.files[0], "md") + "px",
+                                                xs: `${message.files[0].height * (200 / message.files[0].width).toFixed(4)}px`,
+                                                sm: `${message.files[0].height * (300 / message.files[0].width).toFixed(4)}px`,
+                                                md: `${message.files[0].height * (450 / message.files[0].width).toFixed(3) }px`,
                                             }
                                         }} >
-                                            <MessageImage imageInfo={message.files[0]} />
-                                            <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', maxWidth: { xs: "200px", sm: "300px", md: "450px" } }}>
+                                            <Images
+                                                alt={message.files[0].thumbnail}
+                                                src={message.files[0].thumbnail}
+                                                loading='lazy'
+                                                width={message.files[0].width + "px"}
+                                                height="100%"
+                                            />
+                                            <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', maxWidth: {xs:"200px",sm:"300px",md:"450px"} }}>
                                                 {message.description ? message.description : ''}
                                             </Typography>
                                         </Box>) : (
                                         <Box>
                                             {
-                                                filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) === "word" ? (
+                                                filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "word" ? (
                                                     <Typography component="div" sx={{ p: "1px 4px" }}>
                                                         <form method="get" action={message.files[0].thumbnail} onSubmit={() => downloadFile()}>
                                                             <Button type="submit" sx={{ p: "8px 16px", color: '#000', fontWeight: 400, background: "#b5b5b5", borderRadius: "6px" }}>
@@ -307,12 +302,12 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                                         </form></Typography>) : (<ReactPlayer
                                                             url={message.files[0].thumbnail}
                                                             controls
-                                                            className={filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) === "radio" ? "player-mp3" : "player"}
+                                                            className={filesType(message.files[0].origin_file_name.split(".")[message.files[0].origin_file_name.split(".").length - 1]) == "radio" ? "player-mp3" : "player"}
                                                         />)
                                             }
                                         </Box>
                                     )
-                            ) : (message.type === 3 ? (
+                            ) : (message.type == 3 ? (
                                 <Grid>
                                     <Grid item>
                                         {message.forward_message ? <Box sx={{ p: "4px 2px", borderRadius: "3px", mb: 1, display: "flex" }}>
@@ -324,25 +319,18 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     </Grid>
                                     <Grid item>
                                         {
-                                            message.forward_message.type === 0 ?
+                                            message.forward_message.type == 0 ?
                                                 (<Typography variant="body1" sx={{ p: "0 8px" }}>
                                                     {message.forward_message.message}
                                                 </Typography>)
                                                 :
-                                                (<Box sx={{
-                                                    cursor: "pointer",
-                                                    maxWidth: {
-                                                        xs: "200px",
-                                                        sm: "300px",
-                                                        md: "450px",
-                                                    },
-                                                    height: {
-                                                        xs: imageSize(message.forward_message.files[0], "xs") + "px",
-                                                        sm: imageSize(message.forward_message.files[0], "sm") + "px",
-                                                        md: imageSize(message.forward_message.files[0], "md") + "px",
-                                                    }
-                                                }} >
-                                                    <MessageImage imageInfo={message.forward_message.files[0]} />
+                                                (<Box sx={{ cursor: "pointer" }} >
+                                                    <Images
+                                                        alt={message.forward_message.files[0].thumbnail}
+                                                        src={message.forward_message.files[0].thumbnail}
+                                                        placeholder={true}
+                                                        loading='lazy'
+                                                    />
                                                     <Typography variant="body1" sx={{ p: "2px 8px", whiteSpace: 'break-spaces', paddingTop: message.description ? '5px' : '0px', maxWidth: "450px" }} >
                                                         {message.description ? message.description : ''}
                                                     </Typography>
@@ -364,7 +352,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     "aria-labelledby": "basic-button",
                                 }}
                             >
-                                {message.type === 0 ? (
+                                {message.type == 0 ? (
                                     <MenuItem onClick={() => {
                                         CopyClick(message); handleClose()
                                     }}>
@@ -376,7 +364,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                     <ListItemText>reply</ListItemText>
                                 </MenuItem>
                                 <Divider />
-                                <MenuItem onClick={() => { showForward(message); handleClose() }}>
+                                <MenuItem onClick={() => (showForward(message), handleClose())}>
                                     <ListItemText>forward</ListItemText>
                                 </MenuItem>
                             </Menu>
