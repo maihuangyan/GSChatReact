@@ -1,5 +1,7 @@
 // ** UseJWT import to get config
 import useJwt from "utils/jwt/useJwt";
+import { getMessages } from "store/actions/messages";
+import {store} from "store"
 // import { setTokenOverdueTime } from "utils/refreshToken";
 const config = useJwt.jwtConfig;
 

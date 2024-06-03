@@ -36,6 +36,9 @@ import useJwt from "utils/jwt/useJwt";
 import { useForm, Controller } from "react-hook-form";
 import { LoaderContext } from "utils/context/ProgressLoader";
 import CopyrightYear from "ui-component/copyrightYear"
+import { getMessages } from "store/actions/messages";
+import { store } from "store"
+import { useDispatch } from "react-redux";
 
 const CircleButton = styled(Button)(({ theme }) => ({
   borderRadius: "50px",
@@ -64,6 +67,7 @@ const Login = (props) => {
   const { control, handleSubmit } = useForm({
     reValidateMode: "onBlur",
   });
+  const dispatch = useDispatch()
 
   const [showPassword, setShowPassword] = useState(false);
   const showToast = useContext(LoaderContext).showToast
@@ -82,7 +86,7 @@ const Login = (props) => {
       .then(async (res) => {
         if (res.data.ResponseCode === 0) {
           const userData = res.data.ResponseResult;
-          
+
           if (OneSignal.Notifications) {
             const isSupported = OneSignal.Notifications.isPushSupported();
 
@@ -109,7 +113,7 @@ const Login = (props) => {
               }
             }
           }
-          
+
           afterLogin(userData)
         }
         else {
@@ -119,6 +123,12 @@ const Login = (props) => {
       .catch((err) => {
         showToast("error", err.message)
       });
+    setTimeout(function () {
+      store.getState().room.rooms.forEach((item, index) => {
+        dispatch(getMessages({ id: item.id }))
+      })
+    }, 2000);
+
   };
 
   const afterLogin = (userData) => {
