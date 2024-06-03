@@ -97,6 +97,11 @@ export default function componentStyleOverrides(theme) {
         primary: {
           color: theme.textDark,
         },
+        root: {
+          "& .MuiTypography-body1": {
+            color: "#ffffff",
+          },
+        },
       },
     },
     MuiOutlinedInput: {
@@ -207,15 +212,6 @@ export default function componentStyleOverrides(theme) {
           "& .MuiPaginationItem-root.Mui-selected": {
             backgroundColor: theme.colors?.primaryMain,
             color: theme.colors?.grey900,
-          },
-        },
-      },
-    },
-    MuiListItemText: {
-      styleOverrides: {
-        root: {
-          "& .MuiTypography-body1": {
-            color: "#ffffff",
           },
         },
       },

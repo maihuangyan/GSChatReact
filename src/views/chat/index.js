@@ -1,92 +1,28 @@
-import { useEffect, useState, useContext, lazy, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Button, Grid } from "@mui/material";
-import mp from "../../assets/sound1.mp3"
-import SearchUser from "./contacts/SearchUser";
-import Settings from "./contacts/Settings";
-import 'animate.css';
+import { useEffect, lazy, useContext } from "react";
+import { Grid } from "@mui/material";
 import Loadable from "ui-component/Loadable";
-import { Outlet } from "react-router-dom";
-import useJwt from "utils/jwt/useJwt"
-
-import { audioMessages } from "store/actions/messages"
+import HiddenBox from "./HiddenBox"
+import { SocketContext } from "utils/context/SocketContext";
 
 const Contacts = Loadable(lazy(() => import('./contacts')));
 const Conversation = Loadable(lazy(() => import('./conversation')));
 
 //Main Component
-const Chat = (props) => {
-  const soundPlayers = useSelector((state) => state.messages.receiveMessage);
-  const selectedRoom = useSelector((state) => state.room.selectedRoom);
-  const [roomTab, setRoomTab] = useState(false)
-  const [isChatClick, setIsChatClick] = useState(false);
-  const [isSettingClick, setIsSettingClick] = useState(false);
-
-  const dispatch = useDispatch()
+const Chat = () => {
+  const loadRoomData = useContext(SocketContext).loadRoomData;
+  const loadOnlineList = useContext(SocketContext).loadOnlineList;
 
   useEffect(() => {
-    if (selectedRoom.id) {
-      setRoomTab(true)
-    } else {
-      setRoomTab(false)
-    }
-  }, [roomTab, selectedRoom])
-
-
-  useEffect(() => {
-    let time = setInterval(() => {
-      if (soundPlayers.length > 0) {
-        playMusic()
-      }
-    }, 100)
-
-    return () => {
-      if (time) {
-        clearInterval(time)
-      }
-    }
+    loadOnlineList()
+    loadRoomData()
+    setInterval(() => {
+      loadOnlineList()
+      let tokenOverdueTime = localStorage.getItem('tokenOverdueTime')
+      console.log(tokenOverdueTime, 'loadOnlineList')
+    }, 5 * 60 * 1000)
   }, [])
-
-  const handleAudioEnded = () => {
-    dispatch(audioMessages())
-  };
-
-  const playMusic = () => {
-    const audioElement = document.querySelector('#chatAudio');
-    if (audioElement) {
-      let promise = audioElement.play()
-      if (promise) {
-        promise.then(res => {
-          audioElement.addEventListener('ended', handleAudioEnded);
-        }).catch((e) => { })
-      }
-    }
-  };
-
-  const refreshToken = async () => {
-    await useJwt
-      .refreshToken({})
-  }
-
-  useEffect(() => {
-    let times = setInterval(() => {
-      let refreshTokens = localStorage.getItem("tokenExpires")
-      let time = new Date().getTime()
-      if (Math.floor(refreshTokens / 1000) === Math.floor(time / 1000)) {
-        refreshToken()
-      }
-      console.log(Math.floor(refreshTokens / 1000))
-      console.log(Math.floor(time / 1000))
-    }, 1000)
-
-    return () => {
-      if (times) {
-        clearInterval(times)
-      }
-      console.log('out')
-    }
-
-  }, [])
+  
+  // console.log("Chat")
   return (
     <>
       <Grid container
@@ -96,49 +32,11 @@ const Chat = (props) => {
             width: "1500px",
           },
         }}>
-        <Grid item xs={12} sm={12} md={3} sx={{
-          backgroundColor: "#101010",
-          height: "100%",
-          "@media (max-width: 900px)": {
-            display: roomTab ? "none" : "block",
-          },
-          "@media (min-width: 900px)": {
-            borderRight: "1px solid #383838 ",
-          }
-        }}>
-          <Contacts setIsChatClick={setIsChatClick} setIsSettingClick={setIsSettingClick} />
-        </Grid>
-        <Grid
-          item
-          xs={12}
-          sm={12}
-          md={9}
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100%",
-            backgroundColor: "#101010",
-            "@media (max-width: 900px)": {
-              display: roomTab ? "flex" : "none",
-            }
-          }}
-        >
-          <Outlet />
-          <Conversation />
-        </Grid>
-        {
-          isChatClick && <SearchUser setIsChatClick={setIsChatClick} />
-        }
-        {
-          isSettingClick && <Settings setIsSettingClick={setIsSettingClick} />
-        }
-      </Grid >
+        <Contacts />
+        <Conversation />
+      </Grid>
 
-      <div hidden>
-        <audio id='chatAudio' src={mp} />
-      </div>
-
+      <HiddenBox />
     </>
   );
 };

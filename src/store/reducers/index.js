@@ -33,7 +33,6 @@ const authReducer = (state = initialState, action) => {
 };
 
 const reducer = {
-  customization: customizationReducer,
   auth: authReducer,
   users: usersReducer,
   messages: messagesReducer,

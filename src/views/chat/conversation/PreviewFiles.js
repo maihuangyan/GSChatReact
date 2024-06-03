@@ -15,7 +15,6 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
 
     const theme = useTheme();
     const socketSendMessage = useContext(SocketContext).socketSendMessage;
-    const socketSendTyping = useContext(SocketContext).socketSendTyping;
 
     const [msg, setMsg] = useState("");
     const [isImage, setIsImage] = useState(false);
@@ -61,7 +60,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
         useJwt
             .uploadFiles(formData)
             .then((res) => {
-                if (res.data.ResponseCode == 0) {
+                if (res.data.ResponseCode === 0) {
                     let fileIds = ''
                     for (let fileRes of res.data.ResponseResult) {
                         if (!fileIds) {
@@ -180,7 +179,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                             setMsg(e.target.value)
                         }}
                         onKeyDown={(e) => {
-                            if (e.key == "Enter") {
+                            if (e.key === "Enter") {
                                 handleSendFiles()
                             }
                         }}

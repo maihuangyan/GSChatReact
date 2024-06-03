@@ -1,9 +1,5 @@
 import moment from "moment";
 import useJwt from "utils/jwt/useJwt"
-import JwtService from "./jwt/jwtService";
-var _ = require('lodash');
-
-
 // ** Converts HTML to string
 export const htmlToString = (html) => html.replace(/<\/?[^>]+(>|$)/g, "");
 
@@ -48,13 +44,6 @@ export const formatDateToMonthShort = (
 
   return new Intl.DateTimeFormat("en-US", formatting).format(date);
 };
-
-function datediff(first, second) {
-  // Take the difference between the dates and divide by milliseconds per day.
-  // Round to nearest whole number to deal with DST.
-  return Math.round((second - first) / (1000 * 60 * 60 * 24));
-}
-
 export const formatChatTime = (milisecs) => {
   var t = new Date(milisecs);
   return moment(t).format("h:mm a");
@@ -89,7 +78,6 @@ export const formatChatDate = (milisecs) => {
   var dt = t,
     date = dt.getDate(),
     month = months[dt.getMonth()],
-    timeDiff = t - Date.now(),
     diffDays = new Date().getDate() - date,
     diffMonths = new Date().getMonth() - dt.getMonth(),
     diffYears = new Date().getFullYear() - dt.getFullYear();
@@ -133,18 +121,18 @@ export const sortMessages = (messages) => {
 }
 
 export const isMessageSeen = (message) => {
-  const mUserId = useJwt.getUserID()
-  if (message.user_id == mUserId) {
+  const mUserId = Number(useJwt.getUserID())
+  if (message.user_id === mUserId) {
     return true;
   }
 
-  if (!message.seens || message.seens.length == 0) {
+  if (!message.seens || message.seens.length === 0) {
     return false;
   }
 
   let seenStatus = false;
   for (let seen of message.seens) {
-    if (seen.user_id == mUserId && seen.status == 1) {
+    if (seen.user_id === mUserId && seen.status === 1) {
       seenStatus = true;
       break;
     }
@@ -154,13 +142,13 @@ export const isMessageSeen = (message) => {
 }
 
 export const isMessageSeenByOther = (message, room) => {
-  if (!message || message.id == 0) return false;
+  if (!message || message.id === 0) return false;
 
-  if (!room || !room.room_users || room.room_users.length == 0) return false;
+  if (!room || !room.room_users || room.room_users.length === 0) return false;
   // console.log(message, room)
   for (let i = 0; i < room.room_users.length; i++) {
     const room_user = room.room_users[i];
-    if (room_user.user_id != useJwt.getUserID()) {
+    if (room_user.user_id !== Number(useJwt.getUserID())) {
       if (room_user.seen_message_id >= message.id) return true;
     }
   }
@@ -173,7 +161,7 @@ export const getSeenStatus = (message, room) => {
     return 'Sending... ';
   }
 
-  if (message.created_at != message.updated_at) {
+  if (message.created_at !== message.updated_at) {
     return 'Edited, ';
   }
 
@@ -227,15 +215,15 @@ export const getRoomDisplayName = (room) => {
   }
 
   if (typeof room === 'object') {
-    if (room.group == 1) {
+    if (room.group === 1) {
       return room.name;
     }
-    if (!room.opponents || !Array.isArray(room.opponents) || room.opponents.length == 0) {
+    if (!room.opponents || !Array.isArray(room.opponents) || room.opponents.length === 0) {
       return room.name;
     }
 
     for (let user of room.opponents) {
-      if (user.id != useJwt.getUserID()) {
+      if (user.id !== Number(useJwt.getUserID())) {
         return getUserDisplayName(user);
       }
     }
@@ -243,28 +231,3 @@ export const getRoomDisplayName = (room) => {
 
   return "Unkown Room";
 }
-
-export const AdaptiveImage = (imgInfo) => {
-  let { imgW, imgH } = imgInfo;
-  console.log(imgW,imgH)
-
-  let maxW;
-  document.onresize = (e) => {
-    // console.log(e.target.innerWidth)
-    e.target.innerWidth < 750 ? maxW = 200 : maxW = 450
-  }
-
-  if (imgW < maxW) {
-    return {
-      viewWidth: imgW,
-      viewHeight: imgH,
-    }
-  } else if (imgW > maxW) {
-    let ratio = Number((maxW / imgW).toFixed(2));
-    return {
-      viewWidth: maxW,
-      viewHeight: imgH * ratio,
-    }
-  }
-}
-

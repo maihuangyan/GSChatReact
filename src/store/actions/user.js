@@ -1,5 +1,13 @@
 import useJwt from "utils/jwt/useJwt";
 
+
+// ** Get all User
+export const getAllUsers = () => {
+  return async (dispatch) => {
+    
+  };
+};
+
 // ** Get User
 export const getUser = (id) => {
   return async (dispatch) => {
@@ -35,6 +43,16 @@ export const deleteUser = (id) => {
     dispatch({
       type: "DELETE_USER",
       data: id,
+    });
+  };
+};
+
+// ** set On line Users 
+export const setOnlineUsers = (data) => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: "SET_ON_LINE_USERS",
+      data,
     });
   };
 };
