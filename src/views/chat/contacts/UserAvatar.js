@@ -42,7 +42,7 @@ function UserAvatar() {
                 justifyContent: "space-between",
                 alignItems: "center",
             }}>
-                <CircleButton1 onClick={toSearchUser}>
+                <CircleButton1 onClick={toSearchUser} sx={{p:"5px 5px 7px 7px"}}>
                     <EditIcon size={25} stroke={1} />
                 </CircleButton1>
                 <CircleButton1 onClick={toSettings} sx={{ ml: 1 }}>

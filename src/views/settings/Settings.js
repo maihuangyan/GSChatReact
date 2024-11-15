@@ -16,7 +16,6 @@ import Block from "ui-component/Block";
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons";
 import { styled } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
-import { messageService } from "utils/jwt/messageService";
 import useJwt from "utils/jwt/useJwt";
 import ClientAvatar from "ui-component/ClientAvatar";
 import { useForm, Controller } from "react-hook-form"
@@ -26,6 +25,8 @@ import { LoaderContext } from "utils/context/ProgressLoader";
 import EditProfile from './EditProfile';
 import { store } from 'store';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from "react-redux";
+import { handleLogout } from "store/actions";
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50px",
@@ -68,12 +69,13 @@ const loginHelper = {
 
 export default function Settings() {
 
-
     const { userData } = store.getState().auth
+
     const navigate = useNavigate()
     const goBackButton = () => {
-      navigate("/chat");
+        navigate("/chat");
     }
+
     const showToast = useContext(LoaderContext).showToast
 
     const [rePass, setRePass] = useState(false)
@@ -82,6 +84,7 @@ export default function Settings() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    const dispatch = useDispatch();
 
     const { control, handleSubmit } = useForm({
         reValidateMode: "onBlur",
@@ -122,19 +125,23 @@ export default function Settings() {
                 console.log(res.data, 'reset password')
                 if (res.data.ResponseCode === 0) {
                     showToast("success", "Reset Password Successfully Please Login Again")
-                    messageService.sendMessage("Logout");
+                    dispatch(handleLogout())
                 } else {
                     showToast("error", res.data.ResponseMessage)
                 }
             }).catch(err => console.log(err))
     };
 
+    const logout = () => {
+        dispatch(handleLogout())
+    }
+
     return (
         <>
             {
                 rePass ?
                     (<Block
-                        sx={{p: 2,background: "#101010"}}>
+                        sx={{ p: 2, background: "#101010" }}>
                         <Box
                             sx={{
                                 borderBottom: "solid 1px #202020",
@@ -191,6 +198,7 @@ export default function Settings() {
                                                 <Input
                                                     id="standard-adornment-current-password"
                                                     placeholder="********"
+                                                    autoComplete="password"
                                                     sx={{ height: 50, color: "white" }}
                                                     type={showCurrentPassword ? "text" : "password"}
                                                     endAdornment={
@@ -245,6 +253,7 @@ export default function Settings() {
                                                 <Input
                                                     id="standard-adornment-password"
                                                     placeholder="********"
+                                                    autoComplete="password"
                                                     sx={{ height: 50, color: "white" }}
                                                     type={showPassword ? "text" : "password"}
                                                     endAdornment={
@@ -299,6 +308,7 @@ export default function Settings() {
                                                 <Input
                                                     id="standard-adornment-confirm-password"
                                                     placeholder="********"
+                                                    autoComplete="password"
                                                     sx={{ height: 50, color: "white" }}
                                                     type={showConfirmPassword ? "text" : "password"}
                                                     endAdornment={
@@ -473,10 +483,7 @@ export default function Settings() {
                                     </Grid>
                                 </Box>
                                 <Box sx={{ mt: 4, width: { xs: "50%", sm: "30%", md: "20%" }, display: "flex", justifyContent: "center" }}>
-                                    <CircleButton onClick={() => {
-                                        // socket.emit("logout", useJwt.getToken());
-                                        messageService.sendMessage("Logout");
-                                    }} >
+                                    <CircleButton onClick={logout} >
                                         Log Out
                                     </CircleButton>
                                 </Box>

@@ -51,6 +51,8 @@ export default function DraggerBox({ draggerFile, setUploadFiles, setImg, setIsP
     };
 
     return <>
+            {/* {console.log("DraggerBox")} */}
+
         <Box
             sx={{
                 display: draggerFile ? "flex" : "none",

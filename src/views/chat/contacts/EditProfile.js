@@ -244,7 +244,6 @@ export default function EditProfile({ setEditProfile }) {
                                     <Input
                                         id="edit-profile-phone"
                                         placeholder="phone"
-                                        autoComplete="phone"
                                         defaultValue={userData.phone}
                                         type="text"
                                         error={error !== undefined}

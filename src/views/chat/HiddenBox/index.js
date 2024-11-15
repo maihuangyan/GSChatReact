@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 import Favicon from "react-favicon";
 import favicon from "assets/images/favicon.png"
 import mp from "assets/sound1.mp3"
@@ -12,17 +12,19 @@ const HiddenBox = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    let time;
-    if (receiveMessage.length > 0) {
-      time = setInterval(() => {
-        if (receiveMessage.length > 0) {
-          playMusic()
-        }
-      }, 100)
-    } else {
-      clearInterval(time)
+    let time = setInterval(() => {
+      if (receiveMessage.length > 0) {
+        playMusic()
+      // console.log("666")
+      }
+    }, 1000)
+
+    return () => {
+      if (time) {
+        clearInterval(time)
+      }
     }
-  }, [])
+  }, [receiveMessage])
 
   const handleAudioEnded = () => {
     dispatch(audioMessages())
@@ -51,54 +53,49 @@ const HiddenBox = () => {
     }
   }, [unreadCount])
 
-  function notifyMe() {
+  const [visibilityState, setVisibilityState] = useState(null)
+
+  useEffect(() => {
+    setVisibilityState(document.visibilityState)
+    document.addEventListener("visibilitychange", () => {
+      setVisibilityState(document.visibilityState)
+    })
+  }, [])
+
+  const notifyMe = () => {
     if (!("Notification" in window)) {
       console.log("This browser does not support desktop notification");
     } else if (Notification.permission === "granted") {
-      document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "hidden") {
-          let notification = new Notification(`${notifyMessage.username} : ${notifyMessage.message} `, {
-            tag: "GSChat",
-            renotify: true,
-          })
-          setTimeout(() => {
-            notification.close();
-            dispatch(closeNotifyMessage())
-          }, 5000)
-        } else {
-          let notification = new Notification(`${notifyMessage.username} : ${notifyMessage.message} `, {
-            tag: "GSChat",
-            renotify: true,
-          })
-          notification.close();
+      if (visibilityState !== "visible") {
+        let notification = new Notification(`${notifyMessage.username} : ${notifyMessage.message} `, {
+          tag: "GSChat",
+          renotify: true,
+        })
+        setTimeout(() => {
           dispatch(closeNotifyMessage())
-        }
-      })
-
-    } else if (Notification.permission !== "denied") {
+        }, 2000)
+      } else {
+        dispatch(closeNotifyMessage())
+      }
+    } else if (Notification.permission === "denied") {
       Notification.requestPermission().then(permission => {
         if (permission === "granted") {
-          let notification;
-          document.addEventListener("visibilitychange", () => {
-            if (document.visibilityState === "hidden") {
-              notification = new Notification(`${notifyMessage.username} : ${notifyMessage.message} `, {
-                tag: "GSChat",
-                renotify: true,
-              })
-              console.log(notifyMessage, "okok");
-              setTimeout(() => {
-                notification.close();
-                dispatch(closeNotifyMessage())
-              }, 5000)
-            } else {
-              notification.close();
+          if (visibilityState !== "visible") {
+            let notification = new Notification(`${notifyMessage.username} : ${notifyMessage.message} `, {
+              tag: "GSChat",
+              renotify: true,
+            })
+            setTimeout(() => {
               dispatch(closeNotifyMessage())
-            }
-          })
+            }, 2000)
+          } else {
+            dispatch(closeNotifyMessage())
+          }
         }
       });
     }
   }
+
   useEffect(() => {
     if (Object.keys(notifyMessage).length) {
       notifyMe()
@@ -109,7 +106,7 @@ const HiddenBox = () => {
       <div hidden>
         <audio id='chatAudio' src={mp} />
       </div>
-      <Favicon url={favicon} animated alertCount={unreadCount} alertFillColor="#FBC34A" alertTextColor="#010101" />
+      <Favicon url={favicon} animated alertCount={unreadCount} alertFillColor="#FBC34A" alertTextColor="#010101" iconSize={16} animationDelay={500} keepIconLink={()=>false} renderOverlay={null} />
     </>
   )
 }

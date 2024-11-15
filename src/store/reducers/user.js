@@ -7,6 +7,7 @@ const initialState = {
   onlineUsers: [],
   all_users: [],
   selectedUser: null,
+  socketConnection: false
 };
 
 const persistConfig = {
@@ -26,7 +27,7 @@ const users = (state = initialState, action) => {
       let selectedUser = null;
       if (Array.isArray(state.connected_users) && state.connected_users.length > 0) {
         for (let user of state.connected_users) {
-          if (user.id === userID) {
+          if (user.id == userID) {
             selectedUser = user;
           }
         }
@@ -44,7 +45,7 @@ const users = (state = initialState, action) => {
       connected_users = [...state.connected_users];
       for (let i = 0; i < connected_users.length; i++) {
         const user = connected_users[i];
-        if (user.id === action.data.id) {
+        if (user.id == action.data.id) {
           connected_users[i] = action.data;
           break;
         }
@@ -56,7 +57,7 @@ const users = (state = initialState, action) => {
       let exist = false;
       for (let i = 0; i < connected_users.length; i++) {
         const user = connected_users[i];
-        if (user.id === action.data.id) {
+        if (user.id == action.data.id) {
           connected_users[i] = action.data;
           break;
         }
@@ -71,7 +72,7 @@ const users = (state = initialState, action) => {
       connected_users = [...state.connected_users];
       for (let i = 0; i < connected_users.length; i++) {
         const user = connected_users[i];
-        if (user.id === user_id) {
+        if (user.id == user_id) {
           connected_users.splice(i, 1);
           break;
         }
@@ -86,6 +87,8 @@ const users = (state = initialState, action) => {
         all_users: [],
         selectedUser: null,
       };
+    case "SOCKET_CONNECTION":
+      return { ...state, socketConnection: action.data };
 
     default:
       return { ...state };

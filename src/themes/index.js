@@ -10,10 +10,9 @@ import themeTypography from "./typography";
 
 /**
  * Represent theme style and structure as per Material-UI
- * @param {JsonObject} customization customization parameter object
  */
 
-export const theme = (customization) => {
+export const theme = () => {
   const color = colors;
 
   const themeOption = {
@@ -28,9 +27,7 @@ export const theme = (customization) => {
     menuSelected: color.darkTextPrimary,
     menuSelectedBack: color.primaryDark,
     divider: color.grey800,
-    customization,
   };
-
   const themeOptions = {
     direction: "ltr",
     palette: themePalette(themeOption),

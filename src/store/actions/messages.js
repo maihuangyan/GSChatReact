@@ -109,3 +109,13 @@ export const closeNotifyMessage = () => {
         });
     };
 }
+
+export const setSendMsg = (data) => {
+    return (dispatch) => {
+        dispatch({
+            type: "SET_SEND_MSG",
+            data,
+        });
+    };
+}
+

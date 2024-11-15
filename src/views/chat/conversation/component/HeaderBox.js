@@ -136,12 +136,15 @@ const HeaderBox = (props) => {
 
     return (
         <Grid container sx={{ borderBottom: "1px solid #997017", p: 1, position: "relative" }}>
+            {/* {console.log("HeaderBox")} */}
+
             <Box sx={{ background: "#101010", position: "absolute", top: 0, left: 0, transform: `translate(${navSearch ? 0 : "100%"})`, zIndex: 100, width: "100%", height: "90%", marginTop: '5px', transition: "0.5s" }}>
                 <Box sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
                     <FormControl fullWidth variant="outlined" sx={{ p: "0 10px" }}>
                         <OutlinedInput
                             id="search-box"
                             placeholder="Search Messages"
+                            autoComplete="messages"
                             sx={{ color: "white" }}
                             value={query}
                             onChange={handleSearch}
@@ -205,7 +208,7 @@ const HeaderBox = (props) => {
                         <Typography variant={selectedRoom.group ? "h2" : "h4"}>
                             {getRoomDisplayName(selectedRoom)}
                         </Typography>
-                        <Typography color={"#d5d5d5"}>{selectedRoom.group ? "" : (getRoomOnlineStatus(selectedRoom) ? "Online" : "Leave")}</Typography>
+                        <Typography color={"#d5d5d5"}>{selectedRoom.group ? "" : (getRoomOnlineStatus(selectedRoom) ? "Online" : "Offline")}</Typography>
                     </Box>
                 </Box>
             </Grid>

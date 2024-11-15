@@ -239,6 +239,7 @@ const ForgotPassword = (props) => {
                           type="email"
                           label="Email"
                           placeholder="Email"
+                          autoComplete="email"
                           InputLabelProps={{ shrink: true }}
                           error={error !== undefined}
                           helperText={

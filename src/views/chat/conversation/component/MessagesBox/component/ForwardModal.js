@@ -19,8 +19,9 @@ import { useSelector, useDispatch } from "react-redux"
 import { selectRoom } from "store/actions/room";
 import { getMessages } from "store/actions/messages";
 import { getRoomDisplayName } from 'utils/common';
+import { setIsForward } from 'store/actions/messageBoxConnect';
 
-export default function ForwardModal({ isForwardModal, setIsForward, setIsForwardModal }) {
+export default function ForwardModal({ isForwardModal,  setIsForwardModal }) {
 
     const theme = useTheme();
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
@@ -56,7 +57,7 @@ export default function ForwardModal({ isForwardModal, setIsForward, setIsForwar
     const forwardClick = (room) => {
         dispatch(selectRoom(room));
         dispatch(getMessages({ id: room.id }))
-        setIsForward(true)
+        dispatch(setIsForward(true));
         setIsForwardModal(false);
     }
 

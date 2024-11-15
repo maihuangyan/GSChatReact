@@ -80,13 +80,13 @@ const ResetPassword = (props) => {
 
   const onSubmit = (data) => {
     //console.log('data', data)
-    if (data.password != data.confirm_password) {
+    if (data.password !== data.confirm_password) {
       showToast("error", "Passwords don't match")
       return;
     }
 
     useJwt
-      .resetForgotPassword({ code, password: data.password})
+      .resetForgotPassword({ code, password: data.password })
       .then((res) => {
         if (res.data.ResponseCode === 0) {
           showToast("success", "Successfully reset, please login now")
@@ -264,6 +264,7 @@ const ResetPassword = (props) => {
                           <Input
                             id="standard-adornment-password"
                             placeholder="********"
+                            autoComplete="password"
                             sx={{ height: 50, color: "white" }}
                             type={showPassword ? "text" : "password"}
                             endAdornment={
@@ -318,6 +319,7 @@ const ResetPassword = (props) => {
                           <Input
                             id="standard-adornment-confirm-password"
                             placeholder="********"
+                            autoComplete="password"
                             sx={{ height: 50, color: "white" }}
                             type={showConfirmPassword ? "text" : "password"}
                             endAdornment={

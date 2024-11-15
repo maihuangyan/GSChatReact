@@ -1,7 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import axios from "axios";
-import { useContext, useEffect, useLayoutEffect, useState } from "react";
-import { LoaderContext } from "utils/context/ProgressLoader";
+import {  useEffect,  useState } from "react";
 import { isEmpty } from "utils/common";
 
 const { Badge, Avatar } = require("@mui/material");
@@ -18,38 +15,10 @@ const ClientAvatar = ({ name, avatar, number, status, size, sx }) => {
   }
 
   const [avatarData, setAvatarData] = useState("");
-  const getImage = useContext(LoaderContext).getImage;
-  const addImage = useContext(LoaderContext).addImage;
-  // useEffect(() => {
-  //   if (avatar) {
-  //     if (avatar.includes('profile_photo')) {
-  //       const image = getImage(avatar)
-  //       if (image) {
-  //         setAvatarData(image);
-  //       }
-  //       else {
-  //         axios.get(avatar, { responseType: 'arraybuffer' })
-  //           .then((res) => {
-  //             let data = res.data;
-  //             const file = new File([data], avatar.split('/').pop(), { type: 'image/' + avatar.split('.').pop() })
-  //             const fileReader = new FileReader()
-  //             fileReader.onload = () => {
-  //               addImage(avatar, fileReader.result)
-  //               setAvatarData(fileReader.result);
-  //             }
-  //             fileReader.readAsDataURL(file);
-  //           })
-  //           .catch((err) => console.log(err));
-  //       }
-  //     }
-  //     else {
-  //       setAvatarData(avatar);
-  //     }
-  //   }
-  // }, [avatar]);
-  useLayoutEffect(()=>{
+
+  useEffect(()=>{
     setAvatarData(avatar)
-  },[])
+  },[avatar])
   function stringToColor(string) {
     let hash = 0;
     let i;

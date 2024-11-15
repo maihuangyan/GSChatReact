@@ -1,27 +1,41 @@
 import { useEffect, lazy, useContext } from "react";
-import { Grid } from "@mui/material";
+import { Alert, Grid, Box } from "@mui/material";
 import Loadable from "ui-component/Loadable";
 import HiddenBox from "./HiddenBox"
 import { SocketContext } from "utils/context/SocketContext";
+import { useDispatch, useSelector } from "react-redux";
+import { getMessages } from "store/actions/messages";
 
 const Contacts = Loadable(lazy(() => import('./contacts')));
 const Conversation = Loadable(lazy(() => import('./conversation')));
 
 //Main Component
 const Chat = () => {
-  const loadRoomData = useContext(SocketContext).loadRoomData;
   const loadOnlineList = useContext(SocketContext).loadOnlineList;
+  const selectedRoom = useSelector((state) => state.room.selectedRoom);
+  const storeRooms = useSelector((state) => state.room.rooms);
+  const socketConnection = useSelector((state) => state.users.socketConnection);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     loadOnlineList()
-    loadRoomData()
-    // setInterval(() => {
-    //   loadOnlineList()
-    //   let tokenOverdueTime = localStorage.getItem('tokenOverdueTime')
-    //   console.log(tokenOverdueTime, 'loadOnlineList')
-    // }, 5 * 60 * 1000)
+    setInterval(() => {
+      loadOnlineList()
+      let tokenOverdueTime = localStorage.getItem('tokenOverdueTime')
+      console.log(tokenOverdueTime, 'loadOnlineList')
+    }, 10 * 60 * 1000)
   }, [])
-  // console.log("Chat")
+  // console.log(socket)
+  useEffect(() => {
+    if (socketConnection && selectedRoom.id) {
+      dispatch(getMessages({ id: selectedRoom.id }))
+      storeRooms.forEach((item, index) => {
+        if (item.unread_count) {
+          dispatch(getMessages({ id: item.id }))
+        }
+      })
+    }
+  }, [socketConnection])
   return (
     <>
       <Grid container
@@ -34,6 +48,11 @@ const Chat = () => {
         <Contacts />
         <Conversation />
       </Grid>
+      <Box sx={{ width: "100%", position: 'fixed', top: 80, display: !socketConnection ? 'flex' : 'none', justifyContent: 'center', alignContent: 'center' }}>
+        <Alert severity='error'>
+          Network error, please check the network
+        </Alert>
+      </Box>
 
       <HiddenBox />
     </>

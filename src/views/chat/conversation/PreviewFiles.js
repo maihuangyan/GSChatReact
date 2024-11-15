@@ -112,6 +112,8 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
 
     }
     return <>
+            {/* {console.log("formData")} */}
+
         <Box
             sx={{
                 display: isPreviewFiles ? "flex" : "none",

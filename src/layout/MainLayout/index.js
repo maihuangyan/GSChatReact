@@ -7,8 +7,6 @@ import {
   Box,
 } from "@mui/material";
 
-// project imports
-
 // styles
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
   ({ theme, open }) => ({

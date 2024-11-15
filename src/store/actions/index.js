@@ -1,8 +1,9 @@
 // ** UseJWT import to get config
 import useJwt from "utils/jwt/useJwt";
-import { getMessages } from "store/actions/messages";
-import {store} from "store"
-// import { setTokenOverdueTime } from "utils/refreshToken";
+import { setTokenOverdueTime } from "utils/refreshToken";
+import { calculateUnSeenCount } from "store/actions/room"
+import { setSocketConnection } from "store/actions/user";
+
 const config = useJwt.jwtConfig;
 
 // ** Handle User Login
@@ -13,16 +14,16 @@ export const handleLogin = (data) => {
     localStorage.setItem(config.storageUserIDKeyName, data.user.id);
     localStorage.setItem(config.storageTokenKeyName, data.access_token);
     localStorage.setItem(config.storageRefreshTokenKeyName, data.access_token);
-    // localStorage.setItem("tokenOverdueTime", setTokenOverdueTime());
+    localStorage.setItem("tokenOverdueTime", setTokenOverdueTime());
 
-    setTimeout(function () {
+      dispatch(setSocketConnection(true))
+      dispatch(calculateUnSeenCount())
       dispatch({
         type: "LOGIN",
         data: data.user,
         [config.storageTokenKeyName]: data.access_token,
         [config.storageRefreshTokenKeyName]: data.access_token,
       });
-    }, 100);
   };
 };
 
@@ -33,7 +34,7 @@ export const handleLogout = () => {
     localStorage.removeItem("userData");
     localStorage.removeItem(config.storageUserIDKeyName);
     localStorage.removeItem(config.storageRefreshTokenKeyName);
-    // localStorage.removeItem("tokenOverdueTime");
+    localStorage.removeItem("tokenOverdueTime");
     dispatch({ type: "GET_MESSAGES", data: [] });
     dispatch({ type: "GET_LAST_MESSAGES", data: [] });
     dispatch({ type: "GET_ROOM_LIST", data: [] });

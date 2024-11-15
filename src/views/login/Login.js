@@ -31,14 +31,13 @@ import {
   CheckCircle,
 } from "@mui/icons-material";
 
-import { messageService } from "utils/jwt/messageService";
 import useJwt from "utils/jwt/useJwt";
 import { useForm, Controller } from "react-hook-form";
 import { LoaderContext } from "utils/context/ProgressLoader";
 import CopyrightYear from "ui-component/copyrightYear"
-import { getMessages } from "store/actions/messages";
-import { store } from "store"
 import { useDispatch } from "react-redux";
+import { handleLogin } from "store/actions";
+import { SocketContext } from "utils/context/SocketContext";
 
 const CircleButton = styled(Button)(({ theme }) => ({
   borderRadius: "50px",
@@ -67,10 +66,12 @@ const Login = (props) => {
   const { control, handleSubmit } = useForm({
     reValidateMode: "onBlur",
   });
-  const dispatch = useDispatch()
 
   const [showPassword, setShowPassword] = useState(false);
   const showToast = useContext(LoaderContext).showToast
+  const loadRoomData = useContext(SocketContext).loadRoomData
+
+  const dispatch = useDispatch();
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -86,35 +87,37 @@ const Login = (props) => {
       .then(async (res) => {
         if (res.data.ResponseCode === 0) {
           const userData = res.data.ResponseResult;
+          // console.log('userDAta', userData);
 
-          if (OneSignal.Notifications) {
-            const isSupported = OneSignal.Notifications.isPushSupported();
-
-            if (isSupported) {
-              let permission = await OneSignal.Notifications.permission;
-              if (permission && OneSignal.User && OneSignal.User.PushSubscription) {
-                const params = {
-                  one_signal_id: OneSignal.User.PushSubscription.id,
-                  push_token: OneSignal.User.PushSubscription.token,
-                  device_id: OneSignal.User.PushSubscription.device_id,
-                  device_type: 0
-                }
-                console.log(params);
-                useJwt
-                  .postDeviceInfo(params)
-                  .then(res => {
-                    afterLogin(userData)
-                  })
-                  .catch((err) => {
-                    afterLogin(userData)
-                    showToast("error", err.message)
-                  });
-                return;
-              }
-            }
+          if (!OneSignal.Notifications) {
+            afterLogin(userData)
           }
 
-          afterLogin(userData)
+          const isSupported = OneSignal.Notifications.isPushSupported();
+          if (!isSupported) {
+            afterLogin(userData)
+          }
+
+          let permission = OneSignal.Notifications.permission;
+          if (!permission || !OneSignal.User || !OneSignal.User.PushSubscription) {
+            afterLogin(userData)
+          }
+
+          const params = {
+            one_signal_id: OneSignal.User.PushSubscription.id,
+            push_token: OneSignal.User.PushSubscription.token,
+            device_id: OneSignal.User.PushSubscription.device_id,
+            device_type: 0,
+            "Authorization": `Bearer ${userData.access_token}`
+          }
+          await useJwt.postDeviceInfo(params).then(res => {
+            afterLogin(userData)
+          })
+            .catch((err) => {
+              afterLogin(userData)
+              showToast("error", err.message)
+            });
+          return;
         }
         else {
           showToast("error", res.data.ResponseMessage)
@@ -123,17 +126,10 @@ const Login = (props) => {
       .catch((err) => {
         showToast("error", err.message)
       });
-    setTimeout(function () {
-      store.getState().room.rooms.forEach((item, index) => {
-        dispatch(getMessages({ id: item.id }))
-      })
-    }, 2000);
-
   };
-
   const afterLogin = (userData) => {
-    messageService.sendMessage('Login', userData);
-    // socket.emit("login", { token: userData.access_token });
+    dispatch(handleLogin(userData))
+    loadRoomData()
   }
 
   // function eventListener(event) {
@@ -304,6 +300,7 @@ const Login = (props) => {
                           type="email"
                           label="Email"
                           placeholder="Email"
+                          autoComplete="email"
                           InputLabelProps={{ shrink: true }}
                           error={error !== undefined}
                           helperText={
@@ -339,6 +336,7 @@ const Login = (props) => {
                           <Input
                             id="standard-adornment-password"
                             placeholder="********"
+                            autoComplete="password"
                             sx={{ height: 50, color: "white" }}
                             type={showPassword ? "text" : "password"}
                             endAdornment={

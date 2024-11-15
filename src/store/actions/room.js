@@ -1,6 +1,6 @@
 import useJwt from "utils/jwt/useJwt";
-import { getMessages } from "store/actions/messages";
-import {store} from "store"
+import { getMessages } from "./messages";
+
 // ** Get all Data
 export const getRoomList = () => {
 
@@ -8,7 +8,7 @@ export const getRoomList = () => {
     useJwt
       .getRoomList()
       .then((res) => {
-        if (res.data.ResponseCode == 0) {
+        if (res.data.ResponseCode === 0) {
           let data = res.data.ResponseResult
           let connected_users = []
           for (let room of data) {
@@ -25,9 +25,9 @@ export const getRoomList = () => {
             type: "GET_ROOM_LIST",
             data,
           });
-          // data.forEach((item, index) => {
-          //   dispatch(getMessages({ id: item.id }))
-          // })
+          data.forEach((item, index) => {
+            dispatch(getMessages({ id: item.id }))
+          })
         } else {
           console.log(res.data.ResponseCode);
         }

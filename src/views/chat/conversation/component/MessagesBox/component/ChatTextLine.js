@@ -9,7 +9,6 @@ import {
     Grid,
     Button
 } from "@mui/material";
-import { Image as Images } from "antd"
 import { useTheme } from "@mui/material/styles";
 import { IconChevronDown, IconArrowForwardUp, IconDownload } from "@tabler/icons";
 import ClientAvatar from "ui-component/ClientAvatar";
@@ -19,11 +18,14 @@ import { getUserDisplayName, getSeenStatus, formatChatTime } from 'utils/common'
 
 import Forward from './ForwardModal';
 import ReactPlayer from "react-player";
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setForwardMessage } from 'store/actions/messageBoxConnect';
 
-function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, i, replyScroll, setIsForward, setForwardMessage, chatArea }) {
+function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, DeleteClick, isGroup, i, replyScroll }) {
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const theme = useTheme();
+    const dispatch = useDispatch()
+
     const [isForwardModal, setIsForwardModal] = useState(false);
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -36,7 +38,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
     };
 
     const showForward = (message) => {
-        setForwardMessage(message)
+        dispatch(setForwardMessage(message));
         setIsForwardModal(true)
     }
 
@@ -89,7 +91,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
     };
     return (
         <Box>
-            <Forward isForwardModal={isForwardModal} setIsForwardModal={setIsForwardModal} setIsForward={setIsForward} />
+            <Forward isForwardModal={isForwardModal} setIsForwardModal={setIsForwardModal} />
             {
                 right ? (
                     <Box sx={{ display: "flex", justifyContent: "flex-end", "&:hover .down": { opacity: 1 } }} >
@@ -99,7 +101,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                             color={theme.palette.text.black}
                             sx={{
                                 background: theme.palette.primary.main, p: "5px", borderRadius: item.messages.length === i + 1 ? "6px 6px 0 6px" : "6px", mt: 4, mr: 2, ml: 3, minWidth: "60px",
-                                paddingRight: '15px',
+                                paddingRight: message.type === 1 || message.reply_on ? '5px' : '18px',
                                 position: "relative",
                                 wordBreak: "break-all",
                                 "@media (min-width: 720px)": {
@@ -109,7 +111,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                             {message.type === 0 ? (
                                 <Grid>
                                     <Grid item>
-                                        {message.reply_on ? <Box sx={{ p: "4px 4px", background: "#b5b5b5", borderRadius: "3px", mb: 1, cursor: "pointer" }}>
+                                        {message.reply_on ? <Box sx={{ p: "4px 18px 4px 4px", background: "#b5b5b5", borderRadius: "3px", mb: 1, cursor: "pointer" }}>
                                             <Typography component="div" sx={{ borderLeft: "2px solid #FBC34A", p: "2px 4px" }} onClick={() => replyScroll(message)}>
                                                 <Grid>
                                                     <Grid item>{message.reply_on_message?.username}</Grid>
@@ -198,8 +200,8 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                             ) : "")
                             )}
                             <Box className
-                                ='down' sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer" }} onClick={(e) => handleClick(e)}>
-                                <IconChevronDown size={20} stroke={1} />
+                                ='down' sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer", width: "20px", height: "20px", borderRadius: "0 6px 0 6px", transition: "all 0.4s", "&:hover": { transition: "all 0.4s", background: '#FFF' } }} onClick={(e) => handleClick(e)}>
+                                <IconChevronDown size={20} stroke={2} />
                             </Box>
                             <Menu
                                 id="basic-menu"
@@ -208,6 +210,14 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                 onClose={handleClose}
                                 MenuListProps={{
                                     "aria-labelledby": "basic-button",
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'right',
                                 }}
                             >
                                 {message.type === 0 ? (
@@ -252,7 +262,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                             color={theme.palette.text.black}
                             sx={{
                                 background: theme.palette.text.disabled, p: "5px", borderRadius: item.messages.length === i + 1 ? "0 6px 6px 6px" : "6px", mt: 4, mr: 3, ml: isGroup ? 5 : 2, minWidth: "60px",
-                                paddingRight: '15px',
+                                paddingRight: message.type === 1 || message.reply_on ? "5px" : '18px',
                                 position: "relative",
                                 wordBreak: "break-all",
                                 "@media (min-width: 720px)": {
@@ -262,7 +272,7 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                             {message.type === 0 ? (
                                 <Grid>
                                     <Grid item>
-                                        {message.reply_on ? <Box sx={{ p: "4px 4px", background: theme.palette.primary.main, borderRadius: "3px", mb: 1, cursor: "pointer" }} onClick={() => replyScroll(message)}>
+                                        {message.reply_on ? <Box sx={{ p: "4px 18px 4px 4px", background: theme.palette.primary.main, borderRadius: "3px", mb: 1, cursor: "pointer" }} onClick={() => replyScroll(message)}>
                                             <Typography component="div" sx={{ borderLeft: "2px solid #000", p: "2px 4px" }}>
                                                 <Grid>
                                                     <Grid item>{message.reply_on_message?.username}</Grid>
@@ -352,8 +362,8 @@ function ChatTextLine({ item, right, message, ReplyClick, EditClick, CopyClick, 
                                 </Grid>
                             ) : "")
                             )}
-                            <Box className="down" sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer" }} onClick={(e) => handleClick(e)}>
-                                <IconChevronDown size={20} stroke={1} />
+                            <Box className="down" sx={{ position: "absolute", top: 1, right: 1, cursor: "pointer", width: "20px", height: "20px", borderRadius: "0 6px 0 6px", transition: "all 0.4s", "&:hover": { transition: "all 0.4s", background: '#FBC34A' } }} onClick={(e) => handleClick(e)}>
+                                <IconChevronDown size={20} stroke={2} />
                             </Box>
                             <Menu
                                 id="basic-menu"

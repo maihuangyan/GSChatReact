@@ -355,6 +355,7 @@ export default function Information() {
                                                         label="Group Name"
                                                         value={roomName}
                                                         placeholder={roomName}
+                                                        autoComplete="name"
                                                         InputLabelProps={{ shrink: true, sx: { mb: 3 } }}
                                                         onChange={(e) => setRoomName(e.target.value)}
                                                         error={error !== undefined}

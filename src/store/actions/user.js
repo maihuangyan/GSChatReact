@@ -4,7 +4,20 @@ import useJwt from "utils/jwt/useJwt";
 // ** Get all User
 export const getAllUsers = () => {
   return async (dispatch) => {
-    
+    useJwt
+      .getAllUsers()
+      .then((res) => {
+        if (res.data.ResponseCode === 0) {
+          let data = res.data.ResponseResult
+          dispatch({
+            type: "SET_ALL_USERS",
+            data,
+          });
+        } else {
+          console.log(res.data.ResponseCode);
+        }
+      })
+      .catch((err) => console.log(err));
   };
 };
 
@@ -52,6 +65,15 @@ export const setOnlineUsers = (data) => {
   return (dispatch, getState) => {
     dispatch({
       type: "SET_ON_LINE_USERS",
+      data,
+    });
+  };
+};
+
+export const setSocketConnection = (data) => {
+  return (dispatch, getState) => {
+    dispatch({
+      type: "SOCKET_CONNECTION",
       data,
     });
   };

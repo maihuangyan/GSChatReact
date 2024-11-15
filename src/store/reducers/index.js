@@ -1,10 +1,12 @@
 // reducer import
 import customizationReducer from "./customizationReducer";
+
+import useJwt from "utils/jwt/useJwt";
 import usersReducer from "./user";
 import messagesReducer from "./messages";
 import roomReducer from "./room";
-import useJwt from "utils/jwt/useJwt";
-
+import sendBoxConnectReducer from "./sandBoxConnect";
+import messageBoxConnectReducer from "./messageBoxConnect";
 const config = useJwt.jwtConfig;
 
 // ==============================|| COMBINE REDUCER ||============================== //
@@ -37,6 +39,8 @@ const reducer = {
   users: usersReducer,
   messages: messagesReducer,
   room: roomReducer,
+  sendBoxConnect: sendBoxConnectReducer,
+  messageBoxConnect: messageBoxConnectReducer,
 };
 
 export default reducer;

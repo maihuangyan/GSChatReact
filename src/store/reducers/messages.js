@@ -5,6 +5,7 @@ const initialState = {
     messages: {},
     receiveMessage: [],
     notifyMessage: {},
+    sendMsg: null
 };
 
 const persistConfig = {
@@ -23,6 +24,9 @@ const messagesReducer = (state = initialState, action) => {
 
         case "DELETE_MESSAGES":
             return deleteMessages(state, action.data);
+
+        case "SET_SEND_MSG":
+            return {...state,sendMsg:action.data};
 
         case "CLEAR_ROOM_MESSAGES":
             const stateMessages = { ...state.messages }
@@ -83,7 +87,7 @@ const addOrUpdateMessages = (state, messages) => {
 
         for (let j = 0; j < roomMessages.length; j++) {
             let im = { ...roomMessages[j] };
-            if (im.local_id === km.local_id) {
+            if (im.local_id == km.local_id) {
                 isNew = false;
                 roomMessages[j] = km;
                 break;
@@ -106,17 +110,16 @@ const deleteMessages = (state, message_ids) => {
     const stateMessages = { ...state.messages }
     for (const [room_id, messages] of Object.entries(stateMessages)) {
         for (let item of messages) {
-            if (item.id === message_ids[0]) {
+            if (item.id == message_ids[0]) {
                 firstMessage = { ...item };
             }
         }
     }
-
     if (firstMessage) {
         const roomId = firstMessage.room_id;
         const roomMessages = stateMessages[roomId] ? [...stateMessages[roomId]] : [];
-        const newArray = roomMessages.filter(message => message_ids.indexOf(message.id) === -1);
-        stateMessages[roomId] = newArray;
+        const newArray = roomMessages.filter(message => message_ids.indexOf(message.id) == -1);
+        stateMessages[roomId] = newArray;   
         return { ...state, messages: stateMessages }
     }
 

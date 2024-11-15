@@ -1,18 +1,19 @@
 import axios from "axios";
 import { jwtDefaultConfig } from "./jwtDefaultConfig";
-import { messageService } from "./messageService";
 import OneSignal from 'react-onesignal';
-// import { isRefreshToken } from "utils/refreshToken";
+import { isRefreshToken } from "utils/refreshToken";
 import { store } from "store"
+import { handleLogin, handleLogout } from "store/actions";
+
 const headers = {
   headers: {
     "x-api-key": process.env.REACT_APP_X_API_KEY,
     "x-api-secret": "secret",
     "device_id": "browser",
+    "device_type": "0",
     "Authorization": `Bearer ${localStorage.getItem('storageTokenKeyName')}`
   }
 }
-
 export default class JwtService {
   // ** jwtConfig <= Will be used by this service
   jwtConfig = { ...jwtDefaultConfig };
@@ -32,6 +33,7 @@ export default class JwtService {
 
         // ** Get token from localStorage
         const accessToken = this.getToken();
+        const refreshToken = this.getRefreshToken();
 
         // ** If token is present add it to request's Authorization Header
         if (OneSignal.User && OneSignal.User.PushSubscription) {
@@ -40,12 +42,12 @@ export default class JwtService {
         if (accessToken) {
           // ** eslint-disable-next-line no-param-reassign
           config.headers.Authorization = `${this.jwtConfig.tokenType} ${accessToken}`;
-          // config.timeout = 5000
         }
-        // let flag = isRefreshToken(this.jwtConfig, config, store, accessToken)
 
-        // return flag ? flag : config;
-        return config;
+        let flag = isRefreshToken(this.jwtConfig, config, store, refreshToken)
+        return flag ? flag : config;
+
+        // return config;
       },
       (error) => Promise.reject(error)
     );
@@ -53,42 +55,27 @@ export default class JwtService {
     // ** Add request/response interceptor
     axios.interceptors.response.use(
       (response) => {
-        if (
-          response.request.responseURL.endsWith(this.jwtConfig.refreshEndpoint)
-        ) {
-          if (response.data.ResponseCode === 1000002 ||
-            response.data.ResponseCode === 1000003 ||
-            response.data.ResponseCode === 1000004) {
-            console.log(response.data.ResponseCode, 'logout: 55')
-            messageService.sendMessage('Logout');
-          }
-          else {
-            if (response.data.ResponseCode === 0) {
-              messageService.sendMessage('Refresh', response.data.ResponseResult);
-            }
-
-            if (response.data.ResponseResult.access_token) {
-              messageService.sendMessage('Login', response.data.ResponseResult);
-            }
-          }
+        if (response.data.ResponseCode === 1000004) {
+          this.refreshToken()
+        }
+        else if (response.data.ResponseCode === 1000002 || response.data.ResponseCode === 1000003) {
+          console.log(response.data.ResponseCode, 'logout: 55')
+          store.dispatch(handleLogout());
+        }
+        else if (response.request.responseURL.endsWith(this.jwtConfig.refreshEndpoint)
+          && response.data.ResponseCode === 0) {
+          store.dispatch(handleLogin(response.data.ResponseResult));
         }
 
         return response;
       },
       (error) => {
-        const { config, response } = error;
-        const originalRequest = config;
-        // console.log("error", error);
-
-        if (response) {
-          console.log("response", response);
-          if (response.status === 401 && !response.request.responseURL.endsWith(this.jwtConfig.refreshEndpoint)) {
-            console.log("error", error);
-            // this.refreshToken({})
-            messageService.sendMessage('Logout');
-
+        if (error.response) {
+          console.log("error", error);
+          if (error.response.status === 401) {
+            store.dispatch(handleLogout());
           }
-          else if (response.status === 403) {
+          else if (error.response.status === 403) {
             const data = {
               ResponseCode: 1000011,
               ResponseMessage: `You don't have the permisson`,
@@ -125,8 +112,7 @@ export default class JwtService {
     }
     catch (e) {
       console.log('logout: 120', e);
-      messageService.sendMessage('Logout');
-
+      store.dispatch(handleLogout());
     }
   }
 
@@ -147,7 +133,9 @@ export default class JwtService {
   }
 
   postDeviceInfo(...args) {
-    return axios.post(this.jwtConfig.postOneSignal, ...args, headers);
+    const changeHeader = { ...headers }
+    changeHeader.headers.Authorization = args[0].Authorization
+    return axios.post(this.jwtConfig.postOneSignal, ...args, changeHeader);
   }
 
   forgotPassword(...args) {
@@ -166,9 +154,8 @@ export default class JwtService {
     return axios.post(this.jwtConfig.resetPasswordEndpoint, ...args, headers);
   }
 
-  refreshToken(oldToken) {
-    console.log('oldToken', oldToken);
-    headers.headers.Authorization = oldToken;
+  refreshToken() {
+    headers.headers.Authorization = this.getRefreshToken();
     return axios.post(this.jwtConfig.refreshEndpoint, {}, headers);
   }
 

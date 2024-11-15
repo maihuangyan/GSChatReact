@@ -28,9 +28,7 @@ import {
 
 
 import useJwt from "utils/jwt/useJwt";
-import { useDispatch } from "react-redux";
 // import { SocketContext } from "utils/context/SocketContext";
-import { handleLogin } from "store/actions";
 import { useForm, Controller } from "react-hook-form";
 import { LoaderContext } from "utils/context/ProgressLoader";
 
@@ -61,7 +59,6 @@ const loginHelper = {
   },
 };
 const Register = (props) => {
-  const dispatch = useDispatch();
   const navigate = useNavigate()
   const { control, handleSubmit } = useForm({
     reValidateMode: "onBlur",
@@ -84,7 +81,7 @@ const Register = (props) => {
       .register({ email: data.email, username: data.username, password: data.password })
       .then((res) => {
         if (res.data.ResponseCode === 0) {
-          const data = res.data.ResponseResult;
+          // const data = res.data.ResponseResult;
           showToast("success", "Successfully register, please login now")
           setTimeout(() => {
             navigate("/login")
@@ -264,6 +261,7 @@ const Register = (props) => {
                         type="email"
                         label="Email"
                         placeholder="Email"
+                        autoComplete="email"
                         InputLabelProps={{ shrink: true }}
                         error={error !== undefined}
                         helperText={
@@ -299,6 +297,7 @@ const Register = (props) => {
                         type="username"
                         label="Username"
                         placeholder="Username"
+                        autoComplete="Username"
                         InputLabelProps={{ shrink: true, sx: { mb: 2 } }}
                         error={error !== undefined}
                       />
@@ -329,6 +328,7 @@ const Register = (props) => {
                         <Input
                           id="standard-adornment-password"
                           placeholder="********"
+                          autoComplete="password"
                           sx={{ height: 50, color: "white" }}
                           type={showPassword ? "text" : "password"}
                           endAdornment={
