@@ -1,4 +1,4 @@
-import useJwt from "utils/jwt/useJwt";
+import useJwt from "@/utils/jwt/useJwt";
 
 // ** Get messages
 export const getMessages = (payload) => {
@@ -118,4 +118,3 @@ export const setSendMsg = (data) => {
         });
     };
 }
-

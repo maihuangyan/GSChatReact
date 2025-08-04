@@ -82,7 +82,7 @@ export default function themeTypography(theme) {
       },
     },
     mainContent: {
-      backgroundColor: theme.background,
+      backgroundColor: theme.backgroundDefault,
       width: "100%",
       minHeight: "calc(100vh - 67px)",
       flexGrow: 1,
@@ -123,7 +123,7 @@ export default function themeTypography(theme) {
     },
     settingsInfo: {
       fontSize: "1rem",
-      color: theme.colors.gold,
+      color: theme.gold,
       padding: "10px 0"
     },
     settingsInfo1: {

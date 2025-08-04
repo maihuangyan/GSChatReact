@@ -1,5 +1,5 @@
 import moment from "moment";
-import useJwt from "utils/jwt/useJwt"
+import useJwt from "@/utils/jwt/useJwt"
 // ** Converts HTML to string
 export const htmlToString = (html) => html.replace(/<\/?[^>]+(>|$)/g, "");
 
@@ -48,6 +48,34 @@ export const formatChatTime = (milisecs) => {
   var t = new Date(milisecs);
   return moment(t).format("h:mm a");
 };
+
+export const formatDateToIsToday = (timestamp) => {
+  const time = new Date(timestamp);
+  const now = new Date();
+
+  const isSameDay =
+    time.getFullYear() === now.getFullYear() &&
+    time.getMonth() === now.getMonth() &&
+    time.getDate() === now.getDate();
+
+  if (isSameDay) {
+    const hours = time.getHours() < 10 ? '0' + time.getHours() : '' + time.getHours();
+    const minutes = time.getMinutes() < 10 ? '0' + time.getMinutes() : '' + time.getMinutes();
+    return `${hours}:${minutes}`;
+  }
+
+  const isSameYear = time.getFullYear() === now.getFullYear();
+
+  const day = time.getDate() < 10 ? '0' + time.getDate() : '' + time.getDate();
+  const month = time.getMonth() + 1 < 10 ? '0' + (time.getMonth() + 1) : '' + (time.getMonth() + 1);
+
+  if (isSameYear) {
+    return `${day}-${month}`;
+  }
+
+  const year = time.getFullYear();
+  return `${day}-${month}-${year}`;
+}
 
 export const formatChatDate = (milisecs) => {
   var fulldays = [
@@ -230,4 +258,28 @@ export const getRoomDisplayName = (room) => {
   }
 
   return "Unkown Room";
+}
+
+export const getOriginalMessage = (message) => {
+  if (!message || !message.forward_message) {
+    return message;
+  }
+
+  let current = message;
+  while (current?.forward_message) {
+    current = current.forward_message;
+  }
+
+  current.message = parsedMessage(current.message)
+  
+  return current;
+}
+
+export const parsedMessage = (messageText) => {
+
+  const hasOrderedList = /\r\d+\./.test(messageText);
+
+  if (!hasOrderedList) return messageText;
+
+  return messageText.replace(/\r(\d+\.)/g, '\n$1');
 }

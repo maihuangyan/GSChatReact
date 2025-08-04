@@ -9,16 +9,17 @@ import {
     InputLabel,
     Input,
 } from "@mui/material";
-import Block from "ui-component/Block";
+import Block from "@/ui-component/Block";
 import { IconArrowLeft, IconEdit } from "@tabler/icons";
 import { Upload } from 'antd';
 import { useSelector, useDispatch } from "react-redux"
 import { styled } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
-import useJwt from "utils/jwt/useJwt";
-import ClientAvatar from "ui-component/ClientAvatar";
+import useJwt from "@/utils/jwt/useJwt";
+import ClientAvatar from "@/ui-component/ClientAvatar";
 import { useForm, Controller } from "react-hook-form"
-import { LoaderContext } from "utils/context/ProgressLoader";
+import { LoaderContext } from "@/utils/context/ProgressLoader";
+import { getUserDisplayName } from '@/utils/common';
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50px",
@@ -159,11 +160,7 @@ export default function EditProfile({ setEditProfile }) {
         <Block
             sx={{
                 p: 2,
-                position: "absolute",
-                left: 0,
-                top: 0,
                 width: "100%",
-                zIndex: 100,
                 background: "#101010"
             }}>
             <Box
@@ -205,7 +202,7 @@ export default function EditProfile({ setEditProfile }) {
                                     avatar={
                                         profileAvatar ? profileAvatar : userData.photo_url
                                     }
-                                    name={userData.full_name !== " " ? userData.full_name : userData.username}
+                                    name={getUserDisplayName(userData)}
                                     size={80}
                                 />
                                 <Box sx={{ position: "absolute", right: "-30px", bottom: "0" }}>

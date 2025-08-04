@@ -1,6 +1,7 @@
+import React, { useCallback } from "react";
 import { Alert, Button, Dialog, DialogActions, DialogTitle, Modal, Snackbar } from "@mui/material";
 import { createContext, useState } from "react"
-import loader from 'assets/images/back-trans.svg';
+import loader from '@/assets/images/back-trans.svg';
 
 const LoaderContext = createContext()
 let confirmCallback = null;
@@ -17,13 +18,8 @@ const ProgressLoader = ({ children }) => {
     type: "error",
   });
 
-  const showProgress = () => {
-    setOpen(true);
-  };
-
-  const hideProgress = () => {
-    setOpen(false);
-  };
+  const showProgress = useCallback(() => setOpen(true), []); 
+  const hideProgress = useCallback(() => setOpen(false), []); 
 
   const showToast = (type, message) => {
     setSnackBarMsg({
@@ -91,7 +87,8 @@ const ProgressLoader = ({ children }) => {
         sx={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          background:"#000"
         }}
         open={open}
       >

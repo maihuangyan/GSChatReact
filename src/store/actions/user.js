@@ -1,4 +1,4 @@
-import useJwt from "utils/jwt/useJwt";
+import useJwt from "@/utils/jwt/useJwt";
 
 
 // ** Get all User
@@ -13,6 +13,7 @@ export const getAllUsers = () => {
             type: "SET_ALL_USERS",
             data,
           });
+          // console.log(data)
         } else {
           console.log(res.data.ResponseCode);
         }

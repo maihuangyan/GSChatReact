@@ -1,5 +1,5 @@
 export default function componentStyleOverrides(theme) {
-  const bgColor = theme.colors?.background;
+  const bgColor = theme.backgroundDefault;
   return {
     MuiButton: {
       styleOverrides: {
@@ -7,8 +7,8 @@ export default function componentStyleOverrides(theme) {
           fontWeight: 500,
           borderRadius: "20px",
           "&.MuiButton-containedSecondary": {
-            backgroundColor: theme.colors?.darkBackground,
-            color: theme.colors?.darkTextPrimary,
+            backgroundColor: theme.darkBackground,
+            color: theme.darkTextPrimary,
             border: "solid 1px #585858",
           },
         },
@@ -19,7 +19,7 @@ export default function componentStyleOverrides(theme) {
         root: {
           "&.MuiIconButton-root": {
             ".MuiTypography-root": {
-              color: theme.colors?.darkLevel1,
+              color: theme.darkLevel1,
             },
           },
         },
@@ -41,7 +41,7 @@ export default function componentStyleOverrides(theme) {
     MuiCardHeader: {
       styleOverrides: {
         root: {
-          color: theme.colors?.textDark,
+          color: theme.textDark,
           padding: "24px",
         },
         title: {
@@ -110,11 +110,11 @@ export default function componentStyleOverrides(theme) {
           background: bgColor,
           borderRadius: "30px",
           "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.colors?.grey900,
+            borderColor: theme.grey900,
             borderWidth: "1px !important",
           },
           "&:hover $notchedOutline": {
-            borderColor: theme.colors?.grey700,
+            borderColor: theme.textDark,
           },
           "&.MuiInputBase-multiline": {
             padding: 1,
@@ -147,7 +147,7 @@ export default function componentStyleOverrides(theme) {
       styleOverrides: {
         root: {
           "&.Mui-disabled": {
-            color: theme.colors?.grey300,
+            color: theme.grey300,
           },
         },
         mark: {
@@ -155,7 +155,7 @@ export default function componentStyleOverrides(theme) {
           width: "4px",
         },
         valueLabel: {
-          color: theme?.colors?.primaryLight,
+          color: theme.heading,
         },
       },
     },
@@ -170,8 +170,8 @@ export default function componentStyleOverrides(theme) {
     MuiAvatar: {
       styleOverrides: {
         root: {
-          color: theme.colors?.primaryLight,
-          background: theme.colors?.darkPaper,
+          color: theme.primaryLight,
+          background: theme.paper,
         },
       },
     },
@@ -187,17 +187,17 @@ export default function componentStyleOverrides(theme) {
     MuiTooltip: {
       styleOverrides: {
         tooltip: {
-          color: theme.colors?.primaryDark,
-          background: theme.colors?.grey700,
+          color: theme.primaryDark,
+          background: theme.grey700,
         },
       },
     },
     MuiLink: {
       styleOverrides: {
         root: {
-          color: theme.colors?.primaryLight,
+          color: theme.primaryLight,
           "&:hover": {
-            color: theme.colors?.primaryMain,
+            color: theme.primaryMain,
           },
         },
       },
@@ -210,8 +210,8 @@ export default function componentStyleOverrides(theme) {
             border: "solid 1px #202020",
           },
           "& .MuiPaginationItem-root.Mui-selected": {
-            backgroundColor: theme.colors?.primaryMain,
-            color: theme.colors?.grey900,
+            backgroundColor: theme.primaryMain,
+            color: theme.grey900,
           },
         },
       },

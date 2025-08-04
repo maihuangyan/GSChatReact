@@ -27,7 +27,7 @@ export const setEditingMessage = (data) => {
     });
   };
 };
-// ** set edit message
+
 export const setIsForward = (data) => {
   return async (dispatch) => {
     dispatch({
@@ -37,7 +37,6 @@ export const setIsForward = (data) => {
   };
 };
 
-// ** set edit message
 export const setForwardMessage = (data) => {
   return async (dispatch) => {
     dispatch({
@@ -48,4 +47,11 @@ export const setForwardMessage = (data) => {
 };
 
 
-
+export const setCurrentTyping = (data) => {
+  return (dispatch) => {
+      dispatch({
+          type: "SET_CURRENT_TYPING",
+          data,
+      });
+  };
+}

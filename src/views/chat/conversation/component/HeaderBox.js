@@ -1,4 +1,4 @@
-import React, { useState, useContext, memo, useEffect } from 'react'
+import React, { useState, useContext, memo , useRef } from 'react'
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -6,29 +6,25 @@ import {
     Grid,
     Paper,
     Button,
-    FormControl,
     Typography,
     Menu,
     MenuItem,
-    OutlinedInput,
     ListItemText,
     Divider,
-    InputAdornment,
-    IconButton,
     Dialog,
     DialogTitle,
     DialogActions
 } from "@mui/material";
-import { IconDotsVertical, IconArrowLeft, IconSearch, IconX, IconArrowDown, IconArrowUp } from "@tabler/icons";
+import { IconDotsVertical, IconArrowLeft, IconSearch } from "@tabler/icons";
 import { styled } from "@mui/material/styles";
-import ClientAvatar from "ui-component/ClientAvatar";
+import ClientAvatar from "@/ui-component/ClientAvatar";
 
-import useJwt from "utils/jwt/useJwt";
-import { selectRoomClear } from "store/actions/room";
-import { getRoomDisplayName, } from "utils/common";
+import useJwt from "@/utils/jwt/useJwt";
+import { selectRoomClear } from "@/store/actions/room";
+import { getRoomDisplayName, } from "@/utils/common";
 import { useDispatch, useSelector } from "react-redux";
-import { SocketContext } from "utils/context/SocketContext";
-import { clearRoomMessages } from "store/actions/messages";
+import { SocketContext } from "@/utils/context/SocketContext";
+import { clearRoomMessages } from "@/store/actions/messages";
 
 const CircleButton1 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -54,19 +50,17 @@ const CircleButton2 = styled(Button)(({ theme }) => ({
     },
 }));
 
-const HeaderBox = (props) => {
-    const { searchTotal } = props;
+const HeaderBox = () => {
+
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
 
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
 
     const dispatch = useDispatch();
     const navigate = useNavigate()
-    const [navSearch, setNavSearch] = useState(false)
-    const [query, setQuery] = useState("");
-    const [searchMessages, setSearchMessages] = useState([]);
-    const [searchCount, setSearchCount] = useState(0);
     const [dialogOpen, setDialogOpen] = useState(false);
+
+    const searchEl = useRef(null)
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -76,44 +70,6 @@ const HeaderBox = (props) => {
     const handleClose = () => {
         setAnchorEl(null);
     };
-
-    const handleSearch = (e) => {
-        const allSearchMessages = searchTotal.flat(Infinity)
-        const newSearchMessages = allSearchMessages.filter(item => item.message.toLowerCase().includes(e.target.value.toLowerCase()))
-
-        setSearchMessages(allSearchMessages.filter(item => item.message.toLowerCase().includes(e.target.value.toLowerCase())))
-
-        setSearchCount(newSearchMessages.length)
-        setQuery(e.target.value);
-
-        if (newSearchMessages.length) {
-            searchScroll(newSearchMessages.pop())
-        }
-    };
-
-    const searchScroll = (message) => {
-        const chatContainer = document.getElementById("chat-area").children[0];
-        let btn = document.getElementById(message.id)
-        let options = {
-            top: 0,
-            behavior: 'smooth'
-        }
-        options.top = btn.parentNode.parentNode.parentNode.offsetTop + btn.offsetTop - 70
-        chatContainer.scrollTo(options)
-    }
-
-    useEffect(() => {
-        if (searchCount > 0) {
-            searchScroll(searchMessages[searchCount - 1])
-        }
-    }, [searchCount])
-
-    useEffect(() => {
-        setNavSearch(false)
-        setQuery("")
-        setSearchCount(0)
-        setSearchMessages([])
-    }, [selectedRoom])
 
     const handleDialogClose = () => {
         setDialogOpen(false);
@@ -135,59 +91,13 @@ const HeaderBox = (props) => {
     };
 
     return (
-        <Grid container sx={{ borderBottom: "1px solid #997017", p: 1, position: "relative" }}>
-            {/* {console.log("HeaderBox")} */}
+        <Grid container sx={{ borderBottom: "1px solid #997017", p: 1, position: "absolute", left: "0", top: "0", zIndex: 15, background: "#101010" }}>
+            {/* {console.log("HeaderBox")}  */}
 
-            <Box sx={{ background: "#101010", position: "absolute", top: 0, left: 0, transform: `translate(${navSearch ? 0 : "100%"})`, zIndex: 100, width: "100%", height: "90%", marginTop: '5px', transition: "0.5s" }}>
-                <Box sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                    <FormControl fullWidth variant="outlined" sx={{ p: "0 10px" }}>
-                        <OutlinedInput
-                            id="search-box"
-                            placeholder="Search Messages"
-                            autoComplete="messages"
-                            sx={{ color: "white" }}
-                            value={query}
-                            onChange={handleSearch}
-                            endAdornment={
-                                <InputAdornment position="end">
-                                    <IconButton aria-label="search icon" edge="end">
-                                        <IconSearch size={25} stroke={1} />
-                                    </IconButton>
-                                </InputAdornment>
-                            }
-                        />
-                    </FormControl>
-                    <Box sx={{ width: "66px" }}>
-                        {searchCount} / {searchMessages.length}
-                    </Box>
-                    <Grid container sx={{ width: "auto", mr: 2 }}>
-                        <Grid item xs={6} md={6} sm={6}>
-                            <CircleButton2 onClick={() => searchMessages.length > searchCount && setSearchCount(searchCount + 1)
-                            }>
-                                <IconArrowDown size={20} stroke={2} />
-                            </CircleButton2>
-                        </Grid>
-                        <Grid item xs={6} md={6} sm={6} sx={{ pl: 1 }}>
-                            <CircleButton2 onClick={() => searchCount > 1 && setSearchCount(searchCount - 1)
-                            }>
-                                <IconArrowUp size={20} stroke={2} />
-                            </CircleButton2>
-                        </Grid>
-                    </Grid>
-                    <CircleButton2 onClick={() => {
-                        setNavSearch(false)
-                        setQuery("")
-                        setSearchCount(0)
-                        setSearchMessages([])
-                    }}>
-                        <IconX size={25} stroke={2} />
-                    </CircleButton2>
-                </Box>
-            </Box>
-            <Grid item xs={6} container>
+            <Grid item xs={8} container>
                 <Box sx={{ display: "flex", alignItems: "center", pb: 0 }}>
                     <Box sx={{
-                        mr: 1, display: "none",
+                        mr: { xs: 0, md: 1 }, display: "none",
                         "@media (max-width: 900px)": {
                             display: "block",
                         },
@@ -204,22 +114,22 @@ const HeaderBox = (props) => {
                         size={40}
                         name={getRoomDisplayName(selectedRoom)}
                     />
-                    <Box sx={{ ml: 2 }}>
-                        <Typography variant={selectedRoom.group ? "h2" : "h4"}>
+                    <Box sx={{ ml: { xs: 0.5, md: 2 } }}>
+                        <Typography variant={selectedRoom.group ? "h2" : "h4"} sx={{ fontSize: { xs: selectedRoom.group ? "16px" : "14px", sm: selectedRoom.group ? "24px" : "16px" } }}>
                             {getRoomDisplayName(selectedRoom)}
                         </Typography>
                         <Typography color={"#d5d5d5"}>{selectedRoom.group ? "" : (getRoomOnlineStatus(selectedRoom) ? "Online" : "Offline")}</Typography>
                     </Box>
                 </Box>
             </Grid>
-            <Grid item xs={6} >
+            <Grid item xs={4} >
                 <Paper
                     sx={{
                         display: "flex",
                         justifyContent: "end",
                     }}
                 >
-                    <CircleButton1 sx={{ mr: 1 }} onClick={() => setNavSearch(true)}>
+                    <CircleButton1 sx={{ mr: 1 }} onClick={() => navigate('/historyMessage')} ref={searchEl} >
                         <IconSearch size={25} stroke={1} />
                     </CircleButton1>
                     <CircleButton1 type="button" onClick={handleClick}>

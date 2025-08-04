@@ -1,7 +1,7 @@
-import { useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
-import logo from "../../assets/images/logo.png";
+import logo from "@/assets/images/logo.png";
 import {
   CssBaseline,
   Typography,
@@ -27,12 +27,12 @@ import {
 } from "@mui/icons-material";
 
 
-import useJwt from "utils/jwt/useJwt";
+import useJwt from "@/utils/jwt/useJwt";
 // import { SocketContext } from "utils/context/SocketContext";
 import { useForm, Controller } from "react-hook-form";
-import { LoaderContext } from "utils/context/ProgressLoader";
+import { LoaderContext } from "@/utils/context/ProgressLoader";
 
-import CopyrightYear from "ui-component/copyrightYear"
+import CopyrightYear from "@/ui-component/copyrightYear"
 
 
 const CircleButton = styled(Button)(({ theme }) => ({

@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useContext, useCallback, lazy, useLayoutEffect, memo, useMemo } from "react";
+import React, { useState, useEffect, useRef, useContext, useCallback, lazy, useLayoutEffect, memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { formatChatDate, } from "utils/common";
+import { formatChatDate, } from "@/utils/common";
 
 import {
     Box,
@@ -10,12 +10,12 @@ import {
 } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
-import { SocketContext } from "utils/context/SocketContext";
-import Loadable from "ui-component/Loadable";
+import { SocketContext } from "@/utils/context/SocketContext";
+import Loadable from "@/ui-component/Loadable";
 
-import { getMessages } from "store/actions/messages";
-import { changeShowToBottom } from "store/actions/sandBoxConnect"
-import { setIsReply } from 'store/actions/messageBoxConnect';
+import { getMessages } from "@/store/actions/messages";
+import { changeShowToBottom } from "@/store/actions/sandBoxConnect"
+import { setIsReply } from '@/store/actions/messageBoxConnect';
 
 const PreviewFiles = Loadable(lazy(() => import('./PreviewFiles')));
 const DraggerBox = Loadable(lazy(() => import('./DraggerBox')));
@@ -55,202 +55,233 @@ const Conversation = () => {
     // ** Scroll to chat bottom
     const actisToBottom = useCallback((send) => {
         const chatContainer = chatArea.current;
-        if (chatContainer) {
-            if (send.send) {
-                if (send.isOneself) {
+        if (!chatContainer) return;
+
+        const scrollToBottom = () => {
+            chatContainer.scrollTo({
+                top: chatContainer.scrollHeight,
+                behavior: "smooth",
+            });
+        };
+
+        if (send?.send) {
+            const isNearBottom =
+                chatContainer.scrollTop + chatContainer.offsetHeight + 500 >=
+                chatContainer.scrollHeight;
+
+            setTimeout(scrollToBottom, send.isOneself ? 200 : isNearBottom ? 50 : 0);
+        } else {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    }, []);
+
+    const actisToTop = useCallback(() => {
+        const chatContainer = chatArea.current;
+        if (!chatContainer) return;
+
+        const roomMessages = storeMessages[selectedRoom.id] || [];
+
+        const handleScroll = () => {
+            const isAtBottom =
+                chatContainer.scrollTop + chatContainer.offsetHeight + 1 >=
+                chatContainer.scrollHeight;
+
+            dispatch(changeShowToBottom(!isAtBottom));
+
+            if (
+                chatContainer.scrollTop === 0 &&
+                chatContainer.scrollHeight > chatContainer.clientHeight
+            ) {
+                const lastScrollTop = chatContainer.scrollHeight - chatContainer.scrollTop;
+
+                if (!isToTop) {
+                    setScrollTop((prev) => prev + 1);
                     setTimeout(() => {
                         chatContainer.scrollTo({
-                            top: chatContainer.scrollHeight,
-                            behavior: "smooth"
-                        })
-                    }, 200)
-                    // console.log("6666")
+                            top: chatContainer.scrollHeight - lastScrollTop,
+                            behavior: "auto",
+                        });
+                    }, 10);
                 } else {
-                    if (chatContainer.scrollTop + chatContainer.offsetHeight + 500 >= chatContainer.scrollHeight) {
-                        setTimeout(() => {
-                            chatContainer.scrollTo({
-                                top: chatContainer.scrollHeight,
-                                behavior: "smooth"
+                    setIsToTop(false);
+                    setScrollTop((prev) => prev + 1);
+
+                    if (roomMessages.length > 0) {
+                        dispatch(
+                            getMessages({
+                                id: selectedRoom.id,
+                                last_message_id: roomMessages[0].id,
                             })
-                        }, 50)
-                        // console.log("8888")
+                        );
                     }
-                }
-            } else {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-        }
-    }, [])
 
-    const actisToTop = () => {
-        const chatContainer = chatArea.current;
-        let roomMessages = storeMessages[selectedRoom.id] ? storeMessages[selectedRoom.id] : [];
-        if (chatContainer) {
-            chatContainer.onscroll = () => {
-                if (chatContainer.scrollTop + chatContainer.offsetHeight + 1 >= chatContainer.scrollHeight) {
-                    dispatch(changeShowToBottom(false))
-                } else {
-                    dispatch(changeShowToBottom(true))
-                }
-                if (chatContainer.scrollTop === 0 && chatContainer.scrollHeight > chatContainer.clientHeight) {
-
-                    let LastScrollTop = chatContainer.scrollHeight - chatContainer.scrollTop
-                    let options = {
-                        top: chatContainer.scrollHeight - LastScrollTop,
-                        behavior: 'smooth'
-                    }
-                    if (!isToTop) {
-                        setScrollTop(scrollTop + 1)
-                        setTimeout(() => {
-                            chatContainer.scrollTo(0, chatContainer.scrollHeight - LastScrollTop);
-                        }, 10);
-
-                    } else {
-                        console.log("9999")
-                        setIsToTop(false)
-                        dispatch(getMessages({ id: selectedRoom.id, last_message_id: roomMessages[0].id }))
-                        setTimeout(() => {
-                            chatContainer.scrollTo(options)
-                        }, 10);
-                    }
+                    setTimeout(() => {
+                        chatContainer.scrollTo({
+                            top: 500,
+                            behavior: "smooth",
+                        });
+                    }, 1000);
                 }
             }
-        }
-    };
+        };
 
-    const formatChatData = (message) => {
-        if (!selectedRoom || message.length === 0) return setRoomMessages([]);
-        let formattedChatLog = [];
-        let chatLogs = [...message]
+        chatContainer.onscroll = handleScroll;
+    }, [dispatch, isToTop, selectedRoom?.id, storeMessages]);
+
+    const formatChatData = useCallback((messages) => {
+
+        if (!selectedRoom || messages.length === 0) {
+            return [];
+        }
+
+        const formattedChatLog = [];
+        let chatLogs = [...messages];
+
+        if (chatLogs.length === 1) {
+            formattedChatLog.push({
+                sentDate: formatChatDate(chatLogs[0].created_at * 1000),
+                senderId: chatLogs[0].user_id,
+                sentTime: chatLogs[0].created_at * 1000,
+                messages: [chatLogs[0]],
+            });
+            return formattedChatLog;
+        }
+
         let msgGroup = {
-            sentDate: formatChatDate(chatLogs[0].created_at * 1000), // for date divide,
+            sentDate: formatChatDate(chatLogs[0].created_at * 1000),
             senderId: chatLogs[0].user_id,
-            sentTime: chatLogs[0].created_at * 1000, // for checking 1 mins delay = diff: 60 * 1000,
+            sentTime: chatLogs[0].created_at * 1000,
             messages: [chatLogs[0]],
         };
-        if (chatLogs.length === 1) {
-            formattedChatLog.push(msgGroup);
-        }
+
         for (let i = 1; i < chatLogs.length; i++) {
-            let msgs = chatLogs[i];
-            if (
-                formatChatDate(+msgs.created_at * 1000) === msgGroup.sentDate &&
-                msgGroup.senderId === msgs.user_id &&
-                parseInt(msgs.created_at * 1000) - parseInt(msgGroup.sentTime) < 60 * 1000
-            ) {
-                msgGroup.messages.push(msgs);
+            const currentMsg = chatLogs[i];
+
+            const isSameDate = formatChatDate(currentMsg.created_at * 1000) === msgGroup.sentDate;
+            const isSameSender = msgGroup.senderId === currentMsg.user_id;
+            const isWithinTimeLimit = currentMsg.created_at * 1000 - msgGroup.sentTime < 60 * 1000;
+
+            if (isSameDate && isSameSender && isWithinTimeLimit) {
+                msgGroup.messages.push(currentMsg);
             } else {
                 formattedChatLog.push(msgGroup);
                 msgGroup = {
-                    sentDate: formatChatDate(+msgs.created_at * 1000),
-                    senderId: msgs.user_id,
-                    sentTime: msgs.created_at * 1000,
-                    messages: [msgs],
+                    sentDate: formatChatDate(currentMsg.created_at * 1000),
+                    senderId: currentMsg.user_id,
+                    sentTime: currentMsg.created_at * 1000,
+                    messages: [currentMsg],
                 };
             }
+
             if (i === chatLogs.length - 1) {
                 formattedChatLog.push(msgGroup);
             }
         }
-        return formattedChatLog
-    }
+
+        return formattedChatLog;
+    }, [selectedRoom]);
 
     // ** If user chat is not empty scrollToBottom
     useLayoutEffect(() => {
-        // console.log('room changed', selectedRoom);
-        if (selectedRoom) {
-            let roomMessages = storeMessages[selectedRoom.id] ? storeMessages[selectedRoom.id] : [];
-            if (roomMessages.length > 0) {
-                roomMessages = roomMessages.sort((a, b) => (a.created_at > b.created_at ? 1 : a.created_at < b.created_at ? -1 : 0));
-                const roomUsers = selectedRoom.room_users;
-                let roomUser = null;
-                if (roomUsers && roomUsers.length > 0) {
-                    roomUsers.forEach(user => {
-                        if (user.user_id === userData.id) {
-                            roomUser = user;
-                        }
-                    })
-                }
-                if (roomUser && roomUser.seen_message_id < roomMessages[roomMessages.length - 1].id) {
-                    socketOpenMessage(roomMessages[roomMessages.length - 1].id);
-                }
-            }
-            let chatLogs = []
-            if (scrollTop) {
-                chatLogs = roomMessages.filter((item, index) => index >= roomMessages.length - (30 + (10 * scrollTop)) - newMessageCount)
-                setRoomMessages(formatChatData(chatLogs))
-            } else {
-                chatLogs = roomMessages.filter((item, index) => index >= roomMessages.length - 30 - newMessageCount)
-                setRoomMessages(formatChatData(chatLogs))
-                setRoomChange(!roomChange)
-            }
+        if (!selectedRoom) {
+            setRoomMessages([]);
+            return;
+        }
 
-            if (roomMessages.length === chatLogs.length + 10) {
-                setIsToTop(true)
+        let roomMessages = storeMessages[selectedRoom.id] || [];
+        if (roomMessages.length > 0) {
+
+            roomMessages = roomMessages.sort((a, b) => a.created_at - b.created_at);
+
+            const roomUser = selectedRoom.room_users?.find(user => user.user_id === userData.id);
+
+            const lastMessage = roomMessages[roomMessages.length - 1];
+
+            if (roomUser && roomUser.seen_message_id < lastMessage.id) {
+                socketOpenMessage(lastMessage.id);
             }
         }
-    }, [storeMessages, selectedRoom, scrollTop]);
+
+        const baseMessageCount = 30;
+        const additionalMessages = 10 * scrollTop;
+        const totalMessagesToShow = baseMessageCount + additionalMessages + newMessageCount;
+
+        const chatLogs = roomMessages.slice(
+            Math.max(0, roomMessages.length - totalMessagesToShow)
+        );
+
+        setRoomMessages(formatChatData(chatLogs));
+
+        setIsToTop(roomMessages.length <= chatLogs.length + 10);
+        setRoomChange(prev => !prev);
+    }, [storeMessages, scrollTop, newMessageCount, userData.id, socketOpenMessage, selectedRoom, formatChatData]);
 
     useLayoutEffect(() => {
         actisToBottom({ send: false, isOneself: false });
-    }, [roomChange]);
+    }, [roomChange, actisToBottom]);
 
     useEffect(() => {
         setScrollTop(0)
         setNewMessageCount(0)
         setIsToTop(false)
-        actisToTop()
 
         dispatch(setIsReply(false))
-        setImg(null)
+        setImg([])
+        setUploadFiles([]);
+        setFileList([]);
         setIsPreviewFiles(false)
-    }, [selectedRoom])
+    }, [selectedRoom?.id, dispatch])
 
     useEffect(() => {
-        actisToTop()
-    }, [scrollTop]);
+        actisToTop();
+    }, [scrollTop, actisToTop]);
 
-    const [uploadFiles, setUploadFiles] = useState(null);
-    const [img, setImg] = useState(null);
+    const [uploadFiles, setUploadFiles] = useState([]);
+    const [img, setImg] = useState([]);
+    const [fileList, setFileList] = useState([]);
 
     const [isPreviewFiles, setIsPreviewFiles] = useState(false);
+    const [draggerFile, setDraggerFile] = useState(false)
 
     const handleFilesMove = useCallback(() => {
-        if (selectedRoom.id) {
-            const uploadStyle = document.querySelector(".ant-upload-btn")
+        if (selectedRoom?.id) {
+            const uploadStyle = document.querySelector(".ant-upload-btn");
             if (uploadStyle) {
-                uploadStyle.style.padding = "0"
+                uploadStyle.style.padding = "0";
             }
         }
 
-        document.ondragleave = function (e) {
+        const handleDragLeave = (e) => {
             e.preventDefault();
-            setDraggerFile(false)
+            setDraggerFile(false);
         };
 
-        document.ondragover = function (e) {
+        const handleDragOver = (e) => {
             e.preventDefault();
-            setDraggerFile(true)
-        }
-        document.ondrop = function (e) {
+            setDraggerFile(true);
+        };
+
+        const handleDrop = (e) => {
             e.preventDefault();
-            setDraggerFile(false)
-        }
-    }, [])
+            setDraggerFile(false);
+        };
+
+        document.addEventListener("dragleave", handleDragLeave);
+        document.addEventListener("dragover", handleDragOver);
+        document.addEventListener("drop", handleDrop);
+
+        return () => {
+            document.removeEventListener("dragleave", handleDragLeave);
+            document.removeEventListener("dragover", handleDragOver);
+            document.removeEventListener("drop", handleDrop);
+        };
+    }, [selectedRoom?.id]);
 
     useEffect(() => {
-        handleFilesMove()
-    }, [])
+        const cleanup = handleFilesMove();
+        return cleanup;
+    }, [handleFilesMove]);
 
-    const [draggerFile, setDraggerFile] = useState(false)
-
-    const searchTotal = useMemo(() => {
-        let handleMessages = []
-        if (roomMessage) {
-            roomMessage.map(item => handleMessages.push(item.messages))
-        }
-        return handleMessages
-    }, [roomMessage])
 
     return (<Grid item xs={12} sm={12} md={9}
         sx={{
@@ -260,16 +291,16 @@ const Conversation = () => {
             height: "100%",
             backgroundColor: "#101010",
             "@media (max-width: 900px)": {
-                display: Object.keys(selectedRoom).length ? "flex" : "none",
+                display: selectedRoom && Object.keys(selectedRoom)?.length ? "flex" : "none",
             }
         }}
     >
-            {/* {console.log("index")} */}
+        {/* {console.log("index")} */}
         {
-            Object.keys(selectedRoom).length ? (
+            selectedRoom && Object.keys(selectedRoom)?.length ? (
                 <><Box
                     sx={{
-                        display: "flex",
+                        display: { xs: "block", md: "flex" },
                         flexDirection: "column",
                         justifyContent: "start",
                         width: "100%",
@@ -286,14 +317,15 @@ const Conversation = () => {
                     />
                     <PreviewFiles
                         roomId={selectedRoom.id}
-                        isPreviewFiles={isPreviewFiles} setIsPreviewFiles={setIsPreviewFiles}
+                        isPreviewFiles={isPreviewFiles}
+                        setIsPreviewFiles={setIsPreviewFiles}
                         img={img}
+                        setImg={setImg}
                         uploadFiles={uploadFiles}
+                        setUploadFiles={setUploadFiles}
                         CircleButton1={CircleButton1}
-                        // msg={msg}
-                        // setMsg={setMsg}
                         chatArea={chatArea} />
-                    <HeaderBox searchTotal={searchTotal} />
+                    <HeaderBox />
                     <MessagesBox
                         roomMessages={roomMessage ? roomMessage : []}
                         chatArea={chatArea}
@@ -302,7 +334,10 @@ const Conversation = () => {
                         setIsPreviewFiles={setIsPreviewFiles}
                         setImg={setImg}
                         setUploadFiles={setUploadFiles}
+                        fileList={fileList}
+                        setFileList={setFileList}
                         actisToBottom={actisToBottom}
+                        isPreviewFiles={isPreviewFiles}
                     />
                 </Box >
                 </>) : (

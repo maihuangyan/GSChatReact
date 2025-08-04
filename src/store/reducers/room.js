@@ -1,7 +1,7 @@
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import { sortMessages } from "utils/common";
-import useJwt from "utils/jwt/useJwt"
+import { sortMessages } from "@/utils/common";
+import useJwt from "@/utils/jwt/useJwt"
 
 // ** Initial State
 const initialState = {
@@ -65,7 +65,7 @@ const roomReducer = (state = initialState, action) => {
             if (room) {
                 room = updateRoomUser(room, roomUser.user_id, roomUser);
                 rooms = updateRoom(rooms, roomUser.room_id, room);
-                if (room.id == selectedRoom.id) {
+                if (room.id === selectedRoom.id) {
                     selectedRoom = room;
                 }
             }
@@ -79,14 +79,14 @@ const roomReducer = (state = initialState, action) => {
 const findRoom = (rooms, room_id) => {
     if (!rooms) return null;
     for (let i = 0; i < rooms.length; i++) {
-        if (rooms[i].id == room_id) return rooms[i];
+        if (rooms[i].id === room_id) return rooms[i];
     }
     return null;
 }
 
 const updateRoom = (rooms, room_id, update) => {
     for (let i = 0; i < rooms.length; i++) {
-        if (rooms[i].id == room_id) {
+        if (rooms[i].id === room_id) {
             rooms[i] = update;
             return rooms;
         }
@@ -98,7 +98,7 @@ const updateRoom = (rooms, room_id, update) => {
 const updateRoomUser = (room, user_id, update) => {
     if (room.room_users) {
         for (let i = 0; i < room.room_users.length; i++) {
-            if (room.room_users[i].user_id == user_id) {
+            if (room.room_users[i].user_id === user_id) {
                 room.room_users[i] = update;
                 return room;
             }
@@ -118,7 +118,7 @@ const resetUnreadMessageCount = (state, data) => {
 
     const rooms = [...state.rooms];
     for (let i = 0; i < rooms.length; i++) {
-        if (rooms[i].id == data.room_id) {
+        if (rooms[i].id === data.room_id) {
             rooms[i].unread_count = data.unread_count;
             return { ...state, rooms: rooms }
         }
@@ -129,16 +129,15 @@ const resetUnreadMessageCount = (state, data) => {
 
 const updateLatestMessage = (state, messages) => {
     if (messages.length === 0) return state;
-
     const rooms = [...state.rooms];
     const selectedRoom = state.selectedRoom;
     for (let i = 0; i < rooms.length; i++) {
         const latestMessage = sortMessages(messages)[0];
 
-        if (rooms[i].id == latestMessage.room_id && (!rooms[i].last_message || rooms[i].last_message.created_at < latestMessage.created_at)) {
+        if (rooms[i].id === latestMessage.room_id && (!rooms[i].last_message || rooms[i].last_message.created_at < latestMessage.created_at)) {
             rooms[i].last_message = latestMessage;
-            if (selectedRoom && rooms[i].id != selectedRoom.id) {
-                if (messages[0].user_id != Number(useJwt.getUserID())) {
+            if (selectedRoom && rooms[i].id !== selectedRoom.id) {
+                if (messages[0].user_id !== Number(useJwt.getUserID())) {
                     rooms[i].unread_count++;
                 }
             }

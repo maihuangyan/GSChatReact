@@ -1,5 +1,5 @@
-import {  useEffect,  useState } from "react";
-import { isEmpty } from "utils/common";
+import React,{  useEffect,  useState } from "react";
+import { isEmpty } from "@/utils/common";
 
 const { Badge, Avatar } = require("@mui/material");
 

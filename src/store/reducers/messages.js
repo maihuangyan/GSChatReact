@@ -5,7 +5,7 @@ const initialState = {
     messages: {},
     receiveMessage: [],
     notifyMessage: {},
-    sendMsg: null
+    sendMsg: null,
 };
 
 const persistConfig = {
@@ -26,7 +26,7 @@ const messagesReducer = (state = initialState, action) => {
             return deleteMessages(state, action.data);
 
         case "SET_SEND_MSG":
-            return {...state,sendMsg:action.data};
+            return { ...state, sendMsg: action.data };
 
         case "CLEAR_ROOM_MESSAGES":
             const stateMessages = { ...state.messages }
@@ -61,10 +61,7 @@ const messagesReducer = (state = initialState, action) => {
 }
 
 const addMessages = (state, messages) => {
-    if (messages.length === 0) {
-        return state
-    }
-
+    if (messages.length === 0) return state
     const stateMessages = { ...state.messages }
     const room_id = messages[0].room_id;
     const roomMessages = [...(stateMessages[room_id] ? [...stateMessages[room_id]] : []), ...messages];
@@ -74,9 +71,7 @@ const addMessages = (state, messages) => {
 }
 
 const addOrUpdateMessages = (state, messages) => {
-    if (messages.length === 0) {
-        return state
-    }
+    if (messages.length === 0) return state
 
     const stateMessages = { ...state.messages }
     const room_id = messages[0].room_id;
@@ -87,7 +82,7 @@ const addOrUpdateMessages = (state, messages) => {
 
         for (let j = 0; j < roomMessages.length; j++) {
             let im = { ...roomMessages[j] };
-            if (im.local_id == km.local_id) {
+            if (im.local_id === km.local_id) {
                 isNew = false;
                 roomMessages[j] = km;
                 break;
@@ -108,9 +103,9 @@ const deleteMessages = (state, message_ids) => {
 
     let firstMessage = null;
     const stateMessages = { ...state.messages }
-    for (const [room_id, messages] of Object.entries(stateMessages)) {
+    for (const [, messages] of Object.entries(stateMessages)) {
         for (let item of messages) {
-            if (item.id == message_ids[0]) {
+            if (item.id === message_ids[0]) {
                 firstMessage = { ...item };
             }
         }
@@ -118,8 +113,8 @@ const deleteMessages = (state, message_ids) => {
     if (firstMessage) {
         const roomId = firstMessage.room_id;
         const roomMessages = stateMessages[roomId] ? [...stateMessages[roomId]] : [];
-        const newArray = roomMessages.filter(message => message_ids.indexOf(message.id) == -1);
-        stateMessages[roomId] = newArray;   
+        const newArray = roomMessages.filter(message => message_ids.indexOf(message.id) === -1);
+        stateMessages[roomId] = newArray;
         return { ...state, messages: stateMessages }
     }
 

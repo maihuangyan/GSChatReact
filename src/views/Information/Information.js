@@ -11,13 +11,14 @@ import { useForm, Controller } from "react-hook-form";
 import { IconArrowLeft, IconEdit, IconCheck } from "@tabler/icons";
 import { styled, useTheme } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
-import useJwt from "utils/jwt/useJwt";
-import ClientAvatar from "ui-component/ClientAvatar";
+import useJwt from "@/utils/jwt/useJwt";
+import ClientAvatar from "@/ui-component/ClientAvatar";
 import { useSelector, useDispatch } from "react-redux"
-import { getUserDisplayName } from 'utils/common';
-import { LoaderContext } from "utils/context/ProgressLoader";
-import { selectRoom, getRoomList } from "store/actions/room"
+import { getUserDisplayName } from '@/utils/common';
+import { LoaderContext } from "@/utils/context/ProgressLoader";
+import { selectRoom, getRoomList } from "@/store/actions/room"
 import { useNavigate } from 'react-router-dom';
+import { getAllUsers } from "@/store/actions/user"
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50px",
@@ -69,8 +70,9 @@ export default function Information() {
     const [groupAvatar, setGroupAvatar] = useState("")
     const [groupFiles, setGroupFiles] = useState(null)
     const [opponent_ids, setOpponent_ids] = useState([])
+    const [Room_Member, setRoom_Member] = useState([])
     const [roomName, setRoomName] = useState("")
-
+    
     const { control, handleSubmit } = useForm({
         reValidateMode: "onBlur",
     });
@@ -93,7 +95,18 @@ export default function Information() {
         handleCreator()
         const opponentsUsers = selectedRoom.opponents.map(item => item.id)
         setOpponent_ids(opponentsUsers)
+        dispatch(getAllUsers())
 
+        const uniqueRoom = Object.values(
+            selectedRoom.opponents.reduce((acc, obj) => {
+              acc[obj.id] = obj; 
+              return acc;
+            }, {})
+          );
+          setRoom_Member(uniqueRoom)
+    }, [selectedRoom])
+
+    useEffect(() => {
         const map = new Map();
         if (allUsers.length) {
             allUsers.filter(item => !map.has(item.id) && map.set(item.id, item));
@@ -106,10 +119,10 @@ export default function Information() {
             map.forEach((item) => {
                 handleFilterAllUsers.push(item)
             })
-
             setFilterAllUsers(handleFilterAllUsers.filter(item => item.id !== userData.id))
         }
-    }, [selectedRoom])
+    }, [allUsers])
+
 
     const onSubmit = () => {
         // console.log(opponent_ids.concat(selectUser).join(","))
@@ -226,7 +239,7 @@ export default function Information() {
                             Room Member
                         </Typography>
                         {
-                            selectedRoom.opponents.map(item => {
+                            Room_Member.map(item => {
                                 return <Box key={item.id}
                                     sx={{
                                         display: "flex",
@@ -363,7 +376,7 @@ export default function Information() {
                                                 )}
                                             />
                                         </Box>
-                                        <Box sx={{ px: 3, mt: 1 }}>
+                                        {isCreator && <Box sx={{ px: 3, mt: 1 }}>
                                             Add Member:
                                             {
                                                 filterAllUsers.map(item => {
@@ -408,7 +421,7 @@ export default function Information() {
                                                     </Box>
                                                 })
                                             }
-                                        </Box>
+                                        </Box>}
                                     </Box>
                                     <Box
                                         sx={{

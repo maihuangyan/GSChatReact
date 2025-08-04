@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
 import {
     Box,
     FormControl,
@@ -8,10 +8,11 @@ import {
 } from "@mui/material";
 import { IconSend, IconX, IconFile, IconMovie } from "@tabler/icons";
 import { useTheme } from "@mui/material/styles";
-import useJwt from "utils/jwt/useJwt";
-import { SocketContext } from 'utils/context/SocketContext';
+import useJwt from "@/utils/jwt/useJwt";
+import { SocketContext } from '@/utils/context/SocketContext';
+import MessageImageGroup from "@/ui-component/MessageImageGroup";
 
-export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles, img, uploadFiles, CircleButton1, chatArea }) {
+export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles, setImg, img, uploadFiles, setUploadFiles, CircleButton1, chatArea }) {
 
     const theme = useTheme();
     const socketSendMessage = useContext(SocketContext).socketSendMessage;
@@ -22,30 +23,59 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
 
     const isPreviewFilesClose = () => {
         setIsPreviewFiles(false)
+        setImg([]);
+        setUploadFiles([]);
     }
 
     useEffect(() => {
-        if (uploadFiles) {
-            const isImg = uploadFiles.type.split("/")[0]
-            const imgType = ["jpeg","png","webp","gif"].includes(uploadFiles.type.split("/")[1].toLowerCase())
-            const imgNameType = ["jpeg","png","webp","gif"].includes(uploadFiles.name.split(".")[1].toLowerCase())
-            if (isImg === 'image' || imgType || imgNameType) {
-                setIsImage(true)
-                setIsVideo(false)
-            } else if (isImg === 'video') {
-                setIsVideo(true)
-                setIsImage(false)
+        // console.log("uploadFiles", uploadFiles);
+        // console.log("img", img);
+
+        if (Array.isArray(uploadFiles) && uploadFiles.length > 0) {
+            const supportedImageTypes = ["jpeg", "png", "webp", "gif", "bmp", "tiff", "svg"];
+            const supportedVideoTypes = ["mp4", "avi", "mov", "mkv", "webm", "flv", "wmv"];
+
+            const isAllImages = uploadFiles.every(file => {
+                const fileType = file.type.split("/")[0];
+                const fileExtension = file.type.split("/")[1]?.toLowerCase();
+                const fileNameExtension = file.name.split(".")[1]?.toLowerCase();
+                return (
+                    fileType === "image" ||
+                    supportedImageTypes.includes(fileExtension) ||
+                    supportedImageTypes.includes(fileNameExtension)
+                );
+            });
+
+            const isAllVideos = uploadFiles.every(file => {
+                const fileType = file.type.split("/")[0];
+                const fileExtension = file.type.split("/")[1]?.toLowerCase();
+                const fileNameExtension = file.name.split(".")[1]?.toLowerCase();
+                return (
+                    fileType === "video" ||
+                    supportedVideoTypes.includes(fileExtension) ||
+                    supportedVideoTypes.includes(fileNameExtension)
+                );
+            });
+
+            if (isAllImages) {
+                setIsImage(true);
+                setIsVideo(false);
+            } else if (isAllVideos) {
+                setIsVideo(true);
+                setIsImage(false);
             } else {
-                setIsImage(false)
-                setIsVideo(false)
+                setIsImage(false);
+                setIsVideo(false);
             }
+        } else {
+            setIsImage(false);
+            setIsVideo(false);
         }
-    }, [uploadFiles])
+    }, [uploadFiles]);
 
     const actionScrollToBottom = (send) => {
         const chatContainer = chatArea.current;
         if (chatContainer) {
-            //chatContainer.scrollTop = Number.MAX_SAFE_INTEGER;
             if (send) {
                 chatContainer.scrollTo({
                     top: chatContainer.scrollHeight,
@@ -56,6 +86,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
             }
         }
     };
+
     const handleUseJwe = (formData) => {
         useJwt
             .uploadFiles(formData)
@@ -97,22 +128,41 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                     }
                 })
             }
-            imgInfo(img).then(res => {
+            imgInfo(img[0]).then(res => {
                 formData.append('imgInfo', JSON.stringify(res));
                 formData.append('type', 1);
-                formData.append("files", uploadFiles);
+                if (uploadFiles.length > 1) {
+                    for (let i = 0; i < uploadFiles.length; i++) {
+                        formData.append("files", uploadFiles[i]);
+                    }
+                } else {
+                    formData.append("files", uploadFiles[0]);
+                }
+                formData.forEach((value, key) => {
+                    console.log(`${key}:`, value, '6666666');
+                });
+
                 handleUseJwe(formData)
             })
         } else {
             formData.append('type', 2);
-            formData.append("files", uploadFiles);
+            formData.append("files", uploadFiles[0]);
             handleUseJwe(formData)
         }
-
-
     }
+
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        if (isPreviewFiles && inputRef.current) {
+            setTimeout(() => {
+                inputRef.current.focus();
+            }, 0);
+        }
+    }, [isPreviewFiles]);
+
     return <>
-            {/* {console.log("formData")} */}
+        {/* {console.log("formData")} */}
 
         <Box
             sx={{
@@ -126,6 +176,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                 left: 0,
                 backgroundColor: "#000",
                 zIndex: 10,
+                outline: "none",
             }}
         >
             <Box
@@ -157,16 +208,15 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                     height: "100%",
                 }}
             >
-                {
-                    isImage ? <img
-                        src={img}
-                        srcSet={img}
-                        alt={""}
-                        loading="lazy"
-                        style={{ maxWidth: "100%", maxHeight: "100%", }}
-                    /> : (isVideo ? <IconMovie size={80} stroke={2} /> : <IconFile size={80} stroke={2} />)
-                }
-
+                <Box className="PreviewFiles">
+                    {isImage ? (
+                        <MessageImageGroup imageInfo={img} />
+                    ) : isVideo ? (
+                        <IconMovie size={80} stroke={2} />
+                    ) : (
+                        <IconFile size={80} stroke={2} />
+                    )}
+                </Box>
             </Box>
 
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -175,6 +225,7 @@ export default function PreviewFiles({ roomId, isPreviewFiles, setIsPreviewFiles
                         Type your title
                     </InputLabel>
                     <OutlinedInput
+                        inputRef={inputRef}
                         id="message-box"
                         value={msg}
                         onChange={(e) => {

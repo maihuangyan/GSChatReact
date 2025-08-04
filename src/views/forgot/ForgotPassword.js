@@ -1,6 +1,6 @@
-import {  useContext } from "react";
+import React, {  useContext } from "react";
 
-import logo from "../../assets/images/logo.png";
+import logo from "@/assets/images/logo.png";
 import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
@@ -10,12 +10,12 @@ import { styled } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
 import TextField from "@mui/material/TextField";
 
-import useJwt from "utils/jwt/useJwt";
+import useJwt from "@/utils/jwt/useJwt";
 import { useForm, Controller } from "react-hook-form";
 
-import { LoaderContext } from "utils/context/ProgressLoader";
+import { LoaderContext } from "@/utils/context/ProgressLoader";
 
-import CopyrightYear from "ui-component/copyrightYear"
+import CopyrightYear from "@/ui-component/copyrightYear"
 
 const CircleButton = styled(Button)(({ theme }) => ({
   borderRadius: "50px",

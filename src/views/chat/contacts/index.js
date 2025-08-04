@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, memo } from "react";
+import React, { useState, useEffect, useContext, memo, useRef } from "react";
 
 import {
     Box,
@@ -11,13 +11,14 @@ import {
 
 // ** Store & Actions
 import { useDispatch, useSelector } from "react-redux";
-import { resetUnreadCount, selectRoom, calculateUnSeenCount } from "store/actions/room";
+import { resetUnreadCount, selectRoom, calculateUnSeenCount } from "@/store/actions/room";
 import { useTheme } from "@mui/material/styles";
-import { formatChatTime, getRoomDisplayName, getUserDisplayName } from "utils/common";
-import ClientAvatar from "ui-component/ClientAvatar";
+import { getRoomDisplayName, getUserDisplayName, formatDateToIsToday } from "@/utils/common";
+import ClientAvatar from "@/ui-component/ClientAvatar";
+import { getMessages } from "@/store/actions/messages";
 
 import UserAvatar from "./UserAvatar";
-import { SocketContext } from "utils/context/SocketContext";
+import { SocketContext } from "@/utils/context/SocketContext";
 
 const Contacts = () => {
     const theme = useTheme();
@@ -27,6 +28,8 @@ const Contacts = () => {
     const userData = useSelector((state) => state.auth.userData);
     const onlineUsers = useSelector((state) => state.users.onlineUsers);
     const getRoomOnlineStatus = useContext(SocketContext).getRoomOnlineStatus;
+
+    const isFirstRender = useRef(true);
 
     const dispatch = useDispatch();
     const [active, setActive] = useState({});
@@ -47,8 +50,37 @@ const Contacts = () => {
                 return -1
             }
         })
+        // console.log(sortRooms)
         setRooms(sortRooms)
-    }, [storeRooms]);
+
+    }, [dispatch, storeRooms]);
+
+    const selectedRoomRef = useRef(null);
+
+    useEffect(() => {
+        selectedRoomRef.current = selectedRoom && Object.keys(selectedRoom).length > 0;
+
+        const executeActions = () => {
+            dispatch(resetUnreadCount({ room_id: selectedRoom?.id, unread_count: 0 }));
+            dispatch(calculateUnSeenCount());
+            if(selectedRoom && Object.keys(selectedRoom).length > 0) dispatch(getMessages({ id: selectedRoom?.id }));
+        };
+        if (isFirstRender.current) {
+            setTimeout(() => {
+                executeActions()
+                isFirstRender.current = false;
+            }, 2000)
+        } else {
+            executeActions()
+        }
+
+    }, [selectedRoom, dispatch]);
+
+    useEffect(() => {
+        if (!selectedRoomRef.current) {
+            dispatch(selectRoom(rooms[0]));
+        }
+    }, [rooms, dispatch]);
 
     useEffect(() => {
         if (selectedRoom && selectedRoom.id) {
@@ -70,7 +102,6 @@ const Contacts = () => {
     const handleUserClick = (type, room) => {
         dispatch(selectRoom(room));
         setActive({ type, id: room.id, room });
-        if (unreadCount) dispatch(resetUnreadCount({ room_id: room.id, unread_count: 0 })); dispatch(calculateUnSeenCount())
         // dispatch(getMessages({ id: room.id }))
         // if (!messages[room.id]) {
         //     dispatch(getMessages({ id: room.id }))
@@ -78,14 +109,10 @@ const Contacts = () => {
     };
 
     const handleTime = (item) => {
-        if (item.last_message) {
-            return formatChatTime(
-                item.last_message
-                    ? +item.last_message.created_at * 1000
-                    : new Date().getTime()
-            );
+        if (item.last_message?.created_at) {
+            return formatDateToIsToday(+item.last_message.created_at * 1000);
         }
-        return ""
+        return "";
     }
     // ** Renders Chat
     const renderChats = () => {
@@ -184,7 +211,7 @@ const Contacts = () => {
             backgroundColor: "#101010",
             height: "100%",
             "@media (max-width: 900px)": {
-                display: Object.keys(selectedRoom).length ? "none" : "block",
+                display: selectedRoom && Object.keys(selectedRoom).length ? "none" : "block",
             },
             "@media (min-width: 900px)": {
                 borderRight: "1px solid #383838 ",
@@ -193,7 +220,7 @@ const Contacts = () => {
             <Box
                 sx={{
                     pt: 0,
-                    height: "calc(100vh - 67px)",
+                    height: { xs: "100%", md: "calc(100vh - 67px)" },
                 }}
             >
                 <Box
@@ -209,7 +236,7 @@ const Contacts = () => {
                 <Typography sx={{ pl: 2, pb: 3, pt: 1 }} variant="h1">
                     {getUserDisplayName(userData)}
                 </Typography>
-                <Box sx={{ height: "90%" }}>
+                <Box sx={{ height: { xs: "100%", md: "90%" } }}>
                     <Paper
                         sx={{ height: "100%", overflowY: "auto", borderRadius: 0, p: "0 8px" }}
                     >

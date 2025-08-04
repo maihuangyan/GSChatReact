@@ -1,10 +1,11 @@
-import { useEffect, lazy, useContext } from "react";
+import React, { useEffect, lazy, useContext, useMemo } from "react";
 import { Alert, Grid, Box } from "@mui/material";
-import Loadable from "ui-component/Loadable";
+import Loadable from "@/ui-component/Loadable";
 import HiddenBox from "./HiddenBox"
-import { SocketContext } from "utils/context/SocketContext";
+import { SocketContext } from "@/utils/context/SocketContext";
 import { useDispatch, useSelector } from "react-redux";
-import { getMessages } from "store/actions/messages";
+import { getMessages } from "@/store/actions/messages";
+import { getAllUsers } from "@/store/actions/user"
 
 const Contacts = Loadable(lazy(() => import('./contacts')));
 const Conversation = Loadable(lazy(() => import('./conversation')));
@@ -18,37 +19,30 @@ const Chat = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    loadOnlineList()
-    setInterval(() => {
-      loadOnlineList()
-      let tokenOverdueTime = localStorage.getItem('tokenOverdueTime')
-      console.log(tokenOverdueTime, 'loadOnlineList')
-    }, 10 * 60 * 1000)
-  }, [])
-  // console.log(socket)
+    loadOnlineList();
+    dispatch(getAllUsers());
+  }, [dispatch, loadOnlineList]);
+
+  const unreadRoomIds = useMemo(() => {
+    return storeRooms.filter(item => item.unread_count).map(item => item.id)
+  }, [storeRooms])
+
   useEffect(() => {
     if (socketConnection && selectedRoom.id) {
       dispatch(getMessages({ id: selectedRoom.id }))
-      storeRooms.forEach((item, index) => {
-        if (item.unread_count) {
-          dispatch(getMessages({ id: item.id }))
-        }
-      })
+      unreadRoomIds.forEach(id => dispatch(getMessages({ id })))
     }
-  }, [socketConnection])
+  }, [socketConnection, dispatch, selectedRoom?.id, unreadRoomIds])
   return (
     <>
       <Grid container
         sx={{
-          height: "calc( 100vh )", p: 2, overflowY: "hidden", margin: "0 auto", width: "auto", position: "relative",
-          "@media (min-width: 1500px)": {
-            width: "1500px",
-          },
+          height: { xs: "100%", md: "100vh" }, p: { xs: 0, md: 2 }, overflowY: "hidden",  position: "relative",
         }}>
         <Contacts />
         <Conversation />
       </Grid>
-      <Box sx={{ width: "100%", position: 'fixed', top: 80, display: !socketConnection ? 'flex' : 'none', justifyContent: 'center', alignContent: 'center' }}>
+      <Box sx={{ width: "100%", position: 'fixed', top: 80, display: socketConnection ? 'flex' : 'none', justifyContent: 'center', alignContent: 'center' }}>
         <Alert severity='error'>
           Network error, please check the network
         </Alert>

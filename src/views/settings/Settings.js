@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react'
 import {
     Box,
-    Paper,
     Grid,
     Button,
     Typography,
@@ -12,21 +11,22 @@ import {
     InputLabel,
     Input,
 } from "@mui/material";
-import Block from "ui-component/Block";
+import Block from "@/ui-component/Block";
 import { IconArrowLeft, IconArrowRight } from "@tabler/icons";
 import { styled } from "@mui/material/styles";
 import { orange } from "@mui/material/colors";
-import useJwt from "utils/jwt/useJwt";
-import ClientAvatar from "ui-component/ClientAvatar";
+import useJwt from "@/utils/jwt/useJwt";
+import ClientAvatar from "@/ui-component/ClientAvatar";
 import { useForm, Controller } from "react-hook-form"
 import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlined from "@mui/icons-material/VisibilityOffOutlined";
-import { LoaderContext } from "utils/context/ProgressLoader";
+import { LoaderContext } from "@/utils/context/ProgressLoader";
 import EditProfile from './EditProfile';
-import { store } from 'store';
+import { store } from '@/store';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from "react-redux";
-import { handleLogout } from "store/actions";
+import { handleLogout } from "@/store/actions";
+import { getUserDisplayName } from '@/utils/common';
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50px",
@@ -352,14 +352,10 @@ export default function Settings() {
                             </Box>
                         </form>
                     </Block >) :
-                    (editProfile ? <EditProfile setEditProfile={setEditProfile} /> : <Block
+                    (editProfile ? <EditProfile setEditProfile={setEditProfile} /> : <Box
                         sx={{
                             p: 2,
-                            position: "absolute",
-                            left: 0,
-                            top: 0,
                             width: "100%",
-                            zIndex: 100,
                             background: "#101010"
                         }}>
                         <Box
@@ -373,7 +369,7 @@ export default function Settings() {
                             <CircleButton1 onClick={() => goBackButton()} >
                                 <IconArrowLeft size={20} stroke={3} />
                             </CircleButton1>
-                            <Typography component="p" variant="h3" sx={{ ml: 1, lineHeight: "50px" }}>{userData?.username}</Typography>
+                            <Typography component="p" variant="h3" sx={{ ml: 1, lineHeight: "50px" }}>{getUserDisplayName(userData)}</Typography>
                         </Box>
                         <Box>
                             <Typography sx={{ pl: 2, pb: 3, pt: 1 }} variant="h1">
@@ -381,8 +377,8 @@ export default function Settings() {
                             </Typography>
                         </Box>
                         <Box sx={{ pl: 2 }}>
-                            <Paper
-                                sx={{ height: "calc( 100vh - 235px)", overflowY: "auto", display: "flex", flexDirection: "column", justifyContent: "start", alignItems: "center" }}
+                            <Box
+                                sx={{ height: {xs:"100%",md:"calc( 100vh - 235px)"}, overflowY: "auto", display: "flex", flexDirection: "column", justifyContent: "start", alignItems: "center" }}
                             >
                                 <Box sx={{ width: { xs: "100%", sm: "100%", md: "80%" } }}>
                                     <Typography component="div"
@@ -392,7 +388,7 @@ export default function Settings() {
                                             avatar={
                                                 userData.photo_url ? userData.photo_url : ""
                                             }
-                                            name={userData.full_name !== " " ? userData.full_name : userData.username}
+                                            name={getUserDisplayName(userData)}
                                             size={80}
                                         />
                                     </Typography>
@@ -402,7 +398,7 @@ export default function Settings() {
                                             <Typography component="p" variant="settingsInfo">Name</Typography>
                                         </Grid>
                                         <Grid item xs={6} sm={6} md={6} elevation={6} sx={{ display: "flex", justifyContent: "end", alignItems: "center" }}>
-                                            <Typography component="p" variant="settingsInfo1">{userData.full_name !== " " ? userData.full_name : userData.username}</Typography>
+                                            <Typography component="p" variant="settingsInfo1">{getUserDisplayName(userData)}</Typography>
                                         </Grid>
                                     </Grid>
 
@@ -482,14 +478,14 @@ export default function Settings() {
                                         </Grid>
                                     </Grid>
                                 </Box>
-                                <Box sx={{ mt: 4, width: { xs: "50%", sm: "30%", md: "20%" }, display: "flex", justifyContent: "center" }}>
+                                <Box sx={{ mt: 4, mb: 4,width: { xs: "50%", sm: "30%", md: "20%" }, display: "flex", justifyContent: "center" }}>
                                     <CircleButton onClick={logout} >
                                         Log Out
                                     </CircleButton>
                                 </Box>
-                            </Paper>
+                            </Box>
                         </Box>
-                    </Block>)
+                    </Box>)
             }
         </>
     )

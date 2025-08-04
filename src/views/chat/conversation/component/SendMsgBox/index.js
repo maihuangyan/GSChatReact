@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, lazy, memo } from 'react'
+import React, { useState, useContext, useEffect, lazy, memo, useRef } from 'react'
 import {
     Box,
     Grid,
@@ -9,15 +9,15 @@ import {
 import { styled, useTheme } from "@mui/material/styles";
 import { IconSend, IconLink, IconPhoto, IconArrowNarrowDown } from "@tabler/icons";
 import { Upload } from 'antd';
-import { LoaderContext } from "utils/context/ProgressLoader";
-import { SocketContext } from "utils/context/SocketContext";
+import { LoaderContext } from "@/utils/context/ProgressLoader";
+import { SocketContext } from "@/utils/context/SocketContext";
 import { useDispatch, useSelector } from "react-redux";
-import typingAnim from 'assets/images/anim/typing.gif'
-import { getUserDisplayName, } from "utils/common";
-import Loadable from "ui-component/Loadable";
-import { setSendMsg } from 'store/actions/messages';
-import { setIsTyping } from "store/actions/sandBoxConnect"
-import { setIsReply, setEditingMessage, setReplyMessage } from 'store/actions/messageBoxConnect';
+import typingAnim from '@/assets/images/anim/typing.gif'
+import { getUserDisplayName, } from "@/utils/common";
+import Loadable from "@/ui-component/Loadable";
+import { setSendMsg } from '@/store/actions/messages';
+import { setIsTyping } from "@/store/actions/sandBoxConnect"
+import { setIsReply, setEditingMessage, setReplyMessage, setCurrentTyping } from '@/store/actions/messageBoxConnect';
 
 const ReplyBox = Loadable(lazy(() => import('./component/ReplyBox')));
 const ForwardBox = Loadable(lazy(() => import('./component/ForwardBox')));
@@ -47,7 +47,7 @@ const CircleButton3 = styled(Button)(({ theme }) => ({
 }));
 
 function SendMsgBox(props) {
-    const { actisToBottom, setIsPreviewFiles, setImg, setUploadFiles } = props
+    const { actisToBottom, setIsPreviewFiles, setImg, setUploadFiles, isPreviewFiles, fileList, setFileList } = props
 
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const sendMsg = useSelector((state) => state.messages.sendMsg);
@@ -64,6 +64,7 @@ function SendMsgBox(props) {
     const socketUpdateMessage = useContext(SocketContext).socketUpdateMessage
     const replyMessage = useSelector((state) => state.messageBoxConnect.replyMessage);
     const editingMessage = useSelector((state) => state.messageBoxConnect.editingMessage);
+    const currentTyping = useSelector((state) => state.messageBoxConnect.currentTyping);
 
     const [msg, setMsg] = useState("");
     const [typingText, setTypingText] = useState('');
@@ -71,61 +72,83 @@ function SendMsgBox(props) {
 
     const handleSendMsg = (e) => {
         e.preventDefault();
+        dispatch(setCurrentTyping(false))
+        setMsg("");
+        dispatch(setIsTyping(false))
+        dispatch(setIsReply(false))
+        socketSendTyping(selectedRoom.id, 0);
+
         if (editingMessage) {
             socketUpdateMessage(editingMessage, msg)
             dispatch(setEditingMessage(null))
-            setMsg("");
             dispatch(setSendMsg(""))
-            socketSendTyping(selectedRoom.id, 0);
-            dispatch(setIsTyping(false))
-            dispatch(setIsReply(false))
         }
         else {
             if (msg.length) {
                 socketSendMessage(selectedRoom.id, '0', msg, replyMessage ? replyMessage.id : 0);
-                setMsg("");
-                socketSendTyping(selectedRoom.id, 0);
-                dispatch(setIsTyping(false))
-                dispatch(setIsReply(false))
                 actisToBottom({ send: true, isOneself: true })
                 dispatch(setReplyMessage(null))
-                // setNewMessageCount(newMessageCount + 1)
             }
         }
     };
+
     const handlePaste = (e) => {
-        const clipboardItem = e.clipboardData.files[0]
-        const fileReader = new FileReader();
-        if (clipboardItem) {
-            fileReader.onload = () => {
-                if (clipboardItem.type.startsWith("x-msdownload")) {
-                    showToast("error", "This file is not supported")
-                    return
-                } else {
-                    setUploadFiles(clipboardItem)
-                    setImg(fileReader.result)
-                    setIsPreviewFiles(true)
-                }
+        const clipboard = e.clipboardData || window.clipboardData;
+        const file = clipboard.files?.[0];
+
+        if (file) {
+            e.preventDefault();
+            if (file.type.startsWith("x-msdownload")) {
+                showToast("error", "This file is not supported");
+                return; 
             }
-            fileReader.readAsDataURL(clipboardItem);
+
+            const fileReader = new FileReader();
+            fileReader.onload = () => {
+                setUploadFiles([file]);
+                setImg([fileReader.result]);
+                setIsPreviewFiles(true);
+            };
+            fileReader.readAsDataURL(file);
+        } else {
+            const text = clipboard.getData("text/plain");
+            if (text) {
+                e.preventDefault();
+                setIsMultiline(true)
+                setMsg((prev) => prev + text);
+            }
         }
-    }
+    };
 
     const handleChange = (e) => {
         e.preventDefault();
         setMsg(e.target.value);
+
         if (e.target.value.length > 0 && !isTyping) {
             dispatch(setIsTyping(true))
             socketSendTyping(selectedRoom.id, 1);
+
         } else if (e.target.value.length === 0 && isTyping) {
             dispatch(setEditingMessage(null))
             dispatch(setIsTyping(false))
             socketSendTyping(selectedRoom.id, 0);
         }
+
+        if (e.target.value.length > 0 && !currentTyping) {
+            dispatch(setCurrentTyping(true))
+        } else if (e.target.value.length === 0) {
+            dispatch(setCurrentTyping(false))
+        }
     }
     const handleKeyDown = (e) => {
         if (e.shiftKey && e.key === "Enter") {
             setIsMultiline(true)
+
+            setTimeout(() => {
+                inputRef.current.focus();
+                const length = inputRef.current.value.length;
+                inputRef.current.setSelectionRange(length, length);
+            }, 0);
         } else if (e.key === "Enter") {
             handleSendMsg(e)
         }
@@ -136,35 +159,46 @@ function SendMsgBox(props) {
         headers: {
             authorization: 'authorization-text',
         },
-        beforeUpload: {
-            function() {
-                return false;
-            }
+        multiple: true,
+        beforeUpload: () => {
+            return false;
         },
         showUploadList: false,
-        maxCount: 1,
+        maxCount: 10,
         style: { border: "none" },
-        onChange(file) {
-            const fileReader = new FileReader();
-            fileReader.onload = () => {
-                if (file.file.type.split("/")[1] === "x-msdownload") {
-                    showToast("error", "This file is not supported")
-                    return
-                } else {
-                    setUploadFiles(file.file)
-                    setImg(fileReader.result)
-                    setIsPreviewFiles(true)
-                }
-            }
-            fileReader.readAsDataURL(file.file);
+        fileList,
+        onChange(info) {
+            setFileList(info.fileList);
+            const files = info.fileList.map(file => file.originFileObj);
+            const fileReaders = files.map(file => {
+                return new Promise((resolve, reject) => {
+                    const fileReader = new FileReader();
+                    fileReader.onload = () => {
+                        if (file.type.split("/")[1] === "x-msdownload") {
+                            showToast("error", "This file is not supported");
+                            reject("Unsupported file type");
+                        } else {
+                            resolve({ file, preview: fileReader.result });
+                        }
+                    };
+                    fileReader.onerror = () => reject("File reading error");
+                    fileReader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(fileReaders)
+                .then(results => {
+                    const validFiles = results.map(result => result.file);
+                    const previews = results.map(result => result.preview);
+                    setUploadFiles(validFiles);
+                    setImg(previews);
+                    setIsPreviewFiles(true);
+                })
+                .catch(error => {
+                    console.error("Error processing files:", error);
+                });
         },
     };
-
-    useEffect(() => {
-        if (replyMessage) {
-            dispatch(setReplyMessage(null))
-        }
-    }, [selectedRoom])
 
     useEffect(() => {
         if (sendMsg) {
@@ -174,7 +208,7 @@ function SendMsgBox(props) {
 
     useEffect(() => {
         const typingUsers = opponentTyping ? opponentTyping[selectedRoom.id] : null
-        console.log('typingUsers', typingUsers);
+        // console.log('typingUsers', typingUsers);
 
         if (!typingUsers || typingUsers.length === 0 || !selectedRoom) {
             setTypingText('');
@@ -209,12 +243,20 @@ function SendMsgBox(props) {
             }
             setTypingText(result);
         }
-    }, [opponentTyping,selectedRoom])
+    }, [opponentTyping, selectedRoom])
 
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        if (!isPreviewFiles && inputRef.current) {
+            setTimeout(() => {
+                inputRef.current.focus();
+            }, 0);
+        }
+    }, [isPreviewFiles]);
 
     return (
         <>
-            {/* {console.log("sendbox")} */}
             <Box sx={{ position: "absolute", bottom: 0, width: "100%", background: "#101010" }}>
                 <Box sx={{ position: "absolute", left: "10px", top: "-50px", opacity: showToBottom ? 1 : 0, transition: "0.3s all" }} onClick={() => actisToBottom({ send: true, isOneself: true })}>
                     <CircleButton3>
@@ -236,18 +278,19 @@ function SendMsgBox(props) {
                             </Grid>
                             <Grid item>
                                 <Box sx={{ display: "flex", justifyContent: "space-between", position: "relative" }}>
-                                    <Upload {...uploadProps}>
+                                    <Upload {...uploadProps} fileList={fileList}>
                                         <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>
                                             <IconPhoto size={25} stroke={2} />
                                         </CircleButton1>
                                     </Upload>
-                                    <Upload {...uploadProps}>
+                                    <Upload {...uploadProps} fileList={fileList}>
                                         <CircleButton1 type="button" sx={{ mt: "5px", color: "#FBC34A" }}>
                                             <IconLink size={25} stroke={2} />
                                         </CircleButton1>
                                     </Upload>
                                     <FormControl fullWidth variant="outlined" sx={{ mr: 1 }}>
                                         <OutlinedInput
+                                            inputRef={inputRef}
                                             id="message-box"
                                             placeholder="New message"
                                             readOnly={false}
@@ -258,6 +301,9 @@ function SendMsgBox(props) {
                                             onChange={handleChange}
                                             onKeyDown={handleKeyDown}
                                             sx={{ color: "white" }}
+                                            inputProps={{
+                                                'aria-hidden': false,
+                                            }}
                                         />
                                     </FormControl>
                                     <CircleButton1 type="submit" sx={{ mt: "5px", color: "#FBC34A" }}>

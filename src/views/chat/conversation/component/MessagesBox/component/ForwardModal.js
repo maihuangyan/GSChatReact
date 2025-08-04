@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Modal } from 'antd';
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { Modal } from "antd";
 import {
     Box,
     Paper,
@@ -14,103 +14,127 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { IconSearch } from "@tabler/icons";
-import ClientAvatar from "ui-component/ClientAvatar";
-import { useSelector, useDispatch } from "react-redux"
-import { selectRoom } from "store/actions/room";
-import { getMessages } from "store/actions/messages";
-import { getRoomDisplayName } from 'utils/common';
-import { setIsForward } from 'store/actions/messageBoxConnect';
+import ClientAvatar from "@/ui-component/ClientAvatar";
+import { useSelector, useDispatch } from "react-redux";
+import { selectRoom } from "@/store/actions/room";
+import { getMessages } from "@/store/actions/messages";
+import { getRoomDisplayName } from "@/utils/common";
+import { setIsForward } from "@/store/actions/messageBoxConnect";
 
-export default function ForwardModal({ isForwardModal,  setIsForwardModal }) {
-
+export default function ForwardModal({ isForwardModal, setIsForwardModal }) {
     const theme = useTheme();
     const selectedRoom = useSelector((state) => state.room.selectedRoom);
     const rooms = useSelector((state) => state.room.rooms);
     const dispatch = useDispatch();
 
     const [query, setQuery] = useState("");
-    const [searchUser, setSearchUser] = useState(rooms.filter(item => item.id !== selectedRoom.id))
     const [filteredChat, setFilteredChat] = useState([]);
 
-    const handleOk = () => {
-        setIsForwardModal(false);
-    };
-    const handleCancel = () => {
-        setIsForwardModal(false);
-    };
+    const searchUser = useMemo(
+        () => rooms.filter((item) => item.id !== selectedRoom.id),
+        [rooms, selectedRoom.id]
+    );
 
-    // ** Handles Filter
-    const handleFilter = (e) => {
-        setQuery(e.target.value);
-        const searchFilterFunction = (users) =>
-            users.name
-                .toLowerCase()
-                .includes(e.target.value.toLowerCase());
-        const filteredChatsArr = searchUser.filter(searchFilterFunction);
-        setFilteredChat([...filteredChatsArr]);
-    };
+    const handleFilter = useCallback(
+        (e) => {
+            const value = e.target.value.toLowerCase();
+            setQuery(value);
+
+            const filteredChatsArr = searchUser.filter((user) =>
+                user.name.toLowerCase().includes(value)
+            );
+            setFilteredChat(filteredChatsArr);
+        },
+        [searchUser]
+    );
 
     useEffect(() => {
-        setFilteredChat(searchUser)
-    }, [])
+        setFilteredChat(searchUser);
+    }, [searchUser]);
 
-    const forwardClick = (room) => {
-        dispatch(selectRoom(room));
-        dispatch(getMessages({ id: room.id }))
-        dispatch(setIsForward(true));
-        setIsForwardModal(false);
-    }
+    const forwardClick = useCallback(
+        (room) => {
+            dispatch(selectRoom(room));
+            dispatch(getMessages({ id: room.id }));
+            dispatch(setIsForward(true));
+            setIsForwardModal(false);
+        },
+        [dispatch, setIsForwardModal]
+    );
 
-    // ** Renders Chat
     const renderChats = () => {
         if (filteredChat.length === 0) {
-            return <Typography sx={{ minHeight: "50vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>No Results Found</Typography>;
+            return (
+                <Typography
+                    sx={{
+                        minHeight: "50vh",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                >
+                    No Results Found
+                </Typography>
+            );
         }
-        else {
-            return filteredChat.map((item) => {
-                let fullName = getRoomDisplayName(item);
-                return (
-                    <Box
-                        key={item.id}
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            p: 1,
-                            mt: 2,
-                            borderRadius: "5px",
-                            cursor: "pointer",
-                            background: "inherit",
-                            "&:hover": {
-                                background: theme.palette.primary.main,
-                            }
-                        }}
-                        onClick={() => forwardClick(item)}
-                    >
-                        <ClientAvatar
-                            avatar={
-                                item.photo_url
-                                    ? item.photo_url
-                                    : ""
-                            }
-                            name={fullName}
-                        />
-                        <Box sx={{ ml: 2 }}>
-                            <Typography variant="h4" color={theme.palette.text.primary}>
-                                {fullName}
-                            </Typography>
-                        </Box>
-                    </Box>
-                );
-            });
-        }
+
+        return filteredChat.map((item) => (
+            <ChatItem
+                key={item.id}
+                item={item}
+                theme={theme}
+                forwardClick={forwardClick}
+            />
+        ));
+    };
+
+    const ChatItem = ({ item, theme, forwardClick }) => {
+        const fullName = getRoomDisplayName(item);
+
+        return (
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    p: 1,
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    background: "inherit",
+                    "&:hover": {
+                        background: theme.palette.primary.main,
+                    },
+                }}
+                onClick={() => forwardClick(item)}
+            >
+                <ClientAvatar
+                    avatar={item.photo_url ? item.photo_url : ""}
+                    name={fullName}
+                />
+                <Box sx={{ ml: 2 }}>
+                    <Typography variant="h4" color={theme.palette.text.primary}>
+                        {fullName}
+                    </Typography>
+                </Box>
+            </Box>
+        );
     };
 
     return (
-        <Modal title="Forward to" open={isForwardModal} onOk={handleOk} onCancel={handleCancel}
-            footer={false}>
+        <Modal
+            title="Forward to"
+            open={isForwardModal}
+            onOk={() => setIsForwardModal(false)}
+            onCancel={() => setIsForwardModal(false)}
+            footer={false}
+        >
             <Box>
                 <Paper
-                    sx={{ height: "calc( 100vh - 235px)", p: 2, overflowY: "auto" }}
+                    sx={{
+                        height: "calc( 100vh - 235px)",
+                        p: 2,
+                        overflowY: "auto",
+                    }}
                 >
                     <FormControl fullWidth variant="outlined">
                         <InputLabel sx={{ color: "white" }} htmlFor="search-box">
@@ -131,11 +155,16 @@ export default function ForwardModal({ isForwardModal,  setIsForwardModal }) {
                             label="Search"
                         />
                     </FormControl>
-                    <Stack direction="column" spacing={1} divider={<Divider />}>
+                    <Stack
+                        direction="column"
+                        spacing={1}
+                        divider={<Divider />}
+                        sx={{ mt: 2 }}
+                    >
                         {renderChats()}
                     </Stack>
                 </Paper>
             </Box>
         </Modal>
-    )
+    );
 }

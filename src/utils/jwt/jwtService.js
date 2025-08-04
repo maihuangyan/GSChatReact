@@ -1,9 +1,8 @@
 import axios from "axios";
 import { jwtDefaultConfig } from "./jwtDefaultConfig";
 import OneSignal from 'react-onesignal';
-import { isRefreshToken } from "utils/refreshToken";
-import { store } from "store"
-import { handleLogin, handleLogout } from "store/actions";
+import { store } from "@/store";
+import { handleLogout } from "@/store/actions";
 
 const headers = {
   headers: {
@@ -33,7 +32,6 @@ export default class JwtService {
 
         // ** Get token from localStorage
         const accessToken = this.getToken();
-        const refreshToken = this.getRefreshToken();
 
         // ** If token is present add it to request's Authorization Header
         if (OneSignal.User && OneSignal.User.PushSubscription) {
@@ -44,10 +42,7 @@ export default class JwtService {
           config.headers.Authorization = `${this.jwtConfig.tokenType} ${accessToken}`;
         }
 
-        let flag = isRefreshToken(this.jwtConfig, config, store, refreshToken)
-        return flag ? flag : config;
-
-        // return config;
+        return config;
       },
       (error) => Promise.reject(error)
     );
@@ -64,16 +59,17 @@ export default class JwtService {
         }
         else if (response.request.responseURL.endsWith(this.jwtConfig.refreshEndpoint)
           && response.data.ResponseCode === 0) {
-          store.dispatch(handleLogin(response.data.ResponseResult));
+          // store.dispatch(handleLogin(response.data.ResponseResult));
         }
 
         return response;
       },
       (error) => {
         if (error.response) {
-          console.log("error", error);
+          // console.log("error", error);
           if (error.response.status === 401) {
             store.dispatch(handleLogout());
+          console.log("error", error);
           }
           else if (error.response.status === 403) {
             const data = {
@@ -112,7 +108,7 @@ export default class JwtService {
     }
     catch (e) {
       console.log('logout: 120', e);
-      store.dispatch(handleLogout());
+      // store.dispatch(handleLogout());
     }
   }
 

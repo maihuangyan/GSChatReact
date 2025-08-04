@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react'
-import useJwt from "utils/jwt/useJwt";
+import useJwt from "@/utils/jwt/useJwt";
 
 import {
     Box,
@@ -16,19 +16,18 @@ import {
     Button,
 } from "@mui/material";
 import { Input, Upload } from 'antd';
-import Block from "ui-component/Block";
-import ClientAvatar from "ui-component/ClientAvatar";
+import Block from "@/ui-component/Block";
+import ClientAvatar from "@/ui-component/ClientAvatar";
 
 import { IconSearch, IconArrowLeft, IconPlus, IconCheck } from "@tabler/icons";
-import defaultAvatar from "assets/images/defaultImg.jpg";
+import defaultAvatar from "@/assets/images/defaultImg.jpg";
 import { styled, useTheme } from "@mui/material/styles";
 
-import { getUserDisplayName } from 'utils/common';
+import { getUserDisplayName } from '@/utils/common';
 import { useSelector, useDispatch } from "react-redux"
-import { LoaderContext } from "utils/context/ProgressLoader";
-import { getRoomList, selectRoom } from "store/actions/room"
+import { LoaderContext } from "@/utils/context/ProgressLoader";
+import { getRoomList, selectRoom } from "@/store/actions/room"
 import { useNavigate } from 'react-router-dom';
-import { getAllUsers as getAllUser } from "store/actions/user"
 
 const CircleButton = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -77,9 +76,6 @@ export default function SearchUser() {
     const [groupAvatar, setGroupAvatar] = useState("")
     const [groupFiles, setGroupFiles] = useState(null)
 
-    useEffect(() => {
-        dispatch(getAllUser())
-    }, [])
     const getAllUsers = async (value) => {
         await useJwt
             .searchUsers({ search_key: value, status: 1, page: 0, limit: 0 })
@@ -269,11 +265,7 @@ export default function SearchUser() {
                 addGroup ? (<Block
                     sx={{
                         p: 2,
-                        position: "absolute",
-                        left: 0,
-                        top: 0,
                         width: "100%",
-                        zIndex: 100,
                         background: "#101010"
                     }}>
 
@@ -401,11 +393,7 @@ export default function SearchUser() {
                 </Block>) : (<Block
                     sx={{
                         p: 2,
-                        position: "absolute",
-                        left: 0,
-                        top: 0,
                         width: "100%",
-                        zIndex: 100,
                         background: "#101010"
                     }}>
 

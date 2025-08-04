@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import { Typography, } from "@mui/material";
-import { EditIcon } from "themes/icons"
+import { EditIcon } from "@/themes/icons"
 import { styled } from "@mui/material/styles";
 import {
     Button,

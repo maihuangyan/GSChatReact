@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useLayoutEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Image } from 'antd'
 
 export default function AdaptiveImage({ messageInfo }) {

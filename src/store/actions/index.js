@@ -1,28 +1,23 @@
 // ** UseJWT import to get config
-import useJwt from "utils/jwt/useJwt";
-import { setTokenOverdueTime } from "utils/refreshToken";
-import { calculateUnSeenCount } from "store/actions/room"
-import { setSocketConnection } from "store/actions/user";
-
-const config = useJwt.jwtConfig;
+import { calculateUnSeenCount } from "../actions/room"
+import { setSocketConnection } from "../actions/user";
 
 // ** Handle User Login
 export const handleLogin = (data) => {
   return (dispatch) => {
     // ** Add to user, accessToken & refreshToken to localStorage
     localStorage.setItem("userData", JSON.stringify(data.user));
-    localStorage.setItem(config.storageUserIDKeyName, data.user.id);
-    localStorage.setItem(config.storageTokenKeyName, data.access_token);
-    localStorage.setItem(config.storageRefreshTokenKeyName, data.access_token);
-    localStorage.setItem("tokenOverdueTime", setTokenOverdueTime());
+    localStorage.setItem("user_id", data.user.id);
+    localStorage.setItem('accessToken', data.access_token);
+    localStorage.setItem('refreshToken', data.access_token);
 
-      dispatch(setSocketConnection(true))
+      dispatch(setSocketConnection(false))
       dispatch(calculateUnSeenCount())
       dispatch({
         type: "LOGIN",
         data: data.user,
-        [config.storageTokenKeyName]: data.access_token,
-        [config.storageRefreshTokenKeyName]: data.access_token,
+        'accessToken': data.access_token,
+        'refreshToken': data.access_token,
       });
   };
 };
@@ -32,9 +27,8 @@ export const handleLogout = () => {
   return (dispatch) => {
     // ** Remove user, accessToken & refreshToken from localStorage
     localStorage.removeItem("userData");
-    localStorage.removeItem(config.storageUserIDKeyName);
-    localStorage.removeItem(config.storageRefreshTokenKeyName);
-    localStorage.removeItem("tokenOverdueTime");
+    localStorage.removeItem("user_id");
+    localStorage.removeItem('refreshToken');
     dispatch({ type: "GET_MESSAGES", data: [] });
     dispatch({ type: "GET_LAST_MESSAGES", data: [] });
     dispatch({ type: "GET_ROOM_LIST", data: [] });
@@ -43,12 +37,13 @@ export const handleLogout = () => {
     dispatch({ type: "CLOSE_ALL_MESSAGES"});
     dispatch({ type: "CLEAR_ROOMS"});
     dispatch({ type: "CLEAR_USER"});
+    dispatch({ type: "SET_SEND_MSG", data: ''});
 
     setTimeout(function () {
       dispatch({
         type: "LOGOUT",
-        [config.storageTokenKeyName]: null,
-        [config.storageRefreshTokenKeyName]: null,
+        'accessToken': null,
+        'refreshToken': null,
       });
     }, 100);
   };

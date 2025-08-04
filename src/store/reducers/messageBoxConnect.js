@@ -8,6 +8,7 @@ const initialState = {
   editingMessage: null,
   isForward: false,
   forwardMessage: null,
+  currentTyping: false,
 };
 
 const persistConfig = {
@@ -28,6 +29,8 @@ const messageBoxConnect = (state = initialState, action) => {
       return { ...state, isForward: action.data };
     case "SET_FORWARD_MESSAGE":
       return { ...state, forwardMessage: action.data };
+    case "SET_CURRENT_TYPING":
+      return { ...state, currentTyping: action.data };
 
     default:
       return { ...state };

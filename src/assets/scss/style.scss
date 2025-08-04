@@ -1,6 +1,3 @@
-// color variants
-@import "themes-vars.module.scss";
-
 // third-party
 @import "~react-perfect-scrollbar/dist/css/styles.css";
 
@@ -19,16 +16,17 @@
 
 .scrollbar-container {
   .ps__rail-y {
-    &:hover > .ps__thumb-y,
-    &:focus > .ps__thumb-y,
+
+    &:hover>.ps__thumb-y,
+    &:focus>.ps__thumb-y,
     &.ps--clicking .ps__thumb-y {
-      background-color: $grey500;
+      background-color: #9e9e9e;
       width: 5px;
     }
   }
 
   .ps__thumb-y {
-    background-color: $grey500;
+    background-color: #9e9e9e;
     border-radius: 6px;
     width: 5px;
     right: 0;
@@ -36,8 +34,8 @@
 }
 
 .scrollbar-container.ps,
-.scrollbar-container > .ps {
-  &.ps--active-y > .ps__rail-y {
+.scrollbar-container>.ps {
+  &.ps--active-y>.ps__rail-y {
     width: 5px;
     background-color: transparent !important;
     z-index: 999;
@@ -49,8 +47,8 @@
     }
   }
 
-  &.ps--scrolling-y > .ps__rail-y,
-  &.ps--scrolling-x > .ps__rail-x {
+  &.ps--scrolling-y>.ps__rail-y,
+  &.ps--scrolling-x>.ps__rail-x {
     opacity: 0.4;
     background-color: transparent;
   }
@@ -79,6 +77,7 @@
 }
 
 @keyframes bounce {
+
   0%,
   20%,
   53%,
@@ -109,6 +108,7 @@
 }
 
 @keyframes slideY {
+
   0%,
   50%,
   100% {
@@ -125,6 +125,7 @@
 }
 
 @keyframes slideX {
+
   0%,
   50%,
   100% {
@@ -138,6 +139,11 @@
   75% {
     transform: translateX(10px);
   }
+}
+
+#root {
+  max-width: 1500px;
+  margin: 0 auto;
 }
 
 /* width */
@@ -246,16 +252,17 @@
   justify-content: center;
   align-items: center;
   max-width: 450px;
+
   .ant-image-img {
     object-fit: cover;
   }
 }
+
 .ant-modal-root {
   .ant-modal-mask {
     background-color: rgba(0, 0, 0, 0.85);
   }
-  .ant-modal-chat {
-  }
+
   .ant-modal {
     .ant-modal-content {
       background: #101010;
@@ -274,22 +281,44 @@
 .ant-drawer {
   .ant-drawer-content-wrapper {
     height: 200px !important;
+
     .ant-drawer-content {
       width: 30%;
       margin: 0 auto;
       border-radius: 8px 8px 0 0;
       height: 200px;
+
       .ant-drawer-body {
         color: #000;
         display: flex;
         justify-content: center;
         align-items: center;
         flex-direction: column;
+
         button {
           margin-top: 20px;
           border: 1px solid #fbc34a;
           padding: 8px 40px;
         }
+      }
+    }
+  }
+}
+
+.ant-dropdown {
+
+  .ant-dropdown-menu {
+    background-color: #000;
+    padding: 8px;
+    min-width: 120px;
+
+    .ant-dropdown-menu-item {
+      color: #fff;
+
+      padding: 8px 20px;
+
+      &:hover {
+        background-color: #4a494b;
       }
     }
   }
@@ -308,21 +337,98 @@
 .ant-input {
   background-color: #555;
   border-color: #555;
-  color: #fff;
+
+  &:hover {
+    border-color: #fbc34a;
+    color: #000;
+  }
+
+  &:focus {
+    border-color: #fbc34a;
+    color: #000;
+  }
 }
 
-.ant-input:hover {
-  border-color: #fbc34a;
+.image-group {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  min-width: 450px;
+  max-height: 600px;
+  border-radius: 8px;
+  overflow: hidden;
+
+  &.group-1 {
+    grid-template-columns: 1fr;
+  }
+
+  &.group-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  &.group-3,
+  &.group-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .image-wrapper {
+    position: relative;
+    width: 100%;
+
+    border-radius: 4px;
+    overflow: hidden;
+
+    .ant-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .image-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .overlay-text {
+        color: #fff;
+        font-size: 18px;
+        font-weight: bold;
+      }
+    }
+  }
 }
 
-.ant-input:focus {
-  border-color: #fbc34a;
+.PreviewFiles {
+  .image-group {
+    max-height: none;
+
+    .image-wrapper {
+      display: flex;
+      justify-content: center;
+      margin: 0 20px;
+
+      .ant-image {
+        max-width: none;
+      }
+    }
+  }
+
 }
+
 
 @media (max-width: 900px) {
   .ant-image {
     max-width: 300px;
   }
+
+  .image-group {
+    min-width: 300px;
+  }
+
   .ant-drawer {
     .ant-drawer-content-wrapper {
       .ant-drawer-content {
@@ -336,11 +442,30 @@
   .ant-image {
     max-width: 200px;
   }
+
+  .image-group {
+    min-width: 200px;
+  }
+
   .ant-drawer {
     .ant-drawer-content-wrapper {
       .ant-drawer-content {
         width: 60%;
       }
     }
+  }
+}
+
+@media (max-width: 555px) {
+  .player {
+    width: 300px !important;
+    height: 180px !important;
+  }
+}
+
+@media (max-width: 425px) {
+  .player {
+    width: 220px !important;
+    height: 140px !important;
   }
 }

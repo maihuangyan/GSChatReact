@@ -1,10 +1,12 @@
+import React, { useLayoutEffect } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline, StyledEngineProvider } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 // routing
-import Routes from "routes";
+import Routes from "./routes";
 
 // defaultTheme
-import themes from "themes";
+import themes from "./themes";
 
 // project imports
 import { SocketProvider } from "./utils/context/SocketContext";
@@ -23,6 +25,18 @@ if (process.env.NODE_ENV !== 'development') {
 
 let initedOneSignal = false
 const App = () => {
+
+  const navigate = useNavigate();
+
+  useLayoutEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const redirectPath = params.get("redirect");
+
+    if (redirectPath) {
+      navigate(redirectPath, { replace: true });
+    }
+  }, [navigate]);
+
   useEffect(() => {
     if (!initedOneSignal) {
       OneSignal.init({ appId: `${process.env.REACT_APP_ONE_SIGNAL_APP_ID}`, allowLocalhostAsSecureOrigin: true }).then(async () => {

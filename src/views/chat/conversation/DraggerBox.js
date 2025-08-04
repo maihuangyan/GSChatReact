@@ -1,10 +1,10 @@
-import React, { useEffect ,useContext} from 'react'
+import React, { useEffect, useContext } from 'react'
 import {
     Box,
 } from "@mui/material";
 
 import { Upload } from 'antd';
-import { LoaderContext } from "utils/context/ProgressLoader";
+import { LoaderContext } from "@/utils/context/ProgressLoader";
 
 
 const { Dragger } = Upload;
@@ -32,7 +32,7 @@ export default function DraggerBox({ draggerFile, setUploadFiles, setImg, setIsP
         maxCount: 1,
         style: { border: "none" },
         onChange(file) {
-            // console.log(file.file)
+            console.log(file.file)
             const fileReader = new FileReader();
             fileReader.onload = () => {
                 console.log(file.file.type.split("/"))
@@ -40,8 +40,8 @@ export default function DraggerBox({ draggerFile, setUploadFiles, setImg, setIsP
                     showToast("error", "This file is not supported")
                     return
                 } else {
-                    setUploadFiles(file.file)
-                    setImg(fileReader.result)
+                    setUploadFiles([file.file])
+                    setImg([fileReader.result])
                     setIsPreviewFiles(true)
                 }
             }
@@ -51,7 +51,7 @@ export default function DraggerBox({ draggerFile, setUploadFiles, setImg, setIsP
     };
 
     return <>
-            {/* {console.log("DraggerBox")} */}
+        {/* {console.log("DraggerBox")} */}
 
         <Box
             sx={{

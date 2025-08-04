@@ -6,9 +6,10 @@ import {
 } from "@mui/material";
 import { IconX, IconSend } from "@tabler/icons";
 import { styled, useTheme } from "@mui/material/styles";
-import { SocketContext } from "utils/context/SocketContext";
-import { setForwardMessage, setIsForward } from 'store/actions/messageBoxConnect';
+import { SocketContext } from "@/utils/context/SocketContext";
+import { setForwardMessage, setIsForward } from '@/store/actions/messageBoxConnect';
 import { useDispatch, useSelector } from "react-redux";
+import { getOriginalMessage } from '@/utils/common';
 
 const CircleButton1 = styled(Button)(({ theme }) => ({
     borderRadius: "50%",
@@ -26,7 +27,7 @@ const ForwardBox = () => {
     const isForward = useSelector((state) => state.messageBoxConnect.isForward);
     const ForwardMessage = useSelector((state) => state.messageBoxConnect.forwardMessage);
     const dispatch = useDispatch()
-    
+
     const theme = useTheme()
     const socketSendMessage = useContext(SocketContext).socketSendMessage
 
@@ -58,8 +59,8 @@ const ForwardBox = () => {
                     <Typography component="p" variant="h5" color="#000">
                         {ForwardMessage?.username}
                     </Typography>
-                    <Typography component="p" variant="body2">
-                        {ForwardMessage?.type === 0 ? ForwardMessage.message : (ForwardMessage?.type === 1 ? "image" : (ForwardMessage?.type === 3 ? ForwardMessage.forward_message.message : ""))}
+                    <Typography component="p" variant="body2" sx={{ display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {getOriginalMessage(ForwardMessage)?.type === 0 ? getOriginalMessage(ForwardMessage).message : (getOriginalMessage(ForwardMessage)?.type === 1 ? "image" : (getOriginalMessage(ForwardMessage)?.type === 3 ? getOriginalMessage(ForwardMessage).forward_message.message : ""))}
                     </Typography>
                 </Typography>
             </Box>

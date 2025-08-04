@@ -1,6 +1,6 @@
-import { useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 
-import logo from "../../assets/images/logo.png";
+import logo from "@/assets/images/logo.png";
 import {
   CssBaseline,
   Typography,
@@ -31,13 +31,14 @@ import {
   CheckCircle,
 } from "@mui/icons-material";
 
-import useJwt from "utils/jwt/useJwt";
+import useJwt from "@/utils/jwt/useJwt";
 import { useForm, Controller } from "react-hook-form";
-import { LoaderContext } from "utils/context/ProgressLoader";
-import CopyrightYear from "ui-component/copyrightYear"
+import { LoaderContext } from "@/utils/context/ProgressLoader";
+import CopyrightYear from "@/ui-component/copyrightYear"
 import { useDispatch } from "react-redux";
-import { handleLogin } from "store/actions";
-import { SocketContext } from "utils/context/SocketContext";
+import { handleLogin } from "@/store/actions";
+import { SocketContext } from "@/utils/context/SocketContext";
+import { useNavigate } from "react-router-dom";
 
 const CircleButton = styled(Button)(({ theme }) => ({
   borderRadius: "50px",
@@ -62,14 +63,15 @@ const loginHelper = {
     minLength: "Password must be at least 8 characters long.",
   },
 };
-const Login = (props) => {
+const Login = () => {
   const { control, handleSubmit } = useForm({
     reValidateMode: "onBlur",
   });
 
   const [showPassword, setShowPassword] = useState(false);
-  const showToast = useContext(LoaderContext).showToast
+  const { showToast, showProgress, hideProgress } = useContext(LoaderContext)
   const loadRoomData = useContext(SocketContext).loadRoomData
+  const navigate = useNavigate()
 
   const dispatch = useDispatch();
 
@@ -115,21 +117,26 @@ const Login = (props) => {
           })
             .catch((err) => {
               afterLogin(userData)
-              showToast("error", err.message)
+              console.log(err.message)
             });
           return;
         }
         else {
-          showToast("error", res.data.ResponseMessage)
+          console.log(res.data.ResponseMessage)
+          showToast('error', res.data.ResponseMessage)
         }
       })
       .catch((err) => {
-        showToast("error", err.message)
+        console.log(err.message)
       });
   };
   const afterLogin = (userData) => {
     dispatch(handleLogin(userData))
     loadRoomData()
+    showProgress()
+    setTimeout(() => {
+      hideProgress()
+    }, 5000)
   }
 
   // function eventListener(event) {
@@ -140,9 +147,12 @@ const Login = (props) => {
       container
       component="main"
       sx={{
-        height: "100vh",
+        height: { xs: "100%", sm: "100vh" },
         background: "black",
         overflow: { xs: "auto", sm: "hidden" },
+        position: "absolute",
+        top: 0,
+        left: 0,
       }}
     >
       <CssBaseline />
@@ -393,17 +403,31 @@ const Login = (props) => {
                     }
                   />
                 </Grid>
-                <Grid item xs={12} sm={6} sx={{ mt: { xs: 0, sm: 1 } }}>
+                <Grid item xs={12} sm={6} sx={{ mt: { xs: 0, sm: 1 }, position: "relative" }}>
                   <Link
-                    href="forgot-password"
+                    onClick={() => navigate("/forgot-password")}
                     underline="none"
                     color="white"
                     sx={{
                       px: { xs: 3, sm: 0 },
+                      cursor: "pointer",
                       "&:hover": { color: "#FBC34A" },
                     }}
                   >
                     Forgot?
+                  </Link>
+                  <Link
+                    onClick={() => navigate("/reset-password/:code")}
+                    underline="none"
+                    color="white"
+                    sx={{
+                      position: "absolute",
+                      opacity: "0",
+                      zIndex: -1,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Reset Password
                   </Link>
                 </Grid>
               </Grid>
